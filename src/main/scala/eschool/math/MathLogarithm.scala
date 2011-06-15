@@ -2,7 +2,7 @@ package eschool.math
 
 import scala.math
 
-class MathLogarithm(aBase: MathInteger, anExpression: MathExpression) extends MathUnaryOperation(anExpression) {
+class MathLogarithm(aBase: MathNumber, anExpression: MathExpression) extends MathUnaryOperation(anExpression) {
 	private val base = aBase
 
 	def getBase = base

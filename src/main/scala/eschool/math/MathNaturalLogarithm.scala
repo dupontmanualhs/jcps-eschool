@@ -1,3 +1,4 @@
+/*
 package eschool.math
 import scala.math
 
@@ -14,3 +15,4 @@ class MathNaturalLogarithm(anExpression: MathExpression) extends MathLogarithm(m
 object MathNaturalLogarithm {
 	def apply(anExpression: MathExpression) = new MathNaturalLogarithm(anExpression)
 }
+*/
