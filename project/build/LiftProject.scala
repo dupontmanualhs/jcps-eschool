@@ -17,6 +17,8 @@ class LiftProject(info: ProjectInfo) extends DefaultWebProject(info) {
     "junit" % "junit" % "4.5" % "test",
     "ch.qos.logback" % "logback-classic" % "0.9.26",
     "org.scala-tools.testing" %% "specs" % "1.6.8" % "test",
-    "com.h2database" % "h2" % "1.2.138"
+    "com.h2database" % "h2" % "1.2.138",
+
+    "org.scalatest" % "scalatest_2.9.0" % "1.6.1"
   ) ++ super.libraryDependencies
 }
