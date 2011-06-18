@@ -1,11 +1,9 @@
 package eschool.math
 
-import xml.NodeSeq
+import scala.math.max
 import scala.Some
 import java.math.MathContext
-import java.lang.{Boolean, Math}
-import util.matching.Regex
-import javax.management.remote.rmi._RMIConnection_Stub
+import java.lang.Boolean
 
 abstract class MathNum {
   def toLaTeX: String
@@ -16,7 +14,7 @@ abstract class MathNum {
 
 object MathNum {
   def apply(s: String): Option[MathNum] = {
-    MathRational(s) orElse MathDecimal(s) orElse MathInexact(s)
+    MathReal(s) orElse MathComplex(s)
   }
 
   def stringToDecimal(s: String): Option[BigDecimal] = {
@@ -54,6 +52,12 @@ object MathNum {
 
 abstract class MathReal extends MathNum {
   def toInexact: MathInexact
+}
+
+object MathReal {
+  def apply(s: String): Option[MathReal] = {
+    MathRational(s) orElse MathDecimal(s) orElse MathInexact(s)
+  }
 }
 
 abstract class MathExact extends MathReal {
@@ -138,7 +142,7 @@ object MathInexact {
   def apply(d: Double) = new MathInexact(d)
 
   def apply(s: String): Option[MathInexact] = {
-    if (s.startsWith("\u2248")) MathNum.stringToDouble(s.substring(1)).map(MathInexact(_))
+    if (s.startsWith("\u2248")) MathReal(s.substring(1)).map(_.toInexact)
     else None
   }
 }
@@ -147,9 +151,9 @@ class MathComplex(val real: MathReal, val imag: MathReal) extends MathNum {
   // if either real or imag are Inexact, both are coerced to inexact
   def isInexact: Boolean = real.isInstanceOf[MathInexact] || imag.isInstanceOf[MathInexact]
 
-  private def realString: String = if (isInexact) real.value.toString else real.toString
+  private def realString: String = if (isInexact) real.toInexact.value.toString else real.toString
 
-  private def imagString: String = if (isInexact) imag.value.toString else imag.toString
+  private def imagString: String = if (isInexact) imag.toInexact.value.toString else imag.toString
 
   private def numString: String = {
     realString + (if (imagString.startsWith("-")) "" else "+") + imagString + "i"
@@ -167,7 +171,7 @@ class MathComplex(val real: MathReal, val imag: MathReal) extends MathNum {
 }
 
 object MathComplex {
-  def apply(real: MathReal, imag: MathReal): MathComplex {
+  def apply(real: MathReal, imag: MathReal): MathComplex = {
     if (real.isInstanceOf[MathInexact] || imag.isInstanceOf[MathInexact]) {
       new MathComplex(real.toInexact, imag.toInexact)
     } else {
@@ -176,10 +180,32 @@ object MathComplex {
   }
 
   def apply(s: String): Option[MathComplex] = {
-    def breakingChar: Int = {
-      // the + or - not following E or e, if there is one
-
+    val stripParens = if (s.startsWith("\u2248(") && s.endsWith(")")) {
+      s.substring(0,1) + s.substring(2, s.length - 1)
+    } else {
+      s
     }
-
+    if (!stripParens.endsWith("i")) {
+      None
+    } else {
+      val newS = stripParens.substring(0, stripParens.length - 1).toUpperCase
+      // finds the last + or - in the string not preceded by E
+      def breakingSign: Int =
+        (newS.length - 1).to(0, -1).find((i: Int) =>
+          (newS.charAt(i) == '+' || newS.charAt(i) == '-' &&
+            (i == 0 || newS.charAt(i - 1) != 'E'))).getOrElse(-1)
+      if (breakingSign <= 0) {
+        MathReal(newS) map (MathComplex(MathRational(0, 1), _))
+      } else {
+        val realPart = newS.substring(0, breakingSign)
+        val imagStart = if (newS.charAt(breakingSign) == '+') (breakingSign + 1)
+                        else breakingSign
+        val imagPart = newS.substring(imagStart)
+        (MathReal(realPart), MathReal(imagPart)) match {
+          case (Some(re), Some(im)) => Some(MathComplex(re, im))
+          case _ => None
+        }
+      }
+    }
   }
 }
