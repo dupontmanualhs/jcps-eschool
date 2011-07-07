@@ -1,6 +1,5 @@
 package eschool.users.snippet
 
-import net.liftweb.mapper._
 import net.liftweb.util._
 import Helpers._
 
@@ -10,14 +9,14 @@ object UserTable {
   def render = ".userRow *" #> allUsers().map(renderUser(_))
 
   def renderUser(user: User) = {
-    ".last *" #> user.last.is &
-    ".first *" #> user.first.is &
-    ".middle *" #> user.middle.is &
-    ".preferred *" #> user.preferred.is &
-    ".username *" #> user.username.is
+    ".last *" #> user.last.get &
+    ".first *" #> user.first.get &
+    ".middle *" #> user.middle.get &
+    ".preferred *" #> user.preferred.get &
+    ".username *" #> user.username.get
   }
 
   def allUsers(): List[User] = {
-    User.findAll(OrderBy(User.last, Ascending), OrderBy(User.first, Ascending))
+    User.findAll // TODO: sort by last name, first name
   }
 }
