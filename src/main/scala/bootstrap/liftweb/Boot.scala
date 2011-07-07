@@ -1,10 +1,6 @@
 package bootstrap.liftweb
 
-import com.mongodb.Mongo
-
 import net.liftweb._
-import net.liftweb.mongodb.{DefaultMongoIdentifier, MongoDB}
-import util._
 
 import common._
 import http._
@@ -13,7 +9,6 @@ import sitemap._
 import eschool.{sites, users}
 import users.model.User
 
-
 /**
  * A class that's instantiated early and run.  It allows the application
  * to modify lift's environment
@@ -21,7 +16,7 @@ import users.model.User
 class Boot {
   def boot() {
     // where to search snippet
-    LiftRules.addToPackages("eschool.sites")
+    //LiftRules.addToPackages("eschool.sites")
     LiftRules.addToPackages("eschool.users")
 
     // Build SiteMap
@@ -29,7 +24,7 @@ class Boot {
       Array.concat(
         Array[ConvertableToMenu](Menu("Home") / "index"), // the simple way to declare a menu
 
-        sites.menus,
+        //sites.menus,
         users.menus
       ): _*
     )
@@ -65,5 +60,7 @@ class Boot {
       case "css" :: _ => true
       case "tinymce" :: _ => true
     }
+
+    MongoConfig.init
   }
 }

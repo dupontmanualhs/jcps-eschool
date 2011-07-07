@@ -11,8 +11,8 @@ object UserTable {
   def renderUser(user: User) = {
     ".last *" #> user.last.get &
     ".first *" #> user.first.get &
-    ".middle *" #> user.middle.get &
-    ".preferred *" #> user.preferred.get &
+    ".middle *" #> user.middle.get.getOrElse("") &
+    ".preferred *" #> user.preferred.get.getOrElse("") &
     ".username *" #> user.username.get
   }
 

@@ -19,7 +19,7 @@ class User private() extends MongoRecord[User] with ObjectIdPk[User] {
   object preferred extends OptionalStringField(this, 30)
   object gender extends EnumField(this, Gender, Gender.None)
   object email extends OptionalEmailField(this, 100)
-  object password extends OptionalPasswordField(this)
+  object password extends StringField(this, 80)  //TODO Password, when fixed
   object guid extends OptionalStringField(this, 30)
 
   def displayName = {
@@ -58,7 +58,7 @@ object User extends User with MongoMetaRecord[User] {
   }
 
   def authenticate(user: User, password: String): Box[User] = {
-    if (user.password.match_?(password)) {
+    if (user.password.get == password) { //TODO change to match_? when fixed
       Full(user)
     } else {
       Empty
