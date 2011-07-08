@@ -121,7 +121,7 @@ object MathTerm {
 
 	def extractVariablePowered(s: String): Option[(String, MathInteger)] = {
 		val variableAndPowerSplit = """[\^]""".r.split(s)
-		if (variableAndPowerSplit isEmpty) {
+		if (variableAndPowerSplit.isEmpty) {
 			None
 		} else if (variableAndPowerSplit.size == 1) { //string contains a var without a power
 			MathVariable(variableAndPowerSplit.head) match {

@@ -46,7 +46,7 @@ object MathNumber {
 
 	def intDescription(i: BigInt): String = {
 		if (i < Integer.MIN_VALUE || i > Integer.MAX_VALUE) {
-			"BigInt(%s)".format(i.toString)
+			"BigInt(%s)".format(i.toString())
 		} else {
 			"%d".format(i)
 		}
@@ -93,14 +93,15 @@ class MathFraction(val numerator: BigInt, val denominator: BigInt) extends MathE
 
 object MathFraction {
 	def apply(numerator: BigInt, denominator: BigInt) = new MathFraction(numerator, denominator)
+	def apply(numerator: MathInteger, denominator: MathInteger) = new MathFraction(numerator.getInt, denominator.getInt)
 	def apply(s: String): Option[MathFraction] = MathFraction.stringToFraction(s)
 
 	def stringToFraction(s: String): Option[MathFraction] = {
 		val fractionLaTeXRegex = new Regex("""^\\frac\{([+-]?\d+)\}\{([+-]?\d+)\}$""", "numerator", "denominator")
 		val normalFractionRegex = new Regex("""^([+-]?\d+)/([+-]?\d+)$""", "numerator", "denominator")
 		val potentialFraction = fractionLaTeXRegex.findFirstMatchIn(s) orElse normalFractionRegex.findFirstMatchIn(s)
-		if (potentialFraction isDefined) {
-			Some(MathFraction(MathNumber.stringToInt(potentialFraction.get.group("numerator")).get, MathNumber.stringToInt(potentialFraction.get.group("denominator")).get))
+		if (potentialFraction.isDefined) {
+			Some(MathFraction(MathInteger(potentialFraction.get.group("numerator")).get, MathInteger(potentialFraction.get.group("denominator")).get))
 		} else {
 			None
 		}
@@ -129,9 +130,9 @@ class MathDecimal(val value: BigDecimal) extends MathExactNumber {
 
 	def toApproximation: MathApproximateNumber = MathApproximateNumber(this.getValue.toDouble)
 
-	def toLaTeX: String = this.getValue.toString
+	def toLaTeX: String = this.getValue.toString()
 
-	def description: String = "MathDecimal(\"%s\")".format(this.getValue.toString)
+	def description: String = "MathDecimal(\"%s\")".format(this.getValue.toString())
 }
 
 object MathDecimal {
@@ -148,9 +149,9 @@ class MathApproximateNumber(val value: BigDecimal) extends MathRealNumber {
 
 	def toApproximation: MathApproximateNumber = this
 
-	override def toLaTeX: String = MathApproximateNumber.prefix + this.getValue.toString
+	override def toLaTeX: String = MathApproximateNumber.prefix + this.getValue.toString()
 
-	def description: String = "MathApproximateNumber(%s)".format(this.getValue.toString)
+	def description: String = "MathApproximateNumber(%s)".format(this.getValue.toString())
 }
 
 object MathApproximateNumber {
@@ -180,7 +181,7 @@ class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) exte
 
 	private def realToLaTeX: String = {
 		if (isApproximation) {
-			this.getReal.toApproximation.getValue.toString
+			this.getReal.toApproximation.getValue.toString()
 		} else {
 			this.getReal.toString
 		}
@@ -188,7 +189,7 @@ class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) exte
 
 	private def imaginaryToLaTeX: String = {
 		if (isApproximation) {
-			this.getImaginary.toApproximation.getValue.toString
+			this.getImaginary.toApproximation.getValue.toString()
 		} else {
 			this.getImaginary.toString
 		}
@@ -269,7 +270,7 @@ class ComplexNumberString(val s: String) {
 
 		def withoutTrivialParts: String = {
 			val stringWithoutParenthesis: ComplexNumberString = this.withoutParenthesis
-			stringWithoutParenthesis.removeI
+			stringWithoutParenthesis.removeI()
 		}
 
 		def withoutParenthesis: ComplexNumberString = {
@@ -277,7 +278,7 @@ class ComplexNumberString(val s: String) {
 			new ComplexNumberString(parenRegex.replaceAllIn(this.toString, ""))
 		}
 
-		def removeI: String = {
+		def removeI(): String = {
 			val iRegex = """i""".r
 			iRegex.replaceAllIn(this.toString, "")
 		}

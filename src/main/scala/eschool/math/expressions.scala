@@ -16,14 +16,14 @@ object MathExpression {
 	}
 }
 
-//MathOperation subclasses: MathUnaryOperation (math unary operations.scala),
-//                                        MathBinaryOperation (math binary operations.scala)
+//MathOperation subclasses: MathUnaryOperation (unary_ops.scala),
+//                                        MathBinaryOperation (binary_ops.scala)
 abstract class MathOperation extends MathExpression {
 	def getName: String
 }
 
-//MathValue subclasses: MathConstant (math constants.scala)
-//                                 MathVariable (math variables.scala)
+//MathValue subclasses: MathConstant (constants.scala)
+//                                 MathVariable (vars.scala)
 abstract class MathValue extends MathExpression {
 	override def simplify: MathExpression = this
 	override def getPrecedence: Int = 4
