@@ -1,20 +1,15 @@
 package eschool.math
 
-import scala.math.max
-import scala.Some
 import java.math.MathContext
-import java.lang.Boolean
 
-abstract class MathNum {
-  def toLaTeX: String
-  def toRepr: String
+abstract class MathNumber extends MathConstant {
   //def toMathMlPresentation(): NodeSeq
   //def toMathMlContent(): NodeSeq
 }
 
-object MathNum {
-  def apply(s: String): Option[MathNum] = {
-    MathReal(s) orElse MathComplex(s)
+object MathNumber {
+  def apply(s: String): Option[MathNumber] = {
+    MathRealNumber(s) orElse MathComplexNumber(s)
   }
 
   def stringToDecimal(s: String): Option[BigDecimal] = {
@@ -34,6 +29,9 @@ object MathNum {
   }
 
   def stringToInt(num: String): Option[BigInt] = {
+    if (numBeginsWithPlusSign(num)) {
+      stringToInt(num.substring(1))
+    }
     try {
       Some(BigInt(num))
     } catch {
@@ -41,7 +39,10 @@ object MathNum {
     }
   }
 
-  def intRepr(i: BigInt): String = {
+  def numBeginsWithPlusSign(num: String): Boolean = (num.length != 0 && num.charAt(0) == '+')
+
+
+  def intDescription(i: BigInt): String = {
     if (i < Integer.MIN_VALUE || i > Integer.MAX_VALUE) {
       "BigInt(%s)".format(i.toString)
     } else {
@@ -50,162 +51,270 @@ object MathNum {
   }
 }
 
-abstract class MathReal extends MathNum {
-  def toInexact: MathInexact
+abstract class MathRealNumber extends MathNumber {
+  override def getValue: BigDecimal = this.toApproximation.getValue
+
+  def toApproximation: MathApproximateNumber
 }
 
-object MathReal {
-  def apply(s: String): Option[MathReal] = {
-    MathRational(s) orElse MathDecimal(s) orElse MathInexact(s)
+object MathRealNumber {
+  def apply(s: String): Option[MathRealNumber] = {
+    MathInteger(s) orElse MathFraction(s) orElse MathDecimal(s) orElse MathApproximateNumber(s)
   }
 }
 
-abstract class MathExact extends MathReal {
+abstract class MathExactNumber extends MathRealNumber
 
-}
+class MathFraction(val numerator: BigInt, val denominator: BigInt) extends MathExactNumber {
+  def getNumerator = numerator
 
-class MathRational(val num: BigInt, val denom: BigInt) extends MathExact {
+  def getDenominator = denominator
+
+  override def toApproximation: MathApproximateNumber = MathApproximateNumber(this.getNumerator.toDouble./(this.getDenominator.toDouble))
+
   private def formatString(s: String): String = {
-    if (denom == 1) {
-      s.format(num)
+    if (this.getDenominator == 1) {
+      s.format(this.getNumerator.toString())
     } else {
-      s.format(num, denom)
+      s.format(this.getNumerator.toString(), this.getDenominator.toString())
     }
   }
 
-  def toInexact: MathInexact = MathInexact(num.toDouble./(denom.toDouble))
-
-  override def toString: String = {
-    if (denom == 1) formatString("%d") else formatString("%d/%d")
+  override def toLaTeX: String = {
+    if (this.getDenominator == 1) formatString("%s") else formatString("\\frac{%s}{%s}")
   }
 
-  def toLaTeX: String = {
-    if (denom == 1) formatString("%d") else formatString("\\frac{%d}{%d}")
-  }
-
-  def toRepr: String = {
-    "MathRational(%s, %s)".format(MathNum.intRepr(num), MathNum.intRepr(denom))
+  override def description: String = {
+    "MathFraction(%s, %s)".format(MathNumber.intDescription(this.getNumerator), MathNumber.intDescription(this.getDenominator))
   }
 }
 
-object MathRational {
-  def apply(num: BigInt, denom: BigInt) = new MathRational(num, denom)
+object MathFraction {
+  def apply(numerator: BigInt, denominator: BigInt) = new MathFraction(numerator, denominator)
 
-  def apply(s: String): Option[MathRational] = {
-    MathNum.stringToInt(s) match {
-      case Some(bigInt) => Some(MathRational(bigInt, BigInt(1)))
-      case None => {
-        if (s.contains("/")) {
-          (MathNum.stringToInt(s.substring(0, s.indexOf("/"))), MathNum.stringToInt(s.substring(s.indexOf("/") + 1))) match {
-            case (Some(num), Some(denom)) => Some(MathRational(num, denom))
-            case _ => None
-          }
-        } else {
-          None
-        }
-      }
+  def apply(s: String): Option[MathFraction] = MathFraction.stringToRational(s)
+
+  def stringToRational(s: String): Option[MathFraction] = {
+    (MathFraction.extractNumeratorFromString(s), MathFraction.extractDenominatorFromString(s)) match {
+      case (Some(numerator), Some(denominator)) => Some(MathFraction(numerator, denominator))
+      case _ => None
+    }
+  }
+
+  def extractNumeratorFromString(s: String): Option[BigInt] = {
+    if (s.contains("/")) {
+      MathNumber.stringToInt(s.substring(0, s.indexOf("/")))
+    } else {
+      None
+    }
+  }
+
+  def extractDenominatorFromString(s: String): Option[BigInt] = {
+    if (s.contains("/")) {
+      MathNumber.stringToInt(s.substring(s.indexOf("/") + 1))
+    } else {
+      None
+    }
+  }
+}
+
+class MathInteger(anInt: BigInt) extends MathFraction(anInt, BigInt(1)) {
+  def getInt = anInt
+
+  override def getValue: BigDecimal = BigDecimal(anInt)
+
+  override def description: String = "MathInteger(%s)".format(MathNumber.intDescription(anInt))
+}
+
+object MathInteger {
+  def apply(anInt: BigInt): MathInteger = new MathInteger(anInt)
+
+  def apply(s: String): Option[MathInteger] = {
+    MathNumber.stringToInt(s) match {
+      case Some(bigInt) => Some(MathInteger(bigInt))
+      case _ => None
     }
   }
 }
 
 
-class MathDecimal(val value: BigDecimal) extends MathExact {
-  def toInexact: MathInexact = MathInexact(value.toDouble)
+class MathDecimal(val value: BigDecimal) extends MathExactNumber {
+  override def getValue: BigDecimal = value
 
-  override def toString: String = value.toString
+  def toApproximation: MathApproximateNumber = MathApproximateNumber(this.getValue.toDouble)
 
-  def toLaTeX: String = toString
+  def toLaTeX: String = this.getValue.toString
 
-  def toRepr: String = "MathDecimal(\"%s\")".format(value.toString)
+  def description: String = "MathDecimal(\"%s\")".format(this.getValue.toString)
 }
 
 object MathDecimal {
   def apply(bigDecimal: BigDecimal) = new MathDecimal(bigDecimal)
 
   def apply(s: String): Option[MathDecimal] = {
-    MathNum.stringToDecimal(s).map(MathDecimal(_))
+    MathNumber.stringToDecimal(s).map(MathDecimal(_))
   }
 }
 
 
-class MathInexact(val value: Double) extends MathReal {
-  def toInexact: MathInexact = this
+class MathApproximateNumber(val value: BigDecimal) extends MathRealNumber {
+  override def getValue: BigDecimal = value
 
-  override def toString: String = "\u2248" + value.toString
+  def toApproximation: MathApproximateNumber = this
 
-  def toLaTeX: String = "\\approx " + value.toString
+  override def toLaTeX: String = "\\approx " + this.getValue.toString
 
-  def toRepr:String = "MathInexact(" + value.toString + ")"
+  def description: String = "MathApproximateNumber(%s)".format(this.getValue.toString)
 }
 
-object MathInexact {
-  def apply(d: Double) = new MathInexact(d)
+object MathApproximateNumber {
+  val symbol: String = "\u2248"
 
-  def apply(s: String): Option[MathInexact] = {
-    if (s.startsWith("\u2248")) MathReal(s.substring(1)).map(_.toInexact)
+  def apply(d: BigDecimal) = new MathApproximateNumber(d)
+
+  def apply(s: String): Option[MathApproximateNumber] = {
+    if (s.startsWith(MathApproximateNumber.symbol)) MathRealNumber(s.substring(1)).map(_.toApproximation)
     else None
   }
 }
 
-class MathComplex(val real: MathReal, val imag: MathReal) extends MathNum {
-  // if either real or imag are Inexact, both are coerced to inexact
-  def isInexact: Boolean = real.isInstanceOf[MathInexact] || imag.isInstanceOf[MathInexact]
+class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) extends MathNumber {
+  // if either real or imag are approximate, both are coerced to approximate
+  def getReal: MathRealNumber = real
 
-  private def realString: String = if (isInexact) real.toInexact.value.toString else real.toString
+  def getImaginary: MathRealNumber = imag
 
-  private def imagString: String = if (isInexact) imag.toInexact.value.toString else imag.toString
+  override def getValue: BigDecimal = getReal.getValue
 
-  private def numString: String = {
-    realString + (if (imagString.startsWith("-")) "" else "+") + imagString + "i"
+  def isApproximation: Boolean = real.isInstanceOf[MathApproximateNumber] || imag.isInstanceOf[MathApproximateNumber]
+
+  private def realToLaTeX: String = {
+    if (isApproximation) {
+      this.getReal.toApproximation.getValue.toString
+    } else {
+      this.getReal.toString
+    }
   }
 
-  override def toString: String = {
-    if (isInexact) "\u2248(%s)".format(numString) else numString
+  private def imaginaryToLaTeX: String = {
+    if (isApproximation) {
+      this.getImaginary.toApproximation.getValue.toString
+    } else {
+      this.getImaginary.toString
+    }
   }
+
+  private def complexString: String = {
+    realToLaTeX + getOperand + imaginaryToLaTeX + "i"
+  }
+
+  private def getOperand: String = if (imaginaryToLaTeX.startsWith("-")) "" else "+"
 
   def toLaTeX: String = {
-    if (isInexact) "\\approx(%s)".format(numString) else numString
+    if (isApproximation) "\\approx(%s)".format(complexString) else complexString
   }
 
-  def toRepr: String = "MathComplex(%s, %s)".format(real.toRepr, imag.toRepr)
+  def description: String = "MathComplexNumber(%s, %s)".format(getReal.description, getImaginary.description)
 }
 
-object MathComplex {
-  def apply(real: MathReal, imag: MathReal): MathComplex = {
-    if (real.isInstanceOf[MathInexact] || imag.isInstanceOf[MathInexact]) {
-      new MathComplex(real.toInexact, imag.toInexact)
+object MathComplexNumber {
+  def apply(real: MathRealNumber, imaginary: MathRealNumber): MathComplexNumber = {
+    if (real.isInstanceOf[MathApproximateNumber] || imaginary.isInstanceOf[MathApproximateNumber]) {
+      new MathComplexNumber(real.toApproximation, imaginary.toApproximation)
     } else {
-      new MathComplex(real, imag)
+      new MathComplexNumber(real, imaginary)
     }
   }
 
-  def apply(s: String): Option[MathComplex] = {
-    val stripParens = if (s.startsWith("\u2248(") && s.endsWith(")")) {
-      s.substring(0,1) + s.substring(2, s.length - 1)
+  def apply(s: String): Option[MathComplexNumber] = {
+    val complexString = new ComplexNumberString(s)
+    complexString.toMathComplexNumber
+  }
+}
+
+class ComplexNumberString(val s: String) {
+  override def toString: String = s
+
+  def toMathComplexNumber: Option[MathComplexNumber] = {
+    if (this.isAComplexNumber) {
+      this.extractComplexNumber
     } else {
-      s
-    }
-    if (!stripParens.endsWith("i")) {
       None
-    } else {
-      val newS = stripParens.substring(0, stripParens.length - 1).toUpperCase
-      // finds the last + or - in the string not preceded by E
-      def breakingSign: Int =
-        (newS.length - 1).to(0, -1).find((i: Int) =>
-          (newS.charAt(i) == '+' || newS.charAt(i) == '-' &&
-            (i == 0 || newS.charAt(i - 1) != 'E'))).getOrElse(-1)
-      if (breakingSign <= 0) {
-        MathReal(newS) map (MathComplex(MathRational(0, 1), _))
-      } else {
-        val realPart = newS.substring(0, breakingSign)
-        val imagStart = if (newS.charAt(breakingSign) == '+') (breakingSign + 1)
-                        else breakingSign
-        val imagPart = newS.substring(imagStart)
-        (MathReal(realPart), MathReal(imagPart)) match {
-          case (Some(re), Some(im)) => Some(MathComplex(re, im))
-          case _ => None
-        }
-      }
     }
+  }
+
+  def extractComplexNumber: Option[MathComplexNumber] = {
+    (MathRealNumber(this.getRealPart), MathRealNumber(this.getImaginaryPart)) match {
+      case (Some(real), Some(imaginary)) => Some(MathComplexNumber(real, imaginary))
+      case _ => None
+    }
+  }
+
+  def hasNoRealPart: Boolean = {
+    getIndexOfOperand(this.toString) <= 0
+  }
+
+  def isAComplexNumber: Boolean = {
+    this.toString.contains("i")
+  }
+
+  def isApproximation: Boolean = this.toString.startsWith(MathApproximateNumber.symbol)
+
+  def getRealPart: String = {
+    if (this.hasNoRealPart) "0"
+    else {
+      val basicString: String = this.withoutTrivialParts
+      basicString.substring(0, getIndexOfOperand(basicString))
+    }
+  }
+
+  def getImaginaryPart: String = {
+    val basicString: String = this.withoutTrivialParts
+    if (this.hasNoRealPart) {
+      basicString
+    } else {
+      basicString.substring(this.imaginaryNumberIndex)
+    }
+  }
+
+  def withoutTrivialParts: String = {
+    val stringWithoutParenthesis: ComplexNumberString = this.withoutParenthesis
+    stringWithoutParenthesis.removeI
+  }
+
+  def withoutParenthesis: ComplexNumberString = {
+    val parenRegex = """[\(\)]""".r
+    new ComplexNumberString(parenRegex.replaceAllIn(this.toString, ""))
+  }
+
+  def removeI: String = {
+    val iRegex = """i""".r
+    iRegex.replaceAllIn(this.toString, "")
+  }
+
+  def hasParenthesis: Boolean = {
+    val str = this.toString
+    if (this.isApproximation) {
+      str.substring(1, 2).equals("(") && str.substring(s.length - 1).equals(")")
+    } else {
+      str.substring(0, 1).equals("(") && str.substring(s.length - 1).equals(")")
+    }
+  }
+
+  def imaginaryNumberIndex: Int = {
+    val basicString = this.withoutTrivialParts
+    val indexOfOperand = getIndexOfOperand(basicString)
+    if (basicString.charAt(indexOfOperand) == '+') {
+      indexOfOperand + 1
+    } else {
+      indexOfOperand
+    }
+  }
+
+  def getIndexOfOperand(str: String): Int = {
+    val range = (str.length - 1).to(0, -1)
+    range.find((i: Int) =>
+      (str.charAt(i) == '+' || str.charAt(i) == '-' &&
+        (i == 0 || str.charAt(i - 1) != 'E'))).getOrElse(-1)
   }
 }
