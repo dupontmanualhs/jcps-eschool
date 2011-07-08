@@ -1,12 +1,14 @@
 package eschool.math
 
-import org.junit.Test
-import org.scalatest.junit.AssertionsForJUnit
 import org.junit.Assert._
-import org.specs.runner.JUnitSuite
+import org.junit.Test
+import java.lang.Math
+import io.BytePickle.Def
+import org.scalatest.junit.JUnitSuite
+
 import collection.immutable.TreeMap
 
-class TestTerms extends AssertionsForJUnit {
+class TestTerms extends JUnitSuite {
 	@Test def terms() {
 		val sixX2 = MathTerm(MathInteger(6), TreeMap[String, MathInteger]("x" -> MathInteger(2)))
 		assert(sixX2.toLaTeX === "6x^2")
@@ -28,5 +30,8 @@ class TestTerms extends AssertionsForJUnit {
 		assertTrue(mess == None)
 		val withParens = MathTerm("6(x^2)(y^3)")
 		assertTrue(withParens == None)
+		val x2yz = MathTerm("x^2yz").get
+		assert(x2yz.description === "MathTerm(MathInteger(1), \"x\" -> MathInteger(2), \"y\" -> MathInteger(1), \"z\" -> MathInteger(1))")
+		assert(x2yz.toLaTeX === "x^2yz")
 	}
 }

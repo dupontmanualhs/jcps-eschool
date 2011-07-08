@@ -10,6 +10,12 @@ trait MathExpression {
 	override def toString = this.toLaTeX
 }
 
+object MathExpression {
+	def apply(s: String): Option[MathExpression] = {
+		MathNumber(s) orElse MathTerm(s)
+	}
+}
+
 //MathOperation subclasses: MathUnaryOperation (math unary operations.scala),
 //                                        MathBinaryOperation (math binary operations.scala)
 abstract class MathOperation extends MathExpression {

@@ -1,12 +1,13 @@
 package eschool.math
 
-import org.junit.Test
-import org.scalatest.junit.AssertionsForJUnit
 import org.junit.Assert._
-import org.specs.runner.JUnitSuite
-import collection.immutable.TreeMap
+import org.junit.Test
+import java.lang.Math
+import io.BytePickle.Def
+import org.scalatest.junit.JUnitSuite
 
-class TestOperations extends AssertionsForJUnit {
+
+class TestOperations extends JUnitSuite {
 	@Test def sums() {
 
 	}
