@@ -21,7 +21,7 @@ class TestTerms extends JUnitSuite {
 		assert(eight.description === "MathTerm(MathInteger(8))")
 		val eightx2 = MathTerm("8x^{2}").get
 		assert(eightx2.toLaTeX === "8x^{2}")
-		val x2 = MathTerm("x^{2}").get
+		val x2 = MathTerm("x^2").get
 		assert(x2.description === "MathTerm(MathInteger(1), \"x\" -> MathInteger(2))")
 		assert(x2.toLaTeX === "x^{2}")
 		val mess = MathTerm("^^^")

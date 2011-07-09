@@ -66,7 +66,7 @@ object MathRealNumber {
 
 abstract class MathExactNumber extends MathRealNumber
 
-class MathFraction(val numerator: BigInt, val denominator: BigInt) extends MathExactNumber with Operationable {
+class MathFraction(val numerator: BigInt, val denominator: BigInt) extends MathExactNumber {
 	def getNumerator = numerator
 	def getDenominator = denominator
 

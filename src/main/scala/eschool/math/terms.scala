@@ -2,7 +2,7 @@ package eschool.math
 
 import collection.immutable.TreeMap
 
-class MathTerm(coefficient: MathConstant, variableSequence: TreeMap[String, MathInteger]) extends MathExpression {
+class MathTerm(coefficient: MathConstant, variableSequence: TreeMap[String, MathInteger]) extends MathExpression with Operationable {
 	def getCoefficient: MathConstant = coefficient
 	def getVariableSequence: TreeMap[String, MathInteger] = variableSequence
 	override def getPrecedence: Int = 1
@@ -138,7 +138,7 @@ object MathTerm {
 	}
 
 	def withoutBracketsAroundPower(pow: String): String = {
-		pow.substring(1, pow.length - 1)
+		"""[\{\}]""".r.replaceAllIn(pow, "")
 	}
 
 }

@@ -8,21 +8,11 @@ trait MathExpression {
 	def toLaTeX: String
 	def description: String
 	override def toString = this.toLaTeX
-	def +(operand: MathExpression): MathExpression = {
-		MathSum(this, operand)
-	}
-	def -(operand: MathExpression): MathExpression = {
-		MathDifference(this, operand)
-	}
-	def *(operand: MathExpression): MathExpression = {
-		MathProduct(this, operand)
-	}
-	def /(operand: MathExpression): MathExpression = {
-		MathQuotient(this, operand)
-	}
-	def ^(operand: MathExpression): MathExpression = {
-		MathExponentiation(this, operand)
-	}
+	def +(operand: MathExpression): MathExpression = MathSum(this, operand)
+	def -(operand: MathExpression): MathExpression = MathDifference(this, operand)
+	def *(operand: MathExpression): MathExpression = MathProduct(this, operand)
+	def /(operand: MathExpression): MathExpression = MathQuotient(this, operand)
+	def ^(operand: MathExpression): MathExpression = MathExponentiation(this, operand)
 }
 
 object MathExpression {
@@ -53,4 +43,8 @@ object MathValue {
 	def apply(c: Char): Option[MathVariable] = {
 		MathVariable(c)
 	}
+}
+
+trait Operationable {
+	def toMathOperation: MathOperation
 }
