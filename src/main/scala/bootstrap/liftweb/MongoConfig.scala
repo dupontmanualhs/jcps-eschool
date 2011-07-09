@@ -5,10 +5,6 @@ import mongodb._
 import util.Props
 import com.mongodb.{Mongo, ServerAddress}
 
-object AdminDb extends MongoIdentifier {
-  val jndiName = "admin"
-}
-
 object MongoConfig {
   def init: Unit = {
     val srvr = new ServerAddress(
@@ -16,6 +12,5 @@ object MongoConfig {
        Props.getInt("mongo.port", 27017)
     )
     MongoDB.defineDb(DefaultMongoIdentifier, new Mongo(srvr), "eschool")
-    MongoDB.defineDb(AdminDb, new Mongo(srvr), "admin")
   }
 }

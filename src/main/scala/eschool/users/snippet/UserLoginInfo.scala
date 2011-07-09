@@ -8,10 +8,10 @@ import eschool.users.model.User
 
 object UserLoginInfo {
   def render(in: NodeSeq) = {
-    User.current.is match {
+    User.getCurrent match {
       case Full(u) => <span>Logged in as: { u.displayName }
-                            (<a href="/users/logout.html">Logout</a>)</span>
-      case _ => <span><a href="/users/login.html">Login</a></span>
+                            (<a href="/users/logout">Logout</a>)</span>
+      case _ => <span><a href="/users/login">Login</a></span>
     }
   }
 }
