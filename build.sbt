@@ -12,8 +12,8 @@ libraryDependencies ++= {
   val liftVersion = "2.4-M2"
   Seq(
     "net.liftweb" %% "lift-webkit" % liftVersion % "compile->default",
-    "net.liftweb" %% "lift-mapper" % liftVersion % "compile->default",
-    "net.liftweb" %% "lift-wizard" % liftVersion % "compile->default")
+    "net.liftweb" %% "lift-wizard" % liftVersion % "compile->default",
+    "net.liftweb" %% "lift-mongodb-record" % liftVersion)
 }
 
 
@@ -23,7 +23,6 @@ libraryDependencies ++= {
     "junit" % "junit" % "4.5" % "test",
     "ch.qos.logback" % "logback-classic" % "0.9.26",
     "org.scala-tools.testing" %% "specs" % "1.6.8" % "test",
-    "com.h2database" % "h2" % "1.2.138",
     "org.scalatest" % "scalatest_2.9.0" % "1.6.1" % "test->default")
 }
 

@@ -4,12 +4,11 @@ import xml.NodeSeq
 
 import net.liftweb.http._
 import net.liftweb.common._
-import net.liftweb.mapper._
 import net.liftweb.util._
 import Helpers._
 
 import eschool.users.model.User
-import eschool.sites.model.{Site, Page}
+/*import eschool.sites.model.{Site, Page}
 
 object SitePage {
   def render(in: NodeSeq): NodeSeq = {
@@ -43,4 +42,4 @@ object SitePage {
       case _ => noSuchPage
     }
   }
-}
+}*/

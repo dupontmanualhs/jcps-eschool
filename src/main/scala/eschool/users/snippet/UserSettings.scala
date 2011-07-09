@@ -15,6 +15,6 @@ object UserSettings extends LiftScreen {
     user.last(last.is)
     user.preferred(preferred.is)
     user.email(email.is)
-    user.save()
+    user.save(true)
   }
 }

@@ -1,4 +1,4 @@
-package eschool.sites.model
+/*package eschool.sites.model
 
 import xml.NodeSeq
 
@@ -79,3 +79,4 @@ object SiteData {
     page2.save()
   }
 }
+*/

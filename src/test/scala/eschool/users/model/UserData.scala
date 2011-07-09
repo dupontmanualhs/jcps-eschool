@@ -1,6 +1,7 @@
 package eschool.users.model
 
-import net.liftweb.mapper.Genders
+import eschool.utils.record.Gender
+import net.liftweb.common.Full
 
 class TestUser(
     val username: String,
@@ -14,17 +15,17 @@ class TestUser(
     val guid: String) {
 
   def create(): User = {
-    val dbUser: User = User.create
+    val dbUser: User = User.createRecord
     dbUser.username(username)
     dbUser.first(first)
     dbUser.middle(middle)
     dbUser.last(last)
     dbUser.preferred(preferred)
-    dbUser.gender(if (isMale) Genders.Male else Genders.Female)
+    dbUser.gender(if (isMale) Gender.Male else Gender.Female)
     dbUser.email(email)
     dbUser.password.set(password)
     dbUser.guid(guid)
-    dbUser.save()
+    dbUser.save(true)
     return dbUser
   }
 
