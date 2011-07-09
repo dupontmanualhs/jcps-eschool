@@ -2,12 +2,34 @@ package eschool.math
 
 import org.junit.Assert._
 import org.junit.Test
-import java.lang.Math
-import io.BytePickle.Def
 import org.scalatest.junit.JUnitSuite
 
 
 class TestValues extends JUnitSuite {
+	@Test def values() {
+		assert(MathValue("\\pi").get.toString === MathConstantPi.symbol)
+		assertTrue(MathValue("x/2") == None)
+		assertTrue(MathValue("5x") == None)
+		assertTrue(MathValue("x8") == None)
+		assertTrue(MathValue("y^{2}") == None)
+		assertTrue(MathValue("4^{z}") == None)
+		assertTrue(MathValue("a+3") == None)
+		assertTrue(MathValue("a+b") == None)
+		assertTrue(MathValue("3-c") == None)
+		assertTrue(MathValue("a-b") == None)
+		assertTrue(MathValue("x*6") == None)
+		assertTrue(MathValue("x/y") == None)
+
+		assert(MathValue("6").get === MathInteger(6))
+		assert(MathValue("5/7").get === MathFraction(MathInteger(5), MathInteger(7)))
+		assert(MathValue("\\pi").get === MathConstantPi())
+		assert(MathValue("e").get === MathConstantE())
+		assert(MathValue("7+4i").get === MathComplexNumber(MathInteger(7), MathInteger(4)))
+		assert(MathValue("x").get === MathVariable("x").get)
+		assert(MathValue("4.56").get === MathDecimal(4.56))
+		assert(MathValue("\\approx 5").get === MathApproximateNumber(5))
+		assert(MathValue("\u22489").get === MathApproximateNumber(9))
+	}
 	@Test def integers() {
 		val one: MathValue = MathValue("1").get
 		assert(one.description === "MathInteger(1)")
@@ -38,10 +60,10 @@ class TestValues extends JUnitSuite {
 		assert(one.toLaTeX === "1.0")
 		val small = MathValue("1E-24").get
 		assert(small.description === "MathDecimal(\"1E-24\")")
-		assert(small.toLaTeX === "1E-24") // TODO: should this be 1 * 10^{-24}
+		assert(small.toLaTeX === "1*10^{-24}")
 		val big = MathValue("2.04E+3").get
 		assert(big.description === "MathDecimal(\"2.04E+3\")")
-		assert(big.toLaTeX === "2.04E+3") // TODO: should this be 2.04 * 10^3
+		assert(big.toLaTeX === "2.04*10^{3}")
 	}
 
 	@Test def approximations() {
@@ -62,7 +84,7 @@ class TestValues extends JUnitSuite {
 		assert(approx.toLaTeX === "\\approx(0.6-0.6666666666666666i)")
 		val expts = MathValue("2E+3-4E-3i").get
 		assert(expts.description === "MathComplexNumber(MathDecimal(\"2E+3\"), MathDecimal(\"-0.004\"))")
-		assert(expts.toLaTeX === "2E+3-0.004i")
+		assert(expts.toLaTeX === "2*10^{3}-0.004i")
 		val withParens = MathValue("(34+6i)").get
 		assert(withParens.description === "MathComplexNumber(MathInteger(34), MathInteger(6))")
 		assert(withParens.toLaTeX === "34+6i")

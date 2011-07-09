@@ -5,39 +5,46 @@ abstract class MathUnaryOperation(val expression: MathExpression) extends MathOp
 	override def getPrecedence: Int = 2
 	override def toLaTeX: String = {
 		if (this.getExpression.getPrecedence < this.getPrecedence) {
-			this.getName + " (" + this.getExpression.toLaTeX + ")"
+			this.getOperator + " (" + this.getExpression.toLaTeX + ")"
 		} else {
-			this.getName + " " + this.getExpression.toLaTeX
+			this.getOperator + " " + this.getExpression.toLaTeX
 		}
 	}
-	override def description: String = this.getClass.toString + "(" + this.getExpression.description + ")"
+	override def description: String = this.getDescString + "(" + this.getExpression.description + ")"
+
+	override def equals(that: Any): Boolean = {
+		that match {
+			case that: MathUnaryOperation => this.equals(that)
+			case _ => false
+		}
+	}
+
+	private def equals(that: MathUnaryOperation): Boolean = {
+		this.getClass == that.getClass && that.getExpression == this.getExpression
+	}
 }
 
-class MathLogarithm(val base: MathConstant, expression: MathExpression) extends MathUnaryOperation(expression) {
-	def getBase: MathConstant = base
-	override def getName: String = "\\log_" + this.getBase.toLaTeX
-	override def simplify: MathExpression = new MathLogarithm(this.getBase, this.getExpression)
-	override def description: String = "MathLogarithm(Base: %s, Expression: %s)".format(this.getBase.description, this.getExpression.description)
+class MathNegation(expression: MathExpression) extends MathUnaryOperation(expression) {
+	override def getOperator: String = "-"
+	override def getDescString: String = "MathNegation"
+	override def simplify: MathExpression = new MathNegation(this.getExpression)
+	override def toLaTeX: String = {
+		if (this.getExpression.getPrecedence < this.getPrecedence || isNegative(this.getExpression)) {
+			this.getOperator + "(" + this.getExpression.toLaTeX + ")"
+		} else {
+			this.getOperator + "" + this.getExpression.toLaTeX
+		}
+	}
+	private def isNegative(expr: MathExpression): Boolean = {
+		expr match {
+			case neg: MathNegation => true
+			case real: MathRealNumber if (real.getValue < 0) => true
+			case _ => false
+		}
+	}
 }
 
-object MathLogarithm {
-	def apply(base: MathConstant, expression: MathExpression): MathLogarithm = new MathLogarithm(base, expression)
+object MathNegation {
+	def apply(expression: MathExpression) = new MathNegation(expression)
 }
 
-class MathNaturalLogarithm(expression: MathExpression) extends MathLogarithm(new MathConstantE, expression) {
-	override def getName: String = "\\ln"
-	override def description: String = "MathNaturalLogarithm(%s)".format(this.getExpression.description)
-}
-
-object MathNaturalLogarithm {
-	def apply(expression: MathExpression): MathNaturalLogarithm = new MathNaturalLogarithm(expression)
-}
-
-class MathBase10Logarithm(expression: MathExpression) extends MathLogarithm(MathInteger(10), expression) {
-	override def getName: String = "\\log"
-	override def description: String = "MathBase10Logarithm(%s)".format(this.getExpression.description)
-}
-
-object MathBase10Logarithm {
-	def apply(expression: MathExpression) = new MathBase10Logarithm(expression)
-}

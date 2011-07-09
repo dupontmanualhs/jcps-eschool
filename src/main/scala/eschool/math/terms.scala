@@ -5,7 +5,7 @@ import collection.immutable.TreeMap
 class MathTerm(coefficient: MathConstant, variableSequence: TreeMap[String, MathInteger]) extends MathExpression {
 	def getCoefficient: MathConstant = coefficient
 	def getVariableSequence: TreeMap[String, MathInteger] = variableSequence
-	override def getPrecedence: Int = 4
+	override def getPrecedence: Int = 1
 	def toMathOperation: MathProduct = {
 		if (this.getVariableSequence == null) {
 			MathProduct(this.getCoefficient, MathInteger(1))
@@ -45,7 +45,7 @@ class MathTerm(coefficient: MathConstant, variableSequence: TreeMap[String, Math
 		(for ((name: String, pow: MathInteger) <- this.getVariableSequence) yield {
 			if (pow.getValue != 0) {
 				name +
-					{ if (pow.getValue != 1) "^" + pow.toLaTeX else "" }
+					{ if (pow.getValue != 1) "^{" + pow.toLaTeX + "}" else "" }
 			} else {
 				""
 			}
@@ -91,7 +91,7 @@ object MathTerm {
 	}
 
 	def getTermSegments(s: String): Array[String] = {
-		val splitTermRegex = """(?=([a-hj-zA-DF-Z](\^\d+)?))""".r
+		val splitTermRegex = """(?=([a-hj-zA-DF-Z](\^\{\d+\})?))""".r
 		val termSegments = splitTermRegex.split(s)
 		if (termSegments.head == "") {
 			termSegments.tail
@@ -129,12 +129,16 @@ object MathTerm {
 				case _ => None
 			}
 		} else {
-			(MathVariable(variableAndPowerSplit.head), MathInteger(variableAndPowerSplit.tail.mkString)) match {
+			(MathVariable(variableAndPowerSplit.head), MathInteger(withoutBracketsAroundPower(variableAndPowerSplit.tail.mkString))) match {
 				case (None, _) => None
 				case (Some(aVar), None) => None
 				case (Some(aVar), Some(aMathInteger)) => Some((aVar.getName, aMathInteger))
 			}
 		}
+	}
+
+	def withoutBracketsAroundPower(pow: String): String = {
+		pow.substring(1, pow.length - 1)
 	}
 
 }

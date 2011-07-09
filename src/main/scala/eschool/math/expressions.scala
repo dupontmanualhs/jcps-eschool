@@ -8,6 +8,21 @@ trait MathExpression {
 	def toLaTeX: String
 	def description: String
 	override def toString = this.toLaTeX
+	def +(operand: MathExpression): MathExpression = {
+		MathSum(this, operand)
+	}
+	def -(operand: MathExpression): MathExpression = {
+		MathDifference(this, operand)
+	}
+	def *(operand: MathExpression): MathExpression = {
+		MathProduct(this, operand)
+	}
+	def /(operand: MathExpression): MathExpression = {
+		MathQuotient(this, operand)
+	}
+	def ^(operand: MathExpression): MathExpression = {
+		MathExponentiation(this, operand)
+	}
 }
 
 object MathExpression {
@@ -19,7 +34,8 @@ object MathExpression {
 //MathOperation subclasses: MathUnaryOperation (unary_ops.scala),
 //                                        MathBinaryOperation (binary_ops.scala)
 abstract class MathOperation extends MathExpression {
-	def getName: String
+	def getOperator: String
+	def getDescString: String
 }
 
 //MathValue subclasses: MathConstant (constants.scala)

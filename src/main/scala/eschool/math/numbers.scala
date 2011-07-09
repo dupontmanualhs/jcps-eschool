@@ -2,7 +2,6 @@ package eschool.math
 
 import java.math.MathContext
 import util.matching.Regex
-import com.sun.org.apache.xml.internal.serializer.utils.StringToIntTable
 
 abstract class MathNumber extends MathConstant {
 	//def toMathMlPresentation(): NodeSeq
@@ -15,6 +14,9 @@ object MathNumber {
 	}
 
 	def stringToDecimal(s: String): Option[BigDecimal] = {
+		if (numBeginsWithPlusSign(s)) {
+			stringToDecimal(s.substring(1))
+		}
 		try {
 			Some(BigDecimal(s, MathContext.UNLIMITED))
 		} catch {
@@ -31,11 +33,9 @@ object MathNumber {
 	}
 
 	def stringToInt(num: String): Option[BigInt] = {
-		if (numBeginsWithPlusSign(num)) {
-			stringToInt(num.substring(1))
-		}
+		val str = if (numBeginsWithPlusSign(num)) num.substring(1) else num
 		try {
-			Some(BigInt(num))
+			Some(BigInt(str))
 		} catch {
 			case e: NumberFormatException => None
 		}
@@ -66,7 +66,7 @@ object MathRealNumber {
 
 abstract class MathExactNumber extends MathRealNumber
 
-class MathFraction(val numerator: BigInt, val denominator: BigInt) extends MathExactNumber {
+class MathFraction(val numerator: BigInt, val denominator: BigInt) extends MathExactNumber with Operationable {
 	def getNumerator = numerator
 	def getDenominator = denominator
 
@@ -130,7 +130,34 @@ class MathDecimal(val value: BigDecimal) extends MathExactNumber {
 
 	def toApproximation: MathApproximateNumber = MathApproximateNumber(this.getValue.toDouble)
 
-	def toLaTeX: String = this.getValue.toString()
+	def toLaTeX: String = {
+		if (this.getValue.toString().contains("E")) {
+			this.scientificNumberLaTeX
+		} else {
+			this.getValue.toString()
+		}
+	}
+
+	private def scientificNumberLaTeX: String = {
+		val regex = new Regex("""([+-]?[.\d]*)?E([+-]\d+)""", "coefficient", "power")
+		val scientificNum = regex.findFirstMatchIn(this.getValue.toString()).get
+		val potentialCoef: String = scientificNum.group("coefficient")
+		val potentialPower: String = scientificNum.group("power")
+		val coefficient: String = getCoefficientFromString(potentialCoef)
+		val power = getPowerFromString(potentialPower)
+		"%s*10^{%s}".format(coefficient, power)
+	}
+
+	def getCoefficientFromString(s: String): String = {
+		(MathNumber.stringToInt(s) orElse MathNumber.stringToDecimal(s)).getOrElse("1").toString
+	}
+
+	def getPowerFromString(s: String): String = {
+		MathInteger(s) match {
+			case Some(aMathInt) => aMathInt.toString
+			case _ => ""
+		}
+	}
 
 	def description: String = "MathDecimal(\"%s\")".format(this.getValue.toString())
 }
@@ -140,6 +167,13 @@ object MathDecimal {
 
 	def apply(s: String): Option[MathDecimal] = {
 		MathNumber.stringToDecimal(s).map(MathDecimal(_))
+	}
+
+	def getPowerFromString(s: String): String = {
+		MathInteger(s) match {
+			case Some(aMathInt) => aMathInt.toString
+			case _ => ""
+		}
 	}
 }
 
@@ -171,19 +205,19 @@ object MathApproximateNumber {
 }
 
 class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) extends MathNumber {
-	// if either real or imag are approximate, both are coerced to approximate
 	def getReal: MathRealNumber = real
 	def getImaginary: MathRealNumber = imag
-	override def getValue: BigDecimal = getReal.getValue
+	override def getValue: BigDecimal = null
 	override def getPrecedence: Int = 0
 
+	// if either real or imag are approximate, both are coerced to approximate
 	def isApproximation: Boolean = real.isInstanceOf[MathApproximateNumber] || imag.isInstanceOf[MathApproximateNumber]
 
 	private def realToLaTeX: String = {
 		if (isApproximation) {
 			this.getReal.toApproximation.getValue.toString()
 		} else {
-			this.getReal.toString
+			this.getReal.toLaTeX
 		}
 	}
 
@@ -191,7 +225,7 @@ class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) exte
 		if (isApproximation) {
 			this.getImaginary.toApproximation.getValue.toString()
 		} else {
-			this.getImaginary.toString
+			this.getImaginary.toLaTeX
 		}
 	}
 
@@ -206,6 +240,13 @@ class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) exte
 	}
 
 	def description: String = "MathComplexNumber(%s, %s)".format(getReal.description, getImaginary.description)
+
+	override def equals(that: Any): Boolean = {
+		that match {
+			case that: MathComplexNumber => this.getReal == that.getReal && this.getImaginary == that.getImaginary
+			case _ => false
+		}
+	}
 }
 
 object MathComplexNumber {

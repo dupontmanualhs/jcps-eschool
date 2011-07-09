@@ -4,6 +4,12 @@ package eschool.math
 //                                      MathNumber (math numbers.scala)
 abstract class MathConstant extends MathValue {
 	def getValue: BigDecimal
+	override def equals(that: Any): Boolean = {
+		that match {
+			case that: MathConstant => (that.getValue == this.getValue)
+			case _ => false
+		}
+	}
 }
 
 object MathConstant {
