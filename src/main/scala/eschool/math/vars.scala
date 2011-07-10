@@ -4,7 +4,7 @@ class MathVariable(val name: String) extends MathValue {
 	require(name.length == 1, "A MathVariable must be 1 character long.")
 	def getName: String = name
 	override def simplify: MathExpression = new MathVariable(this.getName)
-	override def getPrecedence: Int = 4
+	override def getPrecedence: Int = 6
 	override def toLaTeX: String = this.getName
 	override def description: String = "MathVariable(" + this.getName + ")"
 	override def toString = this.getName

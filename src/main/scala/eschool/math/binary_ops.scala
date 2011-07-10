@@ -4,19 +4,14 @@ abstract class MathBinaryOperation(val leftExpression: MathExpression, val right
 	def getLeftExpression: MathExpression = leftExpression
 	def getRightExpression: MathExpression = rightExpression
 	override def description: String = this.getDescString + "(" + this.getLeftExpression.description + ", " + this.getRightExpression.description + ")"
-	override def toLaTeX: String = leftExpressionLaTeX + this.getOperator + rightExpressionLaTeX
-	def leftExpressionLaTeX: String = {
-		if (this.getLeftExpression.getPrecedence < this.getPrecedence) {
-			"(" + this.getLeftExpression.toLaTeX + ")"
+	override def toLaTeX: String = this.leftExpressionLaTeX + this.getOperator + this.rightExpressionLaTeX
+	def leftExpressionLaTeX = expressionLaTeX(this.getLeftExpression)
+	def rightExpressionLaTeX = expressionLaTeX(this.getRightExpression)
+	private def expressionLaTeX(expression: MathExpression): String = {
+		if (expression.getPrecedence < this.getPrecedence || isNegative(expression)) {
+			"(" + expression.toLaTeX + ")"
 		} else {
-			this.getLeftExpression.toLaTeX
-		}
-	}
-	def rightExpressionLaTeX: String = {
-		if (this.getRightExpression.getPrecedence <= this.getPrecedence || isNegative(this.getRightExpression)) {
-			"(" + this.rightExpression.toLaTeX + ")"
-		} else {
-			this.rightExpression.toLaTeX
+			expression.toLaTeX
 		}
 	}
 
@@ -49,8 +44,9 @@ object MathSum {
 	def apply(leftExpression: MathExpression, rightExpression: MathExpression): MathSum = new MathSum(leftExpression, rightExpression)
 }
 
-class MathDifference(leftExpression: MathExpression, rightExpression: MathExpression) extends MathSum(leftExpression, rightExpression) {
+class MathDifference(leftExpression: MathExpression, rightExpression: MathExpression) extends MathBinaryOperation(leftExpression, rightExpression) {
 	override def simplify: MathExpression = new MathDifference(this.getLeftExpression, this.getRightExpression) //TODO
+	override def getPrecedence: Int = 1
 	override def getOperator: String = "-"
 	override def getDescString: String = "MathDifference"
 }
@@ -61,7 +57,7 @@ object MathDifference {
 
 class MathProduct(leftExpression: MathExpression, rightExpression: MathExpression) extends MathBinaryOperation(leftExpression, rightExpression) {
 	override def simplify: MathExpression = new MathProduct(this.getLeftExpression, this.getRightExpression) //TODO
-	override def getPrecedence: Int = 1
+	override def getPrecedence: Int = 2
 	override def getDescString: String = "MathProduct"
 	override def getOperator: String = "*"
 }
@@ -70,8 +66,9 @@ object MathProduct {
 	def apply(leftExpression: MathExpression, rightExpression: MathExpression): MathProduct = new MathProduct(leftExpression, rightExpression)
 }
 
-class MathQuotient(leftExpression: MathExpression, rightExpression: MathExpression) extends MathProduct(leftExpression, rightExpression) {
+class MathQuotient(leftExpression: MathExpression, rightExpression: MathExpression) extends MathBinaryOperation(leftExpression, rightExpression) {
 	override def simplify: MathExpression = new MathQuotient(this.getLeftExpression, this.getRightExpression) //TODO
+	override def getPrecedence: Int = 3
 	override def getOperator: String = "/"
 	override def getDescString: String = "MathQuotient"
 }
@@ -85,7 +82,7 @@ class MathExponentiation(expression: MathExpression, exponent: MathExpression) e
 	def getExponent = super.getRightExpression
 
 	override def simplify: MathExpression = new MathExponentiation(this.getExpression, this.getExponent)
-	override def getPrecedence: Int = 3
+	override def getPrecedence: Int = 5
 	override def getOperator: String = "^"
 	override def getDescString: String = "MathExponentiation"
 	override def toLaTeX: String = super.leftExpressionLaTeX + this.getOperator + "{" + this.getExponent.toLaTeX + "}"

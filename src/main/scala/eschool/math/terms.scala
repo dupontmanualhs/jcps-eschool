@@ -2,21 +2,20 @@ package eschool.math
 
 import collection.immutable.TreeMap
 
-class MathTerm(coefficient: MathConstant, variableSequence: TreeMap[String, MathInteger]) extends MathExpression with Operationable {
+class MathTerm(coefficient: MathConstant, variableSequence: TreeMap[String, MathInteger]) extends MathExpression {
 	def getCoefficient: MathConstant = coefficient
 	def getVariableSequence: TreeMap[String, MathInteger] = variableSequence
-	override def getPrecedence: Int = 1
-	def toMathOperation: MathProduct = {
-		if (this.getVariableSequence == null) {
-			MathProduct(this.getCoefficient, MathInteger(1))
-		} else if (this.getVariableSequence.size == 1) {
-			MathProduct(this.getCoefficient, varPowToExponentiation(this.getVariableSequence.head))
-		} else if (this.getCoefficient.getValue != 1 && this.getVariableSequence.size > 1) {
-			MathProduct(this.getCoefficient, MathTerm(this.getVariableSequence).toMathOperation)
-		} else if (this.getVariableSequence.size == 2) {
-			MathProduct(varPowToExponentiation(this.getVariableSequence.head), varPowToExponentiation(this.getVariableSequence.last))
+	def isNegative = this.getCoefficient != Nil && this.getCoefficient.getValue < 0
+	override def getPrecedence: Int = 2
+	def toMathOperation: MathOperation = {
+		if (this.getVariableSequence == Nil) {
+			this.getCoefficient * MathInteger(1)
 		} else {
-			MathProduct(varPowToExponentiation(this.getVariableSequence.head), MathTerm(this.getVariableSequence.tail).toMathOperation)
+			val varPows: List[MathExponentiation] = getVariableSequence.map(varPowToExponentiation(_)).toList
+			varPows.foldLeft(this.getCoefficient: MathExpression)((x: MathExpression, y: MathExpression) => x.*(y)) match {
+				case coef: MathConstant => coef * MathInteger(1)
+				case anOp: MathOperation => anOp
+			}
 		}
 	}
 	override def toLaTeX: String = this.coefficientLaTeX + this.variableSequenceLaTeX
@@ -26,6 +25,8 @@ class MathTerm(coefficient: MathConstant, variableSequence: TreeMap[String, Math
 	private def coefficientLaTeX: String = {
 		if (this.getCoefficient.getValue == 1) {
 			""
+		} else if (this.getCoefficient.getValue == -1) {
+			"-"
 		} else if (this.getCoefficient.isInstanceOf[MathComplexNumber]) {
 			"(%s)".format(this.getCoefficient.toLaTeX)
 		} else {
@@ -51,6 +52,12 @@ class MathTerm(coefficient: MathConstant, variableSequence: TreeMap[String, Math
 			}
 		}).mkString
 	}
+	override def equals(that: Any): Boolean = {
+		that match {
+			case that: MathTerm => this.toMathOperation == that.toMathOperation
+			case _ => false
+		}
+	}
 }
 
 object MathTerm {
@@ -70,7 +77,15 @@ object MathTerm {
 	}
 
 	def getTermFromArray(termSegments: Array[String]): Option[MathTerm] = {
-		val potentialCoefficient: Option[MathConstant] = MathConstant(termSegments.head)
+		val potentialCoefficient: Option[MathConstant] = {
+			if (termSegments.head == "-") {
+				MathConstant("-1")
+			} else if (termSegments.head == "+") {
+				MathConstant("1")
+			} else {
+				MathConstant(termSegments.head)
+			}
+		}
 		val variableSegments = arrayWithoutCoefficient(potentialCoefficient, termSegments)
 		val potentialVariableSequence: Option[TreeMap[String, MathInteger]] = extractVarSequenceFromArray(variableSegments)
 		val coefficient = potentialCoefficient match {

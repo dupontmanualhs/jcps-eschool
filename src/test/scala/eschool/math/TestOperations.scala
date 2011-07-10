@@ -1,4 +1,5 @@
 package eschool.math
+import eschool.math.MathImplicitConversions._
 
 import org.junit.Test
 import org.scalatest.junit.JUnitSuite
@@ -17,12 +18,12 @@ class TestOperations extends JUnitSuite {
 		assert(MathOperation("7^6").get === MathExponentiation(MathInteger(7), MathInteger(6)))          */
 	}
 	@Test def products() {
-		val sixTimesSix = MathProduct(MathInteger(6), MathInteger(6))
+		val sixTimesSix = MathInteger(6) * MathInteger(6)
 		assert(sixTimesSix.description === "MathProduct(MathInteger(6), MathInteger(6))")
 		assert(sixTimesSix.toLaTeX === "6*6")
 		//assert(sixTimesSix.simplify === MathInteger(36))
 
-		val sixTimesSixTimesTwo = MathProduct(MathProduct(MathInteger(6), MathInteger(6)), MathInteger(2))
+		val sixTimesSixTimesTwo = MathInteger(6) * MathInteger(6) * MathInteger(2)
 		assert(sixTimesSixTimesTwo.description === "MathProduct(MathProduct(MathInteger(6), MathInteger(6)), MathInteger(2))")
 		assert(sixTimesSixTimesTwo.toLaTeX === "6*6*2")
 		//assert(sixTimesSixTimesTwo.simplify === MathInteger(72))
@@ -36,7 +37,7 @@ class TestOperations extends JUnitSuite {
 	@Test def differences() {
 		val negEightMinusNegTwelve = MathDifference(MathInteger(-8), MathInteger(-12))
 		assert(negEightMinusNegTwelve.description === "MathDifference(MathInteger(-8), MathInteger(-12))")
-		assert(negEightMinusNegTwelve.toLaTeX === "-8-(-12)")
+		assert(negEightMinusNegTwelve.toLaTeX === "(-8)-(-12)")
 		//assert(negEightMinusNegTwelve.simplify === MathInteger(4))
 	}
 	@Test def sums() {

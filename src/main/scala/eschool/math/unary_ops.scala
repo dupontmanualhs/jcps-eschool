@@ -2,7 +2,7 @@ package eschool.math
 
 abstract class MathUnaryOperation(val expression: MathExpression) extends MathOperation {
 	def getExpression: MathExpression = expression
-	override def getPrecedence: Int = 2
+	override def getPrecedence: Int = 4
 	override def toLaTeX: String = {
 		if (this.getExpression.getPrecedence < this.getPrecedence) {
 			this.getOperator + " (" + this.getExpression.toLaTeX + ")"
@@ -32,7 +32,7 @@ class MathNegation(expression: MathExpression) extends MathUnaryOperation(expres
 		if (this.getExpression.getPrecedence < this.getPrecedence || isNegative(this.getExpression)) {
 			this.getOperator + "(" + this.getExpression.toLaTeX + ")"
 		} else {
-			this.getOperator + "" + this.getExpression.toLaTeX
+			this.getOperator + this.getExpression.toLaTeX
 		}
 	}
 	private def isNegative(expr: MathExpression): Boolean = {
