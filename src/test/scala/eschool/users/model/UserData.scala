@@ -34,12 +34,6 @@ class TestUser(
 
 object UserData {
   def create() {
-    import bootstrap.liftweb.Boot
-    new Boot().boot()
-    createUsers()
-  }
-
-  def createUsers() {
     val users = List[TestUser](
         new TestUser("rsmith1", "Robert", "John", "Smith", "Bob", true, "bob@jcpsky.net", "robert1", "G1"),
         new TestUser("mjones02", "Mary", "Allison", "Jones", null, false, "mary@stu.jcpsky.net", "mary1", "G2"),
@@ -47,8 +41,4 @@ object UserData {
     )
     users.foreach(_.create())
   }
-
-  lazy val bob = User.getByUsername("rsmith1")
-  lazy val mary = User.getByUsername("mjones02")
-  lazy val steve = User.getByUsername("sjohnson03")
 }

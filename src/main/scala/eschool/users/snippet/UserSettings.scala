@@ -4,7 +4,7 @@ import net.liftweb.http.{S, LiftScreen}
 import eschool.users.model.User
 
 object UserSettings extends LiftScreen {
-  val user = User.current.is.open_!
+  val user = User.getCurrentOrRedirect()
   val last = field("Last", user.last.is)
   val preferred = field("Preferred", user.preferred.is)
   val email = field("Email", user.email.is)

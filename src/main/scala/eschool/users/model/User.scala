@@ -4,10 +4,10 @@ import net.liftweb.mongodb.record._
 import net.liftweb.mongodb.record.field._
 import net.liftweb.record.field._
 import net.liftweb.json.JsonDSL._
-import net.liftweb.http.SessionVar
 import net.liftweb.common.{Box, Empty, Full}
 
 import eschool.utils.record.Gender
+import net.liftweb.http.{S, SessionVar}
 
 class User private() extends MongoRecord[User] with ObjectIdPk[User] {
   def meta = User
@@ -43,7 +43,7 @@ object User extends User with MongoMetaRecord[User] {
 
   override def collectionName = "users"
 
-  object current extends SessionVar[Box[User]](Empty)
+  private object current extends SessionVar[Box[User]](Empty)
 
   def getByUsername(username: String): Box[User] = {
     User.find("username" -> username)
@@ -65,5 +65,14 @@ object User extends User with MongoMetaRecord[User] {
     }
   }
 
-  def loggedIn_? = User.current.isDefined
+  def loggedIn_? = current.isDefined
+
+  def getCurrent: Box[User] = current.get
+
+  def getCurrentOrRedirect(): User = {
+    current.get openOr {
+      S.error("You must login to access that page.")
+      S.redirectTo("/users/login")
+    }
+  }
 }

@@ -6,13 +6,12 @@ import net.liftweb.http.{S, LiftScreen}
 import eschool.users.model.User
 
 object UserPassword extends LiftScreen {
-  val user = User.current.is.open_!
+  val user = User.getCurrentOrRedirect()
   val currentPswd = password("Current Password", "")
   val newPswd = password("New Password", "")
   val reEnterPswd = password("Re-enter New Password", "")
 
   def finish() {
-
     User.authenticate(user, currentPswd) match {
       case Full(u) => {
         if (newPswd.is.length < 5) {

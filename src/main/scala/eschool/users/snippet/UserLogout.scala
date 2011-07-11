@@ -10,7 +10,7 @@ import net.liftweb.sitemap.Loc.Snippet
 
 object UserLogout {
   def render(in: NodeSeq) = {
-    User.current.is match {
+    User.getCurrent match {
       case Full(u) => u.logout()
       case _ => ()
     }
