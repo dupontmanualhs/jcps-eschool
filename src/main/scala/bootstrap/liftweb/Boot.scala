@@ -58,6 +58,7 @@ class Boot {
 
     ResourceServer.allow {
       case "css" :: _ => true
+      case "js" :: _ => true
       case "tinymce" :: _ => true
     }
 

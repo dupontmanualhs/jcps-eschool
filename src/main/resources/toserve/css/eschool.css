@@ -39,3 +39,28 @@
 table {
     border: 1px;
 }
+
+div.NavBar{
+    float:left;
+    width:100%;
+    margin:0;
+    padding:0;
+    height:auto;
+}
+
+#NavBar{
+    margin:0;
+    padding:0;
+}
+
+#ajax-loader{
+    display:none;
+    margin-bottom: 0px;
+    margin-left: 5px
+}
+
+#container{
+    width:900px;
+    margin-left:auto;
+    margin-right:auto;
+}
