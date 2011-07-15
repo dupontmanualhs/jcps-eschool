@@ -1,3 +1,9 @@
+html
+{
+background-color:white;
+repeat-x;
+}
+
 .edit_error_class {
   display: block;
   color: red;
@@ -42,7 +48,7 @@ table {
 
 div.NavBar{
     float:left;
-    width:800px;
+    width:790px;
     margin:0;
     padding:0;
     height:auto;
@@ -51,12 +57,6 @@ div.NavBar{
 #MenuList{
     margin:0;
     padding:0;
-}
-
-#ajax-loader{
-    display:none;
-    margin-bottom: 0px;
-    margin-left: 5px
 }
 
 #container{
@@ -69,19 +69,22 @@ div.NavBar{
     width:100px;
     height:800px;
     margin:0;
-    padding:0;
+    padding-top:0;
+    padding-bottom:0;
+    padding-right:10px;
+    padding-left:0;
     float:left;
 }
 
 #header{
-    text-align:center;
-    width:800px;
-    height:auto;
+    text-align:right;
+    width:790px;
+    height:50px;
     margin:0;
     float:left;
     padding:0;
 }
 
-#addNav{
-    padding-top:20px;
+img.logo{
+    margin-top:20px;
 }

@@ -20,8 +20,8 @@
 <div id="container">
     
     <div id="leftBar">
-        <a href="/index"><img src="/images/jcps-logo.jpg" alt="Logo" width="100px" height="auto"></a>
-        <ul id="addNav">
+        <a href="/index"><img src="/images/jcps-logo.jpg" alt="Logo" width="100px" height="auto" class="logo"></a>
+        <ul>
             <li>Link 0</li>
             <li>Link 1</li>
             <li>Link 2</li>
@@ -36,21 +36,17 @@
     </div>
 
     <div id="header">
-        <h1>JCPS eSchool<img alt="" id="ajax-loader" src="/images/ajax-loader.gif"></h1>
+        <p>User Info</p>
     </div>
 
     <div class="NavBar">
-	    <Lift:Menu.builder
+	    <Lift:Menu.builder expandAll="true" linkToSelf="true"
             ul:id="MenuList"
             ul:class="sf-menu"
 	    />
     </div>
 
     <hr/>
-
-    <div>
-        <!-- This is the additional navigation bar -->
-    </div>
 
     <div>
         <div id="content">The main content will get bound here</div>
