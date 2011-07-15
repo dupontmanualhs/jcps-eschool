@@ -6,12 +6,13 @@ import net.liftweb.http.{S, LiftScreen}
 import eschool.users.model.User
 import net.liftweb.util.FieldError
 import xml.Text
+import net.liftweb.mongodb.record.field._
 
 object UserPassword extends LiftScreen {
   val user = User.getCurrentOrRedirect()
   val currentPswd = password("Current Password", "")
   val newPswd = password("New Password", "")
-  val reEnterPswd = password("Re-enter New Password", "")
+  val reEnterPswd = password("Re-enter New ruPassword", "")
 
   def checkCurrentPassword(): List[FieldError] = {
     if (User.authenticate(user, currentPswd.get).isDefined) {
@@ -28,7 +29,8 @@ object UserPassword extends LiftScreen {
   override def validations = checkCurrentPassword _ +: checkNewPasswordsMatch _ +: super.validations
 
   def finish() {
-    user.password.set(newPswd.get)
+    user.password.set(new Password(newPswd.get, ""))
     user.save(true)
+    Text("New password set.")
   }
 }

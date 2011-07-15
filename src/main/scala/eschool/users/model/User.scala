@@ -3,11 +3,12 @@ package eschool.users.model
 import net.liftweb.mongodb.record._
 import net.liftweb.mongodb.record.field._
 import net.liftweb.record.field._
+//import net.liftweb.mongodb.record.field._
 import net.liftweb.json.JsonDSL._
 import net.liftweb.common.{Box, Empty, Full}
 
-import eschool.utils.record.Gender
 import net.liftweb.http.{S, SessionVar}
+import eschool.utils.record._
 
 class User private() extends MongoRecord[User] with ObjectIdPk[User] {
   def meta = User
@@ -19,7 +20,7 @@ class User private() extends MongoRecord[User] with ObjectIdPk[User] {
   object preferred extends OptionalStringField(this, 30)
   object gender extends EnumField(this, Gender, Gender.None)
   object email extends OptionalEmailField(this, 100)
-  object password extends StringField(this, 80)  //TODO Password, when fixed
+  object password extends MongoPasswordField(this, 5, "SHA")
   object guid extends OptionalStringField(this, 30)
 
   def displayName = {
@@ -58,7 +59,7 @@ object User extends User with MongoMetaRecord[User] {
   }
 
   def authenticate(user: User, password: String): Box[User] = {
-    if (user.password.get == password) { //TODO change to match_? when fixed
+    if (user.password.isMatch(password)) {
       Full(user)
     } else {
       Empty
