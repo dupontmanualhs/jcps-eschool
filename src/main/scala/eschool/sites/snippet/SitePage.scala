@@ -1,45 +1,21 @@
 package eschool.sites.snippet
 
+import eschool.sites.model.Page
+import net.liftweb.common.{Box, Empty}
 import xml.NodeSeq
-
-import net.liftweb.http._
-import net.liftweb.common._
+import net.liftweb.http.{S, RequestVar}
 import net.liftweb.util._
-import Helpers._
-
-import eschool.users.model.User
-/*import eschool.sites.model.{Site, Page}
+import net.liftweb.util.Helpers._
 
 object SitePage {
+  object reqPage extends RequestVar[Box[Page]](Empty)
+
   def render(in: NodeSeq): NodeSeq = {
-    val noSuchPage = (
-        ".title" #> "" &
-        ".body" #> "There is no page at this address."
-    )(in)
-    val pUser: Box[String] = S.param("user")
-    val pSite: Box[String] = S.param("site")
-    val pPage: Box[String] = S.param("page")
-    (pUser, pSite, pPage) match {
-      case (Full(username), Full(siteIdent), Full(pageIdent)) => {
-        User.getByUsername(username) match {
-          case Full(user) => {
-            Site.find(By(Site.owner, user), By(Site.ident, siteIdent)) match {
-              case Full(site) => {
-                Page.find(By(Page.site, site), By(Page.ident, pageIdent)) match {
-                  case Full(page) => (
-                      ".title" #> page.title.is &
-                      ".body *" #> page.content.is
-                    )(in)
-                  case _ => noSuchPage
-                }
-              }
-              case _ => noSuchPage
-            }
-          }
-          case _ => noSuchPage
-        }
-      }
-      case _ => noSuchPage
+    val page = reqPage openOr  {
+      S.error(<p>You somehow tried to view a page without specifying it.</p>)
+      S.redirectTo("/error")
     }
+    (".title *" #> page.name.get &
+      ".content" #> page.content.get)(in)
   }
-}*/
+}

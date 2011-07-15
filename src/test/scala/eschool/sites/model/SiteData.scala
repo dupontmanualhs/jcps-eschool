@@ -1,4 +1,4 @@
-/*package eschool.sites.model
+package eschool.sites.model
 
 import xml.NodeSeq
 
@@ -8,9 +8,7 @@ import net.liftweb.common.Empty
 object SiteData {
   def create() {
     val bob: User = User.getByUsername("rsmith1").open_!
-    val b1: Site = Site.createRecord.owner(bob).name("All About Bob").ident("personal")
-    b1.save(true)
-    val homepage = Page.createRecord.site(b1).name("Home").ident("home").content(
+    val homepage = Page.createRecord.name("Home").content(
       <h2>All About Bob</h2>
       <p>Stuff Bob likes:
         <ul>
@@ -21,6 +19,18 @@ object SiteData {
       </p>
     )
     homepage.save(true)
-    b1.pages(b1.pages.get)
+    val altHome = Page.createRecord.name("Alternative Home").content(
+      <h2>Bob Smith - The Professional</h2>
+      <p>Stuff Bob does:
+        <ul>
+          <li>Programming</li>
+          <li>Paint Ball</li>
+        </ul>
+      </p>
+    )
+    altHome.save(true)
+    val b1: Site = Site.createRecord.owner(bob.id.get).name("All About Bob")
+        .ident("personal").pages(Map("home" -> homepage.id.get, "altHome" -> altHome.id.get))
+    b1.save(true)
   }
-}*/
+}

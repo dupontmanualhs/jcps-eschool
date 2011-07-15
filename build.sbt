@@ -13,7 +13,7 @@ libraryDependencies ++= {
   Seq(
     "net.liftweb" %% "lift-webkit" % liftVersion % "compile->default",
     "net.liftweb" %% "lift-wizard" % liftVersion % "compile->default",
-    "net.liftweb" %% "lift-mongodb-record" % liftVersion)
+    "net.liftweb" %% "lift-mongodb-record" % liftVersion,
 }
 
 

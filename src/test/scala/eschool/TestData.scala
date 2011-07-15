@@ -5,7 +5,7 @@ import scala.collection.JavaConversions.asScalaSet
 import bootstrap.liftweb.Boot
 
 import users.model.UserData
-//import sites.model.SiteData
+import sites.model.SiteData
 import net.liftweb.mongodb.{DefaultMongoIdentifier, MongoDB}
 import com.mongodb.Mongo
 
@@ -14,7 +14,7 @@ object TestData {
     new Boot().boot()
     dropAllData()
     UserData.create()
-    //SiteData.create()
+    SiteData.create()
   }
 
   def dropAllData() {
