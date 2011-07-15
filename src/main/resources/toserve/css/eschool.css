@@ -42,13 +42,13 @@ table {
 
 div.NavBar{
     float:left;
-    width:100%;
+    width:800px;
     margin:0;
     padding:0;
     height:auto;
 }
 
-#NavBar{
+#MenuList{
     margin:0;
     padding:0;
 }
@@ -63,4 +63,25 @@ div.NavBar{
     width:900px;
     margin-left:auto;
     margin-right:auto;
+}
+
+#leftBar{
+    width:100px;
+    height:800px;
+    margin:0;
+    padding:0;
+    float:left;
+}
+
+#header{
+    text-align:center;
+    width:800px;
+    height:auto;
+    margin:0;
+    float:left;
+    padding:0;
+}
+
+#addNav{
+    padding-top:20px;
 }
