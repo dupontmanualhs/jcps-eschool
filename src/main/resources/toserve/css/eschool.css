@@ -88,3 +88,10 @@ div.NavBar{
 img.logo{
     margin-top:13px;
 }
+
+#navTree{
+    width:150px;
+    padding:0;
+    margin:0;
+    overflow:auto;
+}
