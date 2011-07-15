@@ -9,6 +9,7 @@
     <script id="jquery-ui" src="/classpath/js/jquery-ui-1.8.14.custom.min.js" type="text/javascript"></script>
     <script src="/classpath/js/eschool.js" type="text/javascript"></script>
     <script type="text/javascript" src="/classpath/js/superfish.js"></script>
+    <script type="text/javascript" src="/classpath/js/jquery.jstree.js"></script>
 
     <script id="json" src="/classpath/json.js" type="text/javascript"></script>
 
@@ -20,19 +21,85 @@
 <div id="container">
     
     <div id="leftBar">
-        <a href="/index"><img src="/images/jcps-logo.jpg" alt="Logo" width="100px" height="auto" class="logo"></a>
+        <a href="/index"><img src="/images/jcps-logo.jpg" alt="Logo" width="150px" height="auto" class="logo"></a>
+
+        <div id="navTree">
         <ul>
-            <li>Link 0</li>
-            <li>Link 1</li>
-            <li>Link 2</li>
-            <li>Link 3</li>
-            <li>Link 4</li>
-            <li>Link 5</li>
-            <li>Link 6</li>
-            <li>Link 7</li>
-            <li>Link 8</li>
-            <li>Link 9</li>
+          <li><a href="#">Arts/Humanities</a>
+
+          <ul>
+            <li><a href="#">Art</a></li>
+            <li><a href="#">Music</a>
+            <ul>
+              <li><a href="#">Broadway</a></li>
+              <li><a href="#">Classical</a></li>
+              <li><a href="#">Jazz</a></li>
+
+              <li><a href="#">Opera</a></li>
+              <li><a href="#">Popular</a></li>
+            </ul></li>
+            <li><a href="#">Mythology</a></li>
+            <li><a href="#">Philosophy/Theology</a></li>
+          </ul></li>
+          <li><a href="#">Language Arts</a>
+
+          <ul>
+            <li><a href="#">Grammar</a></li>
+            <li><a href="#">Literature</a>
+            <ul>
+              <li><a href="#">American</a></li>
+              <li><a href="#">English</a></li>
+              <li><a href="#">European</a></li>
+
+              <li><a href="#">World</a></li>
+            </ul></li>
+          </ul></li>
+          <li><a href="#">Mathematics</a>
+          <ul>
+            <li><a href="#">Algebra</a></li>
+            <li><a href="#">Calculus</a></li>
+
+            <li><a href="#">Geometry</a></li>
+            <li><a href="#">History</a></li>
+            <li><a href="#">Trigonometry</a></li>
+          </ul></li>
+          <li><a href="#">Miscellaneous</a>
+          <ul>
+            <li><a href="#">Pop Culture</a></li>
+
+            <li><a href="#">Sports</a></li>
+          </ul></li>
+          <li><a href="#">Science</a>
+          <ul>
+            <li><a href="#">Astronomy</a></li>
+            <li><a href="#">Biology</a></li>
+            <li><a href="#">Chemistry</a></li>
+
+            <li><a href="#">Earth Science</a></li>
+            <li><a href="#">Medicine/Anatomy</a></li>
+            <li><a href="#">Physics</a></li>
+          </ul></li>
+          <li><a href="#">Social Studies</a>
+          <ul>
+            <li><a href="#">Anthropology</a></li>
+
+            <li><a href="#">Economics</a></li>
+            <li><a href="#">Geography</a></li>
+            <li><a href="#">History</a>
+            <ul>
+              <li><a href="#">American</a></li>
+              <li><a href="#">Ancient</a></li>
+
+              <li><a href="#">European</a></li>
+              <li><a href="#">World</a></li>
+            </ul></li>
+            <li><a href="#">Psychology</a></li>
+            <li><a href="#">Sociology</a></li>
+          </ul></li>
         </ul>
+
+        </div>
+
     </div>
 
     <div id="header"><div class="lift:UserLoginInfo"></div></div>

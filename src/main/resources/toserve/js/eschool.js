@@ -5,3 +5,17 @@
 jQuery(function(){
 			jQuery('ul.sf-menu').superfish();
 		});
+
+// This is the code for the left tree nav
+$(function () {
+    $.jstree._themes = "/classpath/js/themes/";
+	$("#navTree").jstree({
+        "themes" : {
+            "theme" : "classic",
+            "dots" : false,
+            "icons" : false,
+                },
+        "plugins" : [ "themes", "html_data" ]
+	});
+});
+
