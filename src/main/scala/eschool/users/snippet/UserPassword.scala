@@ -12,7 +12,7 @@ object UserPassword extends LiftScreen {
   val user = User.getCurrentOrRedirect()
   val currentPswd = password("Current Password", "")
   val newPswd = password("New Password", "")
-  val reEnterPswd = password("Re-enter New ruPassword", "")
+  val reEnterPswd = password("Re-enter New Password", "")
 
   def checkCurrentPassword(): List[FieldError] = {
     if (User.authenticate(user, currentPswd.get).isDefined) {

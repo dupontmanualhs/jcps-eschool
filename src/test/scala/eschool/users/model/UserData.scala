@@ -23,7 +23,7 @@ class TestUser(
     dbUser.preferred(preferred)
     dbUser.gender(if (isMale) Gender.Male else Gender.Female)
     dbUser.email(email)
-    dbUser.password.set(password)
+    dbUser.password.setPassword(password)
     dbUser.guid(guid)
     dbUser.save(true)
     return dbUser
