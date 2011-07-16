@@ -1,12 +1,14 @@
 package eschool.sites.snippet
 
 import xml.NodeSeq
-import net.liftweb.json.JsonDSL._
-import net.liftweb.json.JsonAST._
 import eschool.users.model.User
+import eschool.utils.Helpers.pluralizeInformal
 import net.liftweb.common._
 import eschool.sites.model.Site
 import net.liftweb.http.{RequestVar, S}
+import net.liftweb.json.JsonDSL._
+import net.liftweb.util._
+import net.liftweb.util.Helpers._
 
 object SiteList {
   object reqUser extends RequestVar[Box[User]](Empty)
@@ -17,11 +19,22 @@ object SiteList {
               <p>That shouldn't happen</p>)
       S.redirectTo("/error")
     }
+    val currentUser_? = reqUser.get == User.getCurrent
+    val header: String = if (currentUser_?) {
+      "Your"
+    } else {
+      user.displayName + "'s"
+    } + " Sites"
     val sites = Site.findAll("owner" -> user.id.asJValue)
-    if (sites.isEmpty) {
-      <p>You do not have any sites, yet.</p>
+    val userHasSites: String = (if (currentUser_?) "You have" else user.displayName + " has") +
+      (if (sites.isEmpty) " no sites." else " the following" + pluralizeInformal(sites.length, "site") + ":")
+    val listOfSites = if (sites.isEmpty) {
+      <br/>
     } else {
       <ul>{ sites.flatMap((s: Site) => <li>{ s.name }</li>) }</ul>
     }
+    (".header *" #> header &
+     ".userHasSites" #> userHasSites &
+     ".listOfSites" #> listOfSites)(in)
   }
 }

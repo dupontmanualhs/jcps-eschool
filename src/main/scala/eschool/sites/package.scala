@@ -16,10 +16,6 @@ package object sites {
 
   object Dispatch extends MVCHelper {
     serve {
-      case "sites" :: Nil => {
-        SiteList.reqUser(Full(User.getCurrentOrRedirect()))
-        Templates(List("sites", "index"))
-      }
       case "sites" :: pathToPage => pathToPage match {
         case username :: sitePlusPage => {
           User.getByUsername(username) match {
@@ -60,6 +56,9 @@ package object sites {
             }
             case _ => NotFoundResponse("There is no user with the username " + username)
           }
+        } case Nil => {
+            SiteList.reqUser(Full(User.getCurrentOrRedirect()))
+            Templates(List("sites", "index"))
         }
       }
     }
