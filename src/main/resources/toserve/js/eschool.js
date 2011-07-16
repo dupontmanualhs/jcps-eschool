@@ -15,6 +15,7 @@ $(function () {
             "dots" : false,
             "icons" : false,
                 },
+        "core" : {"animation" : 250},
         "plugins" : [ "themes", "html_data" ]
 	});
 });
