@@ -2,7 +2,7 @@
   <wizard:screen_info><div>Page <wizard:screen_number></wizard:screen_number> of <wizard:total_screens></wizard:total_screens></div></wizard:screen_info>
   <wizard:wizard_top> <div> <wizard:bind></wizard:bind> </div> </wizard:wizard_top>
   <wizard:screen_top> <div> <wizard:bind></wizard:bind> </div> </wizard:screen_top>
-  <wizard:errors> <div> <ul> <wizard:item> <li> <wizard:bind></wizard:bind> </li> </wizard:item> </ul> </div> </wizard:errors>
+  <wizard:errors class="ui-state-error" id="errors"> <div><span class="ui-icon ui-icon-alert" id="errorIcon">  </span> <ul class="errorList"> <wizard:item> <li> <wizard:bind></wizard:bind> </li> </wizard:item> </ul> </div> </wizard:errors>
   <div>
     <wizard:fields>
       <table>
@@ -25,7 +25,7 @@
 		      <li>
 			<wizard:bind></wizard:bind>
 		      </li>
-		    </wizard:error> 
+		    </wizard:error>
 		  </ul>
 		</wizard:field_errors>
               </td>
