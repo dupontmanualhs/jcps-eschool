@@ -87,6 +87,12 @@ div.NavBar{
 
 img.logo{
     margin-top:13px;
+    border-style:none;
+}
+
+.logoLink{
+    text-decoration:none;
+    border-style:none;
 }
 
 #navTree{
