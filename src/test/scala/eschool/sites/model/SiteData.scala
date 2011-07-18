@@ -70,6 +70,7 @@ object SiteData {
       </p>
     )
     soccerHome.pages(ListMap("roster" -> roster.id.get, "sched" -> sched.id.get))
+    soccerHome.save(true)
     val bobSoccer: Site = Site.createRecord.owner(bob.id.get).name("Bob's Soccer Site")
         .ident("soccer").pages(ListMap("home" -> soccerHome.id.get))
     bobSoccer.save(true)

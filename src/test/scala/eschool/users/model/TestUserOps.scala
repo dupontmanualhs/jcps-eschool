@@ -12,20 +12,20 @@ import java.io.File
 import org.openqa.selenium.firefox.FirefoxDriver
 
 class TestUserOps extends JUnitSuite with BeforeAndAfterAll {
-//  val service = new ChromeDriverService.Builder()
-//    .usingChromeDriverExecutable(new File("/opt/chromedriver"))
-//    .usingAnyFreePort()
-//    .build()
-//  service.start()
+  val service = new ChromeDriverService.Builder()
+    .usingChromeDriverExecutable(new File("/opt/chromedriver"))
+    .usingAnyFreePort()
+    .build()
+  service.start()
   var driver: WebDriver = null
 
-//  override def afterAll() {
-//    service.stop()
-//  }
+  override def afterAll() {
+    service.stop()
+  }
 
   @Before
   def createDriver() {
-    driver = new FirefoxDriver()
+    driver = new ChromeDriver(service)
   }
 
   @After

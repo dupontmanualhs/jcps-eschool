@@ -1,13 +1,22 @@
 <html>
 <head>
 </head>
-<body class="lift:content_id=main">
-  <div id="main" class="lift:surround?with=default;at=content">
-  <h2>PageMap</h2>
-  <ul class="lift:PageMap">
-      <li>MySite</li>
-  </ul>
-  <div class="createButton">Create new site or no</div>
-  </div>
+  <body class="lift:content_id=main">
+    <div id="main" class="lift:surround?with=default;at=content">
+      <div class="lift:PageMap">
+        <h2 class="siteName">Bob's Site</h2>
+
+        <p>Owner: <span class="ownerDisplayName">Bob Loblaw</span> (<span class="linkOtherSites">other sites</span>)</p>
+
+        <ul class="pageList">
+          <li>home</li>
+          <li>other
+            <ul>
+              <li>child page</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
 </body>
 </html>

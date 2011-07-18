@@ -19,22 +19,33 @@ object SiteList {
               <p>That shouldn't happen</p>)
       S.redirectTo("/error")
     }
-    val currentUser_? = reqUser.get == User.getCurrent
-    val header: String = if (currentUser_?) {
+    val currentUser_? = User.getCurrent.isDefined && User.getCurrent.get.id.get == user.id.get
+    val header: String = (if (currentUser_?) {
       "Your"
     } else {
       user.displayName + "'s"
-    } + " Sites"
+    }) + " Sites"
     val sites = Site.findAll("owner" -> user.id.asJValue)
     val userHasSites: String = (if (currentUser_?) "You have" else user.displayName + " has") +
       (if (sites.isEmpty) " no sites." else " the following " + pluralizeInformal(sites.length, "site") + ":")
     val listOfSites = if (sites.isEmpty) {
       <br/>
     } else {
-      <ul>{ sites.flatMap((s: Site) => <li>{ s.name }</li>) }</ul>
+      <ul>
+      { sites.flatMap(
+        (s: Site) =>
+        <li><a href={ "/sites/%s/%s".format(user.username, s.ident)}>{ s.name }</a></li>
+      )}
+      </ul>
     }
-    (".header *" #> header &
-     ".userHasSites" #> userHasSites &
-     ".listOfSites" #> listOfSites)(in)
+    val cssFunc = ".header *" #> header &
+        ".userHasSites" #> userHasSites &
+        ".listOfSites" #> listOfSites
+    val funcWithCreate = if (currentUser_?) { // TODO: should be based on permissions
+      cssFunc
+    } else {
+      cssFunc & ".createLink" #> NodeSeq.Empty
+    }
+    funcWithCreate(in)
   }
 }

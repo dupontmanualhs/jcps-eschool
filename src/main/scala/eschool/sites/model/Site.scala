@@ -8,6 +8,7 @@ import net.liftweb.mongodb.record.field._
 import net.liftweb.mongodb.record.{MongoMetaRecord, MongoRecord}
 import org.bson.types.ObjectId
 import net.liftweb.common.{Full, Failure, Empty, Box}
+import xml.NodeSeq
 
 class Site extends MongoRecord[Site] with ObjectIdPk[Site] {
   def meta = Site

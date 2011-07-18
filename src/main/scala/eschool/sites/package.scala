@@ -3,16 +3,17 @@ package eschool
 import sites.model.{Site, Page}
 import sites.snippet.{SiteList, PageMap, SitePage}
 import users.model.User
-import net.liftweb.sitemap.{**, ConvertableToMenu, Menu}
+import net.liftweb.sitemap.{ConvertableToMenu, Menu}
 import net.liftweb.util.Helpers._
 import net.liftweb.common.{Box, Empty, Full}
 import net.liftweb.http.{NotFoundResponse, Templates, MVCHelper}
 import net.liftweb.json.JsonDSL._
+import net.liftweb.sitemap.Loc._
 
 package object sites {
-//  def menus: Array[ConvertableToMenu] = Array {
-//    //Menu.i("Sites") / "sites" / **
-//  }
+  def menus: Array[ConvertableToMenu] = Array {
+    Menu.i("Sites") / "sites" >> If(User.loggedIn_? _, "You must log in to view your sites.")
+  }
 
   object Dispatch extends MVCHelper {
     serve {
@@ -58,7 +59,7 @@ package object sites {
           }
         } case Nil => {
             SiteList.reqUser(Full(User.getCurrentOrRedirect()))
-            Templates(List("sites", "index"))
+            Templates(List("sites", "list"))
         }
       }
     }

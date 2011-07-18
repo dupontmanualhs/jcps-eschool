@@ -24,7 +24,7 @@ class Boot {
       Array.concat(
         Array[ConvertableToMenu](Menu("Home") / "index"), // the simple way to declare a menu
 
-        //sites.menus,
+        sites.menus,
         users.menus
       ): _*
     )

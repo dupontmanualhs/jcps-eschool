@@ -6,8 +6,7 @@ import net.liftweb.record.field._
 import net.liftweb.json.JsonDSL._
 import net.liftweb.common.{Box, Empty, Full}
 import eschool.utils.record.Gender
-
-import net.liftweb.http.{S, SessionVar}
+import net.liftweb.http.{Templates, S, SessionVar}
 
 class User private() extends MongoRecord[User] with ObjectIdPk[User] {
   def meta = User
@@ -69,10 +68,8 @@ object User extends User with MongoMetaRecord[User] {
 
   def getCurrent: Box[User] = current.get
 
-  def getCurrentOrRedirect(): User = {
-    current.get openOr {
-      S.error("You must login to access that page.")
-      S.redirectTo("/users/login")
-    }
+  def getCurrentOrRedirect(): User = current.get openOr {
+    S.error("You must login to access that page.")
+    S.redirectTo("/users/login")
   }
 }
