@@ -16,7 +16,7 @@ import users.model.User
 class Boot {
   def boot() {
     // where to search snippet
-    //LiftRules.addToPackages("eschool.sites")
+    LiftRules.addToPackages("eschool.sites")
     LiftRules.addToPackages("eschool.users")
 
     // Build SiteMap

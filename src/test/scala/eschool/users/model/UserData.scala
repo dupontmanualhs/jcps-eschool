@@ -1,9 +1,8 @@
 package eschool.users.model
 
 import eschool.utils.record.Gender
-import net.liftweb.common.Full
 
-class TestUser(
+class DbUser(
     val username: String,
     val first: String,
     val middle: String,
@@ -34,10 +33,10 @@ class TestUser(
 
 object UserData {
   def create() {
-    val users = List[TestUser](
-        new TestUser("rsmith1", "Robert", "John", "Smith", "Bob", true, "bob@jcpsky.net", "robert1", "G1"),
-        new TestUser("mjones02", "Mary", "Allison", "Jones", null, false, "mary@stu.jcpsky.net", "mary1", "G2"),
-        new TestUser("sjohnson03", "Stephen", "Eric", "Johnson", "Steve", true, "steve@stu.jcpsky.net", "steve1", "G3")
+    val users = List[DbUser](
+        new DbUser("rsmith1", "Robert", "John", "Smith", "Bob", true, "bob@jcpsky.net", "robert1", "G1"),
+        new DbUser("mjones02", "Mary", "Allison", "Jones", null, false, "mary@stu.jcpsky.net", "mary1", "G2"),
+        new DbUser("sjohnson03", "Stephen", "Eric", "Johnson", "Steve", true, "steve@stu.jcpsky.net", "steve1", "G3")
     )
     users.foreach(_.create())
   }

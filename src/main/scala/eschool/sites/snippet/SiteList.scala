@@ -27,7 +27,7 @@ object SiteList {
     } + " Sites"
     val sites = Site.findAll("owner" -> user.id.asJValue)
     val userHasSites: String = (if (currentUser_?) "You have" else user.displayName + " has") +
-      (if (sites.isEmpty) " no sites." else " the following" + pluralizeInformal(sites.length, "site") + ":")
+      (if (sites.isEmpty) " no sites." else " the following " + pluralizeInformal(sites.length, "site") + ":")
     val listOfSites = if (sites.isEmpty) {
       <br/>
     } else {

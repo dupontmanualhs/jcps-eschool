@@ -1,10 +1,7 @@
 package eschool.sites.model
 
-import xml.NodeSeq
-
 import eschool.users.model.User
-import net.liftweb.common.Empty
-import net.liftweb.util.Schedule
+import collection.immutable.ListMap
 
 object SiteData {
   def create() {
@@ -31,7 +28,7 @@ object SiteData {
     )
     altHome.save(true)
     val bobPersonal: Site = Site.createRecord.owner(bob.id.get).name("All About Bob")
-        .ident("personal").pages(Map("home" -> homepage.id.get, "altHome" -> altHome.id.get))
+        .ident("personal").pages(ListMap("home" -> homepage.id.get, "altHome" -> altHome.id.get))
     bobPersonal.save(true)
     val alice = Page.createRecord.name("Alice").content(
       <h2>Alice</h2>
@@ -72,9 +69,9 @@ object SiteData {
         </ul>
       </p>
     )
-    soccerHome.pages(Map("roster" -> roster.id.get, "sched" -> sched.id.get))
+    soccerHome.pages(ListMap("roster" -> roster.id.get, "sched" -> sched.id.get))
     val bobSoccer: Site = Site.createRecord.owner(bob.id.get).name("Bob's Soccer Site")
-        .ident("soccer").pages(Map("home" -> soccerHome.id.get))
+        .ident("soccer").pages(ListMap("home" -> soccerHome.id.get))
     bobSoccer.save(true)
     val mary = User.getByUsername("mjones02").open_!
     val maryHomepage = Page.createRecord.name("Mary's Homepage").content(
@@ -83,7 +80,7 @@ object SiteData {
     )
     maryHomepage.save(true)
     val marysSite = Site.createRecord.owner(mary.id.get).name("Mary's Site")
-        .ident("site").pages(Map("home" -> maryHomepage.id.get))
+        .ident("site").pages(ListMap("home" -> maryHomepage.id.get))
     marysSite.save(true)
   }
 }
