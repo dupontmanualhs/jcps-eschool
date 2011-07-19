@@ -52,6 +52,9 @@ div.NavBar{
     margin:0;
     padding:0;
     height:auto;
+    border-bottom-style:solid;
+    border-bottom-color:black;
+    border-bottom-width:1px;
 }
 
 #MenuList{
@@ -119,4 +122,17 @@ img.logo{
 
 ul.errorList{
     list-style-type:none;
+}
+
+div.contentArea{
+    float:left;
+    width:786px;
+    margin:0;
+    padding-left:2px;
+    padding-right:2px;
+    padding-top:5px;
+    padding-bottom:5px;
+    border-bottom-style:solid;
+    border-bottom-color:black;
+    border-bottom-width:1px;
 }
