@@ -6,7 +6,9 @@ import net.liftweb.record.field._
 import net.liftweb.json.JsonDSL._
 import net.liftweb.common.{Box, Empty, Full}
 import eschool.utils.record.Gender
-import net.liftweb.http.{Templates, S, SessionVar}
+import org.bson.types.ObjectId
+import net.liftweb.http.{RequestVar, S, SessionVar}
+import java.security.PrivateKey
 
 class User private() extends MongoRecord[User] with ObjectIdPk[User] {
   def meta = User
@@ -26,7 +28,7 @@ class User private() extends MongoRecord[User] with ObjectIdPk[User] {
   }
 
   def login(): Unit = {
-    User.current.set(Full(this))
+    User.current.set(Full(this.id.get))
   }
 
   def logout(): Unit = {
@@ -42,7 +44,8 @@ object User extends User with MongoMetaRecord[User] {
 
   override def collectionName = "users"
 
-  private object current extends SessionVar[Box[User]](Empty)
+  private object current extends SessionVar[Box[ObjectId]](Empty)
+  private object currentUser extends RequestVar[Box[User]](current.get.flatMap(User.find(_)))
 
   def getByUsername(username: String): Box[User] = {
     User.find("username" -> username)
@@ -66,9 +69,9 @@ object User extends User with MongoMetaRecord[User] {
 
   def loggedIn_? = current.isDefined
 
-  def getCurrent: Box[User] = current.get
+  def getCurrent: Box[User] = currentUser.get
 
-  def getCurrentOrRedirect(): User = current.get openOr {
+  def getCurrentOrRedirect(): User = getCurrent openOr {
     S.error("You must login to access that page.")
     S.redirectTo("/users/login")
   }
