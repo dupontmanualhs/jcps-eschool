@@ -108,7 +108,7 @@ img.logo{
 }
 
 #errors{
-    width:788px;
+    width:784px;
     margin:0;
     padding:0px;
     float:left;
@@ -135,4 +135,11 @@ div.contentArea{
     border-bottom-style:solid;
     border-bottom-color:black;
     border-bottom-width:1px;
+}
+
+.formBody{
+    width:786px;
+    float:left;
+    margin:0px;
+    padding:0px;
 }
