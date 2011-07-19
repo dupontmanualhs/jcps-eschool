@@ -58,8 +58,6 @@ ul.sf-menu li li li.sfHover ul {
 	margin-bottom:	1em;
 }
 .sf-menu a {
-	border-left:	1px solid #fff;
-	border-top:		1px solid #CFDEFF;
 	padding: 		.75em 1em;
 	text-decoration:none;
 }
@@ -68,6 +66,11 @@ ul.sf-menu li li li.sfHover ul {
 }
 .sf-menu li {
 	background:		#BDD2FF;
+    -moz-border-radius:10px 10px 0px 0px;
+	-webkit-border-radius:10px 10px 0px 0px;
+	border-radius:10px 10px 0px 0px;
+	behavior: url(/css/PIE.htc);
+	margin-right: 2px;
 }
 .sf-menu li li {
 	background:		#AABDE6;
@@ -79,6 +82,10 @@ ul.sf-menu li li li.sfHover ul {
 .sf-menu a:focus, .sf-menu a:hover, .sf-menu a:active {
 	background:		#CFDEFF;
 	outline:		0;
+	-moz-border-radius:10px 10px 0px 0px;
+	-webkit-border-radius:10px 10px 0px 0px;
+	border-radius:10px 10px 0px 0px;
+	behavior: url(/css/PIE.htc);
 }
 
 /*** arrows **/
@@ -131,6 +138,6 @@ li.sfHover > a > .sf-sub-indicator {
 	-webkit-border-top-right-radius: 17px;
 	-webkit-border-bottom-left-radius: 17px;
 }
-.sf-shadow ul.sf-shadow-off {
-	background: transparent;
+.sf-shadow ul.sf-shadow-on {
+	background: red;
 }
