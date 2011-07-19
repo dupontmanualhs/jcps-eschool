@@ -9,7 +9,7 @@ import xml.Text
 import net.liftweb.mongodb.record.field._
 
 object UserPassword extends LiftScreen {
-  val user = User.getCurrentOrRedirect()
+  object user extends ScreenVar[User](User.getCurrentOrRedirect())
   val currentPswd = password("Current Password", "")
   val newPswd = password("New Password", "")
   val reEnterPswd = password("Re-enter New Password", "")

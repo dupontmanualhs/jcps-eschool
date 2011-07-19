@@ -5,7 +5,7 @@ import eschool.utils.record.Helpers.toBox
 import eschool.users.model.User
 
 object UserSettings extends LiftScreen {
-  val user = User.getCurrentOrRedirect()
+  object user extends ScreenVar[User](User.getCurrentOrRedirect())
   val preferred = field("Preferred", user.preferred.get.getOrElse(""))
   val email = field("Email", user.email.get.getOrElse(""))
 
