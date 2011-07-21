@@ -19,6 +19,6 @@ object ContactList {
   }
 
   def allTeachers(): List[User] = {
-    User.findAll  // TODO: sort alphabetically by last name
+    User.findAll.sortWith((u1: User, u2: User) => u1.formalName.toLowerCase < u2.formalName.toLowerCase)
   }
 }
