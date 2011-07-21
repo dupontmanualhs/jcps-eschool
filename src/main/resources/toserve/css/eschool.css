@@ -120,7 +120,7 @@ img.logo{
     white-space:normal !important;
     height: auto;
     padding:1px 2px;
-    overflow:auto;
+    overflow:auto; /* Change to hidden to get rid of the scroll bar */
 }
 
 #errors{
@@ -159,3 +159,9 @@ div.contentArea{
     margin:0px;
     padding:0px;
 }
+
+/*
+#navTree a { white-space:normal !important; height: auto; padding:1px 2px; }
+#navTree li > ins { vertical-align:top; }
+#navTree .jstree-hovered, #navTree .jstree-clicked { border:0; }
+*/
