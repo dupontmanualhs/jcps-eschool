@@ -27,6 +27,10 @@ class User private() extends MongoRecord[User] with ObjectIdPk[User] {
     preferred.get.getOrElse(first.get) + " " + last.get
   }
 
+  def formalName = {
+    last.get + ", " + first.get
+  }
+
   def login(): Unit = {
     User.current.set(Full(this.id.get))
   }
