@@ -10,12 +10,12 @@ import net.liftweb.mongodb.record.field._
 
 object UserPassword extends LiftScreen {
   object user extends ScreenVar[User](User.getCurrentOrRedirect())
-  val currentPswd = password("Current Password", "")
+  val currentPswd = password("Current Password", "", checkCurrentPassword _)
   val newPswd = password("New Password", "")
   val reEnterPswd = password("Re-enter New Password", "")
 
-  def checkCurrentPassword(): List[FieldError] = {
-    if (User.authenticate(user, currentPswd.get).isDefined) {
+  def checkCurrentPassword(pswd: String): List[FieldError] = {
+    if (user.password.isMatch(pswd)) {
       Nil
     } else {
       Text("The current password is incorrect.")
@@ -26,7 +26,7 @@ object UserPassword extends LiftScreen {
     if (newPswd.get == reEnterPswd.get) Nil else Text("New passwords do not match.")
   }
 
-  override def validations = checkCurrentPassword _ +: checkNewPasswordsMatch _ +: super.validations
+  override def validations = checkNewPasswordsMatch _ +: super.validations
 
   def finish() {
     user.password.set(new Password(newPswd.get, ""))
