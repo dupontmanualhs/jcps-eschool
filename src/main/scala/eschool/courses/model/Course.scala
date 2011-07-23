@@ -4,7 +4,7 @@ import net.liftweb.mongodb.record._
 import net.liftweb.mongodb.record.field._
 import net.liftweb.record.field._
 import net.liftweb.json.JsonDSL._
-//import net.liftweb.common.{Box, Empty, Full}
+import net.liftweb.common.{Box, Empty, Full}
 import org.bson.types.ObjectId
 import eschool.utils.model.HtmlField
 
