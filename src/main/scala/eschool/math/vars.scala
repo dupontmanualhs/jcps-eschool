@@ -1,7 +1,7 @@
 package eschool.math
 
 class MathVariable(val name: String) extends MathValue {
-	require(name.length == 1, "A MathVariable must be 1 character long.")
+	require(name.length == 1, "A MathVariable must be 1 character long. %s is %d characters long.".format(name, name.length))
 	def getName: String = name
 	override def simplify: MathExpression = new MathVariable(this.getName)
 	override def getPrecedence: Int = 6
@@ -18,7 +18,7 @@ class MathVariable(val name: String) extends MathValue {
 
 object MathVariable {
 	def apply(name: String): Option[MathVariable] = {
-		if (name.length > 1 || !name.charAt(0).isLetter || name.equalsIgnoreCase("e") || name.equalsIgnoreCase("pi") || name == "i" || name.contains("/")) None
+		if (name.length == 0 || name.length > 1 || !name.charAt(0).isLetter || name.equalsIgnoreCase("e") || name == "i") None
 		else Some(new MathVariable(name))
 	}
 	def apply(name: Char): Option[MathVariable] = MathVariable(name.toString)

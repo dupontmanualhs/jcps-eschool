@@ -4,6 +4,7 @@ import eschool.math.MathImplicitConversions._
 import org.junit.Test
 import org.scalatest.junit.JUnitSuite
 import collection.immutable.TreeMap
+import java.beans.Expression
 
 class TestOperations extends JUnitSuite {
 	@Test def operationStrings() { /*
@@ -15,7 +16,9 @@ class TestOperations extends JUnitSuite {
 		assert(MathOperation("5-6").get === MathDifference(MathInteger(5), MathInteger(6)))
 		assert(MathOperation("7/8*(6-4)").get === MathProduct(MathFraction(MathInteger(7), MathInteger(8)), MathDifference(MathInteger(6), MathInteger(4))))
 		assert(MathOperation("7/8*6-4").get === MathDifference(MathProduct(MathFraction(MathInteger(7), MathInteger(8)), MathInteger(6)), MathInteger(4)))
-		assert(MathOperation("7^6").get === MathExponentiation(MathInteger(7), MathInteger(6)))          */
+       */	assert(MathOperation("7^{6}").get === MathExponentiation(MathExpression("7").get, MathExpression("6").get))
+		assert(MathOperation("(45+3x)^{3}").get === MathExponentiation(MathExpression("45+3x").get, MathExpression("3").get))
+		assert(MathOperation("\\log_[3]{4}").get === MathLogarithm(MathExpression("3").get, MathExpression("4").get))
 	}
 	@Test def products() {
 		val sixTimesSix = MathInteger(6) * MathInteger(6)

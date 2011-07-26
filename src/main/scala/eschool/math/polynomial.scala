@@ -1,6 +1,6 @@
 package eschool.math
 
-class MathPolynomial(terms: List[MathTerm]) extends MathExpression with Operationable {
+class MathPolynomial(terms: List[MathTerm]) extends MathExpression {
 	def getTerms: List[MathTerm] = terms
 	def simplify: MathExpression = new MathPolynomial(this.getTerms)
 	def getPrecedence: Int = 1

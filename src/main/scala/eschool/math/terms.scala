@@ -5,7 +5,6 @@ import collection.immutable.TreeMap
 class MathTerm(coefficient: MathConstant, variableSequence: TreeMap[String, MathInteger]) extends MathExpression {
 	def getCoefficient: MathConstant = coefficient
 	def getVariableSequence: TreeMap[String, MathInteger] = variableSequence
-	def isNegative = this.getCoefficient != Nil && this.getCoefficient.getValue < 0
 	override def getPrecedence: Int = 2
 	def toMathOperation: MathOperation = {
 		if (this.getVariableSequence == Nil) {

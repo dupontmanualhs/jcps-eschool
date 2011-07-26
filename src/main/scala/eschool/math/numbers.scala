@@ -74,6 +74,8 @@ class MathFraction(val numerator: BigInt, val denominator: BigInt) extends MathE
 
 	override def toApproximation: MathApproximateNumber = MathApproximateNumber(this.getNumerator.toDouble./(this.getDenominator.toDouble))
 
+	override def getPrecedence: Int = 3
+
 	private def formatString(s: String): String = {
 		if (this.getDenominator == 1) {
 			s.format(this.getNumerator.toString())
@@ -95,7 +97,6 @@ object MathFraction {
 	def apply(numerator: BigInt, denominator: BigInt) = new MathFraction(numerator, denominator)
 	def apply(numerator: MathInteger, denominator: MathInteger) = new MathFraction(numerator.getInt, denominator.getInt)
 	def apply(s: String): Option[MathFraction] = MathFraction.stringToFraction(s)
-
 	def stringToFraction(s: String): Option[MathFraction] = {
 		val fractionLaTeXRegex = new Regex("""^\\frac\{([+-]?\d+)\}\{([+-]?\d+)\}$""", "numerator", "denominator")
 		val normalFractionRegex = new Regex("""^([+-]?\d+)/([+-]?\d+)$""", "numerator", "denominator")
