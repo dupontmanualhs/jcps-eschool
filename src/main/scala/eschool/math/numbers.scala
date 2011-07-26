@@ -77,15 +77,15 @@ class MathFraction(val numerator: BigInt, val denominator: BigInt) extends MathE
 	override def getPrecedence: Int = 3
 
 	private def formatString(s: String): String = {
-		if (this.getDenominator == 1) {
+		/*if (this.getDenominator == 1) {
 			s.format(this.getNumerator.toString())
-		} else {
+		} else {         */
 			s.format(this.getNumerator.toString(), this.getDenominator.toString())
-		}
+		//}
 	}
 
 	override def toLaTeX: String = {
-		if (this.getDenominator == 1) formatString("%s") else formatString("\\frac{%s}{%s}")
+		/*if (this.getDenominator == 1) formatString("%s") else */formatString("\\frac{%s}{%s}")
 	}
 
 	override def description: String = {
@@ -113,6 +113,7 @@ class MathInteger(anInt: BigInt) extends MathFraction(anInt, BigInt(1)) {
 	def getInt = anInt
 	override def getValue: BigDecimal = BigDecimal(anInt)
 	override def description: String = "MathInteger(%s)".format(MathNumber.intDescription(anInt))
+	override def toLaTeX: String = "" + this.getInt
 }
 
 object MathInteger {
@@ -140,7 +141,7 @@ class MathDecimal(val value: BigDecimal) extends MathExactNumber {
 	}
 
 	private def scientificNumberLaTeX: String = {
-		val regex = new Regex("""([+-]?[.\d]*)?E([+-]\d+)""", "coefficient", "power")
+		val regex = new Regex("""^([+-]?[.\d]*)?E([+-]\d+)$""", "coefficient", "power")
 		val scientificNum = regex.findFirstMatchIn(this.getValue.toString()).get
 		val potentialCoef: String = scientificNum.group("coefficient")
 		val potentialPower: String = scientificNum.group("power")
@@ -190,7 +191,7 @@ class MathApproximateNumber(val value: BigDecimal) extends MathRealNumber {
 }
 
 object MathApproximateNumber {
-	val prefix: String = "\\approx "
+	val prefix: String = "\\approx"
 	val symbol: String = "\u2248"
 	def apply(d: BigDecimal) = new MathApproximateNumber(d)
 
@@ -199,6 +200,17 @@ object MathApproximateNumber {
 			MathRealNumber(s.substring(MathApproximateNumber.prefix.length)).map(_.toApproximation)
 		} else if (s.startsWith(MathApproximateNumber.symbol)) {
 			MathRealNumber(s.substring(MathApproximateNumber.symbol.length)).map(_.toApproximation)
+		} else {
+			None
+		}
+
+		val approxRegex = new Regex("""^\\approx(.+)$""", "value")
+		val potentialApprox = approxRegex.findFirstMatchIn(s)
+		if (potentialApprox.isDefined) {
+			MathNumber.stringToDecimal(potentialApprox.get.group("value")) match {
+				case Some(aBigDecimal) => Some(MathApproximateNumber(aBigDecimal))
+				case _ => None
+			}
 		} else {
 			None
 		}
@@ -226,7 +238,11 @@ class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) exte
 		if (isApproximation) {
 			this.getImaginary.toApproximation.getValue.toString()
 		} else {
-			this.getImaginary.toLaTeX
+			this.getImaginary.toLaTeX match {
+				case "1" => ""
+				case "-1" => "-"
+				case str: String => str
+			}
 		}
 	}
 
@@ -306,7 +322,11 @@ class ComplexNumberString(val s: String) {
 			if (this.hasNoRealPart) {
 				basicString
 			} else {
-				basicString.substring(this.imaginaryNumberIndex)
+				basicString.substring(this.imaginaryNumberIndex) match {
+					case ""  => "1"
+					case "-" => "-1"
+					case str: String => str
+				}
 			}
 		}
 

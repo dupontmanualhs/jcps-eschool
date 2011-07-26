@@ -7,14 +7,10 @@ abstract class MathOperation(expressions: List[MathExpression]) extends MathExpr
 	def getOperator: String
 	def getDescString: String
 	override def description: String = {
-		(for (expression <- this.getExpressions) yield {
-			expression.description
-		}).mkString(this.getDescString + "(", ", ", ")")
+		this.getExpressions.map(_.description).mkString(this.getDescString + "(", ", ", ")")
 	}
 	override def toLaTeX: String = {
-		(for (expression <- this.getExpressions) yield {
-			expressionLaTeX(expression)
-		}).mkString(this.getOperator)
+		this.getExpressions.map(_.toLaTeX).mkString(this.getOperator)
 	}
 	def expressionLaTeX(expression: MathExpression): String = {
 		if (expression.getPrecedence < this.getPrecedence || expression.isNegative) {
@@ -57,7 +53,7 @@ object MathOperation {
 
 	//finds every index where the regex matches in the string
 	def allIndicesIn(s: String, regex: Regex): List[Int] = {
-		(0 until s.length).filter((i: Int) => regex.findPrefixMatchOf(s.substring(i)).isDefined).toList
+		(s.length until 0 by -1).filter((i: Int) => regex.findPrefixMatchOf(s.substring(i)).isDefined).toList
 	}
 
 	def apply(operator: String, left: MathExpression, right: MathExpression): Option[MathOperation] = {
@@ -123,7 +119,7 @@ class MathExponentiation(expression: MathExpression, exponent: MathExpression) e
 	override def getPrecedence: Int = 5
 	override def getOperator: String = "^"
 	override def getDescString: String = "MathExponentiation"
-	override def toLaTeX: String = this.getExpression.toLaTeX + this.getOperator + "{" + this.getExponent.toLaTeX + "}"
+	override def toLaTeX: String = super.expressionLaTeX(this.getExpression) + this.getOperator + "{" + super.expressionLaTeX(getExponent) + "}"
 }
 
 object MathExponentiation {
@@ -175,7 +171,7 @@ class MathLogarithm(val base: MathExpression, expression: MathExpression) extend
 	def getBase: MathExpression = super.getExpressions.head
 	def getExpression: MathExpression = super.getExpressions.last
 	override def getPrecedence: Int = 4
-	override def toLaTeX: String = this.getOperator + " {" + expressionLaTeX(this.getExpression) + "}"
+	override def toLaTeX: String = this.getOperator + "{" + expressionLaTeX(this.getExpression) + "}"
 	override def getOperator: String = "\\log_{%s}".format(this.getBase.toLaTeX)
 	override def getDescString: String = "MathLogarithm"
 	override def simplify: MathExpression = new MathLogarithm(this.getBase, this.getExpression)
@@ -246,7 +242,7 @@ class MathRoot(val index: MathExpression, val radicand: MathExpression) extends 
 	def getIndex: MathExpression = index
 	def getRadicand: MathExpression = radicand
 
-	override def toLaTeX = "\\sqrt[%s]{%s}".format(getIndex, getRadicand)
+	override def toLaTeX = "\\sqrt[%s]{%s}".format(super.expressionLaTeX(getIndex), super.expressionLaTeX(getRadicand))
 	override def getDescString: String = "MathRoot"
 	override def description: String = this.getDescString + "(Index: %s, Radicand: %s)".format(this.getIndex.description, this.getRadicand.description)
 }
@@ -278,7 +274,7 @@ object MathRoot {
 }
 
 class MathSquareRoot(radicand: MathExpression) extends MathRoot(MathInteger(2), radicand) {
-	override def toLaTeX: String = "\\sqrt{%s}".format(super.getRadicand)
+	override def toLaTeX: String = "\\sqrt{%s}".format(super.expressionLaTeX(super.getRadicand))
 	override def getDescString: String = "MathSquareRoot"
 	override def description: String = this.getDescString + "(" + this.getRadicand.description + ")"
 }
@@ -300,7 +296,7 @@ object MathSquareRoot {
 }
 
 class MathCubeRoot(radicand: MathExpression) extends MathRoot(MathInteger(3), radicand) {
-	override def toLaTeX: String = "\\sqrt[3]{%s}".format(super.getRadicand)
+	override def toLaTeX: String = "\\sqrt[3]{%s}".format(super.expressionLaTeX(super.getRadicand))
 	override def getDescString: String = "MathCubeRoot"
 	override def description: String = this.getDescString + "(" + this.getRadicand.description + ")"
 }
@@ -339,7 +335,7 @@ class MathNegation(expression: MathExpression) extends MathOperation(List[MathEx
 object MathNegation {
 	def apply(expression: MathExpression) = new MathNegation(expression)
 	def apply(s: String): Option[MathNegation] = {
-		val negRegex = new Regex("""^-\(?(.*)\)?$""", "expression")
+		val negRegex = new Regex("""^-(.*)$""", "expression")
 		val splitNeg = negRegex.findFirstMatchIn(s)
 		if (splitNeg.isEmpty) {
 			None

@@ -1,7 +1,7 @@
 package eschool.math
 
 //MathExpression subclasses: MathOperation & MathValue (see below),
-//                                         MathTerm (not yet implemented)
+//                                         MathTerm
 trait MathExpression {
 	def simplify: MathExpression
 	def getPrecedence: Int
@@ -14,8 +14,8 @@ trait MathExpression {
 	def /(operand: MathExpression): MathOperation = MathQuotient(List[MathExpression](this, operand))
 	def isNegative: Boolean = {
 		this match {
-			case constant: MathConstant => constant.getValue < 0
-			case term: MathTerm => term.getCoefficient != Nil && term.getCoefficient.getValue < 0
+			case constant: MathConstant => constant != null && constant.getValue < 0
+			case term: MathTerm => term.getCoefficient != null && term.getCoefficient.getValue < 0
 			case neg: MathNegation => true
 			case _ => false
 		}
@@ -25,18 +25,30 @@ trait MathExpression {
 object MathExpression {
 	def apply(str: String): Option[MathExpression] = {
 		if (parenthesesAlignIn(str)) {
-			val s = removeOutsideParensIn(str)
-			MathValue(s) orElse MathOperation(s) orElse MathTerm(s) orElse MathPolynomial(s)
+			val s = removeTrivialParts(str)
+			MathOperation(s) orElse MathValue(s) orElse MathTerm(s) orElse MathPolynomial(s)
 		} else {
 			None
 		}
 
 	}
+	private def removeTrivialParts(s: String): String = {
+	    removeSpacesIn(removeOutsideParensIn(s))
+	}
 	private def parenthesesAlignIn(s: String): Boolean = {
 		s.count(_ == ')') == s.count(_ == '(')
 	}
 	private def removeOutsideParensIn(s: String): String = {
-		if (s.startsWith("(") && s.endsWith(")")) removeOutsideParensIn(s.substring(1, s.length() - 1)) else s
+		if (s.startsWith("(") && s.endsWith(")")) {
+			removeOutsideParensIn(s.substring(1, s.length() - 1))
+		} else if (s.startsWith("{") && s.endsWith("}")) {
+			removeOutsideParensIn(s.substring(1, s.length() - 1))
+		} else {
+			s
+		}
+	}
+	private def removeSpacesIn(s: String): String = {
+		""" """.r.replaceAllIn(s, "")
 	}
 }
 

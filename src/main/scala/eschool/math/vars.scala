@@ -1,7 +1,7 @@
 package eschool.math
 
 class MathVariable(val name: String) extends MathValue {
-	require(name.length == 1, "A MathVariable must be 1 character long. %s is %d characters long.".format(name, name.length))
+	require(name.length == 1 && name.charAt(0).isLetter && !name.equalsIgnoreCase("e") && name != "i", "%s is not a valid MathVariable. MathVariable cannot be \"e\", \"E\", or \"i\"".format(name))
 	def getName: String = name
 	override def simplify: MathExpression = new MathVariable(this.getName)
 	override def getPrecedence: Int = 6
