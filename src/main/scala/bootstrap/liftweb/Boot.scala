@@ -8,6 +8,7 @@ import sitemap._
 
 import eschool.{sites, users}
 import users.model.User
+import eschool.math.Math
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -22,7 +23,7 @@ class Boot {
     // Build SiteMap
     def sitemap = SiteMap(
       Array.concat(
-        Array[ConvertableToMenu](Menu("Home") / "index"), // the simple way to declare a menu
+        Array[ConvertableToMenu](Menu("Home") / "index", Menu.i("Static") / "static" / **), // the simple way to declare a menu
 
         sites.menus,
         users.menus
@@ -63,6 +64,8 @@ class Boot {
       case "js" :: _ => true
       case "tinymce" :: _ => true
     }
+
+    eschool.math.Math.rules
 
     MongoConfig.init
   }
