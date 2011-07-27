@@ -354,7 +354,7 @@ class MathNegation(expression: MathExpression) extends MathOperation(List[MathEx
 	override def getDescString: String = "MathNegation"
 	override def getPrecedence: Int = 4
 	override def simplify: MathExpression = new MathNegation(this.getExpression)
-	override def toLaTeX: String = this.getOperator + super.expressionLaTeX(this.getExpression) + ")"
+	override def toLaTeX: String = "(" + this.getOperator + super.expressionLaTeX(this.getExpression) + ")"
 }
 
 object MathNegation {
