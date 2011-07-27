@@ -10,13 +10,13 @@ abstract class MathOperation(expressions: List[MathExpression]) extends MathExpr
 		this.getExpressions.map(_.description).mkString(this.getDescString + "(", ", ", ")")
 	}
 	override def toLaTeX: String = {
-		this.getExpressions.map(_.toLaTeX).mkString(this.getOperator)
+		this.getExpressions.map(_.toLaTeX).mkString("(", this.getOperator, ")")
 	}
 	def expressionLaTeX(expression: MathExpression): String = {
 		if (expression.getPrecedence < this.getPrecedence || expression.isNegative) {
 			"(" + expression.toLaTeX + ")"
 		} else {
-			expression.toLaTeX
+			"(" + expression.toLaTeX + ")"
 		}
 	}
 
@@ -34,21 +34,49 @@ abstract class MathOperation(expressions: List[MathExpression]) extends MathExpr
 }
 object MathOperation {
 	def apply(s: String): Option[MathOperation] = {
-		MathNegation(s) orElse MathExponentiation(s) orElse MathLogarithm(s) orElse MathRoot(s) orElse MathOperation.binaryOperation(s)
+		MathNegation(s) orElse MathOperation.binaryOperation(s) orElse MathOperation.unaryOperation(s) orElse
+		MathNaturalLogarithm(s) orElse MathBase10Logarithm(s) orElse MathSquareRoot(s) orElse MathCubeRoot(s)
 	}
 	def binaryOperation(s: String): Option[MathOperation] = {
-		findOperation(s, """[+-]""".r) orElse findOperation(s, """[*/]|\\div|\\times|\\cdot""".r)
+		findBinaryOperation(s, """[+-]""".r) orElse findBinaryOperation(s, """[*/]|\\div|\\times|\\cdot""".r) orElse findBinaryOperation(s, """[\^]""".r)
 	}
 
-	def findOperation(s: String, regex: Regex): Option[MathOperation] = {
-		for (index <- allIndicesIn(s, regex)) {
-			val splitOperation: (String, String) = s.splitAt(index)
+	def findBinaryOperation(s: String, regex: Regex): Option[MathOperation] = {
+		findBinaryOperation(s, regex, 0, allIndicesIn(s, regex))
+	}
 
-			if (MathExpression(splitOperation._1).isDefined && MathExpression(regex.replaceFirstIn(splitOperation._2, "")).isDefined) {
-				return MathOperation(regex.findFirstIn(splitOperation._2).get, MathExpression(splitOperation._1).get, MathExpression(regex.replaceFirstIn(splitOperation._2, "")).get)
+	def findBinaryOperation(s: String, regex: Regex, i: Int, indices: List[Int]): Option[MathOperation] = {
+		if (i >= indices.length) {
+			None
+		} else {
+			val splitOperation: (String, String) = s.splitAt(indices(i))
+			(MathExpression(splitOperation._1), MathExpression(regex.replaceFirstIn(splitOperation._2, ""))) match {
+				case (Some(leftExpr), Some(rightExpr)) => MathOperation(regex.findFirstIn(splitOperation._2).get, leftExpr, rightExpr)
+				case _ => findBinaryOperation(s, regex, i+1, indices)
 			}
 		}
-		None
+	}
+
+	def unaryOperation(s: String): Option[MathOperation] = {
+		findUnaryOperation(s, """\}\{""".r) orElse findUnaryOperation(s, """\]\{""".r)
+	}
+
+	def findUnaryOperation(s: String, regex: Regex): Option[MathOperation] = {
+		findUnaryOperation(s, 0, allIndicesIn(s, regex).map(_ + 1))
+	}
+
+	def findUnaryOperation(s: String, index: Int, indices: List[Int]): Option[MathOperation] = {
+		if (index >= indices.length) {
+			None
+		} else {
+			val splitOperation: (String, String) = s.splitAt(indices(index))
+			val leftExpr: Option[MathExpression] = MathExpression("""\\log_|\\sqrt""".r.replaceFirstIn(splitOperation._1, ""))
+			val rightExpr: Option[MathExpression] = MathExpression(splitOperation._2)
+			(leftExpr, rightExpr) match {
+				case (Some(left), Some(right)) => MathOperation(splitOperation._1, left, right)
+				case _ => findUnaryOperation(s, index + 1, indices)
+			}
+		}
 	}
 
 	//finds every index where the regex matches in the string
@@ -62,6 +90,9 @@ object MathOperation {
 			case "-" => Some(MathDifference(left, right))
 			case str if (str == "\\div" || str == "/") => Some(MathQuotient(left, right))
 			case str if (str == "*" || str == "\\times" || str == "\\cdot") => Some(MathProduct(left, right))
+			case "^" => Some(MathExponentiation(left, right))
+			case str if (str.startsWith("\\log_")) => Some(MathLogarithm(left, right))
+			case str if (str.startsWith("\\sqrt")) => Some(MathRoot(left, right))
 			case _ => None
 		}
 	}
@@ -124,7 +155,7 @@ class MathExponentiation(expression: MathExpression, exponent: MathExpression) e
 
 object MathExponentiation {
 	def apply(expression: MathExpression, exponent: MathExpression): MathExponentiation = new MathExponentiation(expression, exponent)
-	def apply(s: String): Option[MathExponentiation] = {
+	/*def apply(s: String): Option[MathExponentiation] = {
 		val variableAndPowerSplit = """[\^]""".r.split(s)
 		if (variableAndPowerSplit.size <= 1) {
 			None
@@ -133,7 +164,7 @@ object MathExponentiation {
 			val exponent = variableAndPowerSplit.tail.mkString
 			extractMathExponentiation(leftExpression, exponent)
 		}
-	}
+	}    */
 	def extractMathExponentiation(leftExpression: String, exponent: String): Option[MathExponentiation] = {
 		if (parenthesesSurround(leftExpression)) {
 			getExpressionExponentiation(leftExpression, exponent)
@@ -323,19 +354,13 @@ class MathNegation(expression: MathExpression) extends MathOperation(List[MathEx
 	override def getDescString: String = "MathNegation"
 	override def getPrecedence: Int = 4
 	override def simplify: MathExpression = new MathNegation(this.getExpression)
-	override def toLaTeX: String = {
-		if (this.getExpression.getPrecedence < this.getPrecedence || this.getExpression.isNegative) {
-			this.getOperator + "(" + this.getExpression.toLaTeX + ")"
-		} else {
-			this.getOperator + this.getExpression.toLaTeX
-		}
-	}
+	override def toLaTeX: String = this.getOperator + super.expressionLaTeX(this.getExpression) + ")"
 }
 
 object MathNegation {
 	def apply(expression: MathExpression) = new MathNegation(expression)
 	def apply(s: String): Option[MathNegation] = {
-		val negRegex = new Regex("""^-(.*)$""", "expression")
+		val negRegex = new Regex("""^-\((.*)\)$""", "expression")
 		val splitNeg = negRegex.findFirstMatchIn(s)
 		if (splitNeg.isEmpty) {
 			None

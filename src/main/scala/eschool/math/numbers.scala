@@ -41,7 +41,7 @@ object MathNumber {
 		}
 	}
 
-	def numBeginsWithPlusSign(num: String): Boolean = (num.length != 0 && num.charAt(0) == '+')
+	def numBeginsWithPlusSign(num: String): Boolean = (num.length != 0 && num != null && num.charAt(0) == '+')
 
 
 	def intDescription(i: BigInt): String = {
@@ -59,7 +59,7 @@ abstract class MathRealNumber extends MathNumber {
 }
 
 object MathRealNumber {
-	def apply(s: String): Option[MathRealNumber] = {
+	def apply(s: String): Option[MathNumber] = {
 		MathInteger(s) orElse MathFraction(s) orElse MathDecimal(s) orElse MathApproximateNumber(s)
 	}
 }
@@ -98,11 +98,11 @@ object MathFraction {
 	def apply(numerator: MathInteger, denominator: MathInteger) = new MathFraction(numerator.getInt, denominator.getInt)
 	def apply(s: String): Option[MathFraction] = MathFraction.stringToFraction(s)
 	def stringToFraction(s: String): Option[MathFraction] = {
-		val fractionLaTeXRegex = new Regex("""^\\frac\{([+-]?\d+)\}\{([+-]?\d+)\}$""", "numerator", "denominator")
-		val normalFractionRegex = new Regex("""^([+-]?\d+)/([+-]?\d+)$""", "numerator", "denominator")
+		val fractionLaTeXRegex = new Regex("""^([+-]?)\\frac\{([+-]?\d+)\}\{([+-]?\d+)\}$""", "operator", "numerator", "denominator")
+		val normalFractionRegex = new Regex("""^([+-])?([+-]?\d+)/([+-]?\d+)$""", "operator", "numerator", "denominator")
 		val potentialFraction = fractionLaTeXRegex.findFirstMatchIn(s) orElse normalFractionRegex.findFirstMatchIn(s)
 		if (potentialFraction.isDefined) {
-			Some(MathFraction(MathInteger(potentialFraction.get.group("numerator")).get, MathInteger(potentialFraction.get.group("denominator")).get))
+			Some(MathFraction(MathInteger(potentialFraction.get.group("operator") + potentialFraction.get.group("numerator")).get, MathInteger(potentialFraction.get.group("denominator")).get))
 		} else {
 			None
 		}
@@ -194,21 +194,13 @@ object MathApproximateNumber {
 	val prefix: String = "\\approx"
 	val symbol: String = "\u2248"
 	def apply(d: BigDecimal) = new MathApproximateNumber(d)
-
-	def apply(s: String): Option[MathApproximateNumber] = {
-		if (s.startsWith(MathApproximateNumber.prefix)) {
-			MathRealNumber(s.substring(MathApproximateNumber.prefix.length)).map(_.toApproximation)
-		} else if (s.startsWith(MathApproximateNumber.symbol)) {
-			MathRealNumber(s.substring(MathApproximateNumber.symbol.length)).map(_.toApproximation)
-		} else {
-			None
-		}
-
-		val approxRegex = new Regex("""^\\approx(.+)$""", "value")
+	def apply(s: String): Option[MathNumber] = {
+		val approxRegex = new Regex("""^\\approx(.+)$""", "value")       //TODO: does not work for unicode (yet)
 		val potentialApprox = approxRegex.findFirstMatchIn(s)
 		if (potentialApprox.isDefined) {
-			MathNumber.stringToDecimal(potentialApprox.get.group("value")) match {
-				case Some(aBigDecimal) => Some(MathApproximateNumber(aBigDecimal))
+			MathExpression(potentialApprox.get.group("value")) match {
+				case Some(aBigDecimal: MathDecimal) => Some(MathApproximateNumber(aBigDecimal.getValue))
+				case Some(aComplexNum: MathComplexNumber) => Some(MathComplexNumber(MathApproximateNumber(aComplexNum.getReal.getValue), MathApproximateNumber(aComplexNum.getImaginary.getValue)))
 				case _ => None
 			}
 		} else {
@@ -247,7 +239,7 @@ class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) exte
 	}
 
 	private def complexString: String = {
-		realToLaTeX + getOperand + imaginaryToLaTeX + "i"
+		"(" + realToLaTeX + getOperand + imaginaryToLaTeX + "i)"
 	}
 
 	private def getOperand: String = if (imaginaryToLaTeX.startsWith("-")) "" else "+"
@@ -276,99 +268,32 @@ object MathComplexNumber {
 	}
 
 	def apply(s: String): Option[MathComplexNumber] = {
-		val complexString = new ComplexNumberString(s)
-		complexString.toMathComplexNumber
-	}
-}
-
-class ComplexNumberString(val s: String) {
-		override def toString: String = s
-
-		def toMathComplexNumber: Option[MathComplexNumber] = {
-			if (this.isAComplexNumber) {
-				this.extractComplexNumber
-			} else {
-				None
+		/*val complexString = new ComplexNumberString(s)
+		complexString.toMathComplexNumber       */
+		val basicComplexRegex = new Regex("""^()(.*)?i$""", "real", "imaginary")
+		val complexRegex = new Regex("""^(.*)(?=[+-](?<!E))(.*)?i$""", "real", "imaginary")
+		val potentialComplex = complexRegex.findFirstMatchIn(s) orElse  basicComplexRegex.findFirstMatchIn(s)
+		if (potentialComplex.isDefined) {
+			val potentialRealPart = {
+				potentialComplex.get.group("real") match {
+					case "" => "0"
+					case str: String => str
+				}
 			}
-		}
-
-		def extractComplexNumber: Option[MathComplexNumber] = {
-			(MathRealNumber(this.getRealPart), MathRealNumber(this.getImaginaryPart)) match {
-				case (Some(real), Some(imaginary)) => Some(MathComplexNumber(real, imaginary))
-				case _ => None
-			}
-		}
-
-		def hasNoRealPart: Boolean = {
-			getIndexOfOperand(this.toString) <= 0
-		}
-
-		def isAComplexNumber: Boolean = {
-			this.toString.contains("i")
-		}
-
-		def isApproximation: Boolean = this.toString.startsWith(MathApproximateNumber.prefix)
-
-		def getRealPart: String = {
-			if (this.hasNoRealPart) "0"
-			else {
-				val basicString: String = this.withoutTrivialParts
-				basicString.substring(0, getIndexOfOperand(basicString))
-			}
-		}
-
-		def getImaginaryPart: String = {
-			val basicString: String = this.withoutTrivialParts
-			if (this.hasNoRealPart) {
-				basicString
-			} else {
-				basicString.substring(this.imaginaryNumberIndex) match {
-					case ""  => "1"
+			val potentialImaginaryPart = {
+				potentialComplex.get.group("imaginary") match {
+					case "" => "1"
+					case "+" => "1"
 					case "-" => "-1"
 					case str: String => str
 				}
 			}
-		}
-
-		def withoutTrivialParts: String = {
-			val stringWithoutParenthesis: ComplexNumberString = this.withoutParenthesis
-			stringWithoutParenthesis.removeI()
-		}
-
-		def withoutParenthesis: ComplexNumberString = {
-			val parenRegex = """[\(\)]""".r
-			new ComplexNumberString(parenRegex.replaceAllIn(this.toString, ""))
-		}
-
-		def removeI(): String = {
-			val iRegex = """i""".r
-			iRegex.replaceAllIn(this.toString, "")
-		}
-
-		def hasParenthesis: Boolean = {
-			val str = this.toString
-			if (this.isApproximation) {
-				str.substring(1, 2).equals("(") && str.substring(s.length - 1).equals(")")
-			} else {
-				str.substring(0, 1).equals("(") && str.substring(s.length - 1).equals(")")
+			(MathRealNumber(potentialRealPart), MathRealNumber(potentialImaginaryPart)) match {
+				case (Some(real: MathRealNumber), Some(imag: MathRealNumber)) => Some(MathComplexNumber(real, imag))
+				case _ => None
 			}
-		}
-
-		def imaginaryNumberIndex: Int = {
-			val basicString = this.withoutTrivialParts
-			val indexOfOperand = getIndexOfOperand(basicString)
-			if (basicString.charAt(indexOfOperand) == '+') {
-				indexOfOperand + 1
-			} else {
-				indexOfOperand
-			}
-		}
-
-		def getIndexOfOperand(str: String): Int = {
-			val range = (str.length - 1).to(0, -1)
-			range.find((i: Int) =>
-				(str.charAt(i) == '+' || str.charAt(i) == '-' &&
-						(i == 0 || str.charAt(i - 1) != 'E'))).getOrElse(-1)
+		} else {
+			None
 		}
 	}
-
+}

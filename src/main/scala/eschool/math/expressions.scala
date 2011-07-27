@@ -23,32 +23,45 @@ trait MathExpression {
 }
 
 object MathExpression {
-	def apply(str: String): Option[MathExpression] = {
-		if (parenthesesAlignIn(str)) {
-			val s = removeTrivialParts(str)
-			MathOperation(s) orElse MathValue(s) orElse MathTerm(s) orElse MathPolynomial(s)
-		} else {
+	def apply(s: String): Option[MathExpression] = {
+		if (!parenthesesAlignIn(s)) {
 			None
+		} else {
+			val result: Option[MathExpression] = MathNegation(s) orElse MathValue(s) orElse MathOperation(s) orElse MathTerm(s) orElse MathPolynomial(s)
+			if (!result.isDefined && hasOutsideParens(s)) {
+				MathExpression(removeTrivialParts(s))
+			} else {
+				result
+			}
 		}
-
 	}
 	private def removeTrivialParts(s: String): String = {
-	    removeSpacesIn(removeOutsideParensIn(s))
+		removeFirstPlusIn(removeSpacesIn(removeOutsideParensIn(s)))
 	}
-	private def parenthesesAlignIn(s: String): Boolean = {
-		s.count(_ == ')') == s.count(_ == '(')
+
+	private def hasOutsideParens(s: String): Boolean = {
+		s.startsWith("(") && s.endsWith(")") ||
+		s.startsWith("{") && s.endsWith("}") ||
+		s.startsWith("[") && s.endsWith("]")
 	}
-	private def removeOutsideParensIn(s: String): String = {
-		if (s.startsWith("(") && s.endsWith(")")) {
-			removeOutsideParensIn(s.substring(1, s.length() - 1))
-		} else if (s.startsWith("{") && s.endsWith("}")) {
-			removeOutsideParensIn(s.substring(1, s.length() - 1))
+
+	def parenthesesAlignIn(s: String): Boolean = {
+		s.count(_ == '(') == s.count(_ == ')') &&
+		s.count(_ == '{') == s.count(_ == '}') &&
+		s.count(_ == '[') == s.count(_ == ']')
+	}
+	def removeOutsideParensIn(s: String): String = {
+		if (hasOutsideParens(s)) {
+			s.substring(1, s.length() - 1)
 		} else {
 			s
 		}
 	}
 	private def removeSpacesIn(s: String): String = {
 		""" """.r.replaceAllIn(s, "")
+	}
+	private def removeFirstPlusIn(s: String): String = {
+		"""^\+""".r.replaceFirstIn(s, "")
 	}
 }
 

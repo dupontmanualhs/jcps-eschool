@@ -3,12 +3,15 @@ package eschool.math
 import util.Random
 
 object MathRandom {
-  private val NumberGenerator = new Random
+  private var NumberGenerator = new Random(3)
   private val defaultRange = 1 to 10
   private val defaultDecimals = 1
   private val defaultVariableArray = Array[String]("a","b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","u","v","w","x","y","z",
                                          "A","B","C","D","F","G","H","J","K","L","M","N","P","Q","R","S","T","U","V","W","X","Y","Z")
 
+  def resetGenerator(i: Int) {
+	  NumberGenerator = new Random(i)
+  }
   def getRandomExpression: MathExpression = getRandomExpression(defaultRange)
   def getRandomExpression(range: Range): MathExpression = getRandomExpression(defaultRange, defaultDecimals)
   def getRandomExpression(range: Range, decimals: Double): MathExpression = {
