@@ -2,14 +2,14 @@
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <title>Insert Summation</title>
+    <title>Insert Product</title>
     <script type="text/javascript" src="../../tiny_mce_popup.js"></script>
     <script type="text/javascript">
         (function() {
-            //inserts the finished LaTeX for the desired sum into the main math editor menu
+            //inserts the finished LaTeX for the desired product into the main math editor menu
             window.finish = function() {
                 var ed = tinyMCEPopup.editor;
-                var str = '\\sum_{' + document.forms[0].bottom.value + '}^{' + document.forms[0].top.value + '}{' + document.forms[0].term.value + '}';
+                var str = '\\prod_{' + document.forms[0].bottom.value + '}^{' + document.forms[0].top.value + '}{' + document.forms[0].term.value + '}';
                 ed.execCommand('mceInsertContent', false, str);
                 tinyMCEPopup.close();
             }
@@ -19,7 +19,7 @@
 <body>
 
 <form>
-    <p>Create a sum:</p>
+    <p>Create a product:</p>
     <p>Top: <input id="top" name="top" type="text" class="text" /></p>
     <p>Bottom: <input id="bottom" name="bottom" type="text" class="text" /></p>
     <p>Term: <input id="term" name="term" type="term" class="term" /></p>

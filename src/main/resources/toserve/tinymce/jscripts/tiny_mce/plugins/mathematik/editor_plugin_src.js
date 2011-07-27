@@ -57,8 +57,42 @@
 			    });
 			});
 
-			// Register buttons
-			ed.addButton('squareroot', {
+			ed.addCommand('mceProd', function(){
+			    ed.windowManager.open({
+			        file : url + '/prodMenu.html',
+			        width : 500,
+			        height : 250,
+			        inline : 1
+			    }, {
+			        plugin_url : url
+			    });
+			});
+
+			ed.addCommand('mceExp', function(){
+			    var str = t._expo("Base", "Exponent");
+
+			    ed.execCommand('mceInsertContent', false, str);
+			});
+
+			ed.addCommand('mceSubscript', function(){
+			    var str = t._subscript("Expression", "Subscript");
+
+			    ed.execCommand('mceInsertContent', false, str);
+			});
+
+			ed.addCommand('mceGreek', function(){
+                ed.windowManager.open({
+			        file : url + '/greekMenu.html',
+			        width : 750,
+			        height : 250,
+			        inline : 1
+			    }, {
+			        plugin_url : url
+			    });
+			});
+
+			//add buttons
+            ed.addButton('squareroot', {
 				title : 'Root',
 				cmd : 'mceSqrt',
 				image : url + '/img/sqrt.png'
@@ -82,6 +116,32 @@
                 cmd : 'mceSum',
                 image : url + '/img/sum.png'
             });
+
+            ed.addButton('prodpopup', {
+                title : 'Product Insert Menu',
+                cmd : 'mceProd',
+                image : url + '/img/prod.png'
+            });
+
+            ed.addButton('exp', {
+                title : 'Exponentiation',
+                cmd : 'mceExp',
+                image : url + '/img/super.png'
+            });
+
+            ed.addButton('subsc', {
+                title : 'Subscript',
+                cmd : 'mceSubscript',
+                image : url + '/img/sub.png'
+            });
+
+            ed.addButton('greek', {
+                title : 'Greek Alphabet',
+                cmd : 'mceGreek',
+                image : url + '/img/pi.png'
+            });
+
+
             //ed.onNodeChange.add(function(ed, cm, n){
             //   cm.setActive('squareroot', true);
             //});
@@ -112,8 +172,12 @@
 		    return "\\frac{" + n + "}{" + d + "}";
 		},
 
-		_sum : function(t, b, r) {
-		    return "\\sum_{" + b + "}^{" + t + "} " + r;
+		_expo : function(b, e) {
+		    return "{" + b + "}^{" + e + "}";
+		},
+
+		_subscript : function(b, i) {
+		    return "{" + b + "}_{" + i + "}";
 		}
 	});
 

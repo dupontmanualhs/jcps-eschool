@@ -21,7 +21,7 @@ object TeXToImage {
       var buffer: ByteArrayOutputStream = new ByteArrayOutputStream()
       if(ImageIO.write(image.asInstanceOf[BufferedImage], "PNG", buffer)){
          var bytes: Array[Byte] = buffer.toByteArray
-         return Full(InMemoryResponse(bytes, ("Content-Type" -> "image/png") :: Nil, Nil, 200))
+         return Full(InMemoryResponse(bytes, ("Content-Type" -> "image/png") :: Nil, Nil, 201))
       } else {
          return Full(InternalServerErrorResponse())
       }
