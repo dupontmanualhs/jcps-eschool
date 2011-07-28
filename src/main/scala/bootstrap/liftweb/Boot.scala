@@ -23,7 +23,7 @@ class Boot {
     // Build SiteMap
     def sitemap = SiteMap(
       Array.concat(
-        Array[ConvertableToMenu](Menu("Home") / "index", Menu.i("Static") / "static" / **), // the simple way to declare a menu
+        Array[ConvertableToMenu](Menu("Home") / "index", Menu.i("Static") / "static" / **),
 
         sites.menus,
         users.menus

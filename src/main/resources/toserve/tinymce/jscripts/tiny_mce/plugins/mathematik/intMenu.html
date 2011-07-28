@@ -9,7 +9,7 @@
             //inserts the finished LaTeX for the desired product into the main math editor menu
             window.finish = function() {
                 var ed = tinyMCEPopup.editor;
-                var str = '\\prod_{' + document.forms[0].bottom.value + '}^{' + document.forms[0].top.value + '}{' + document.forms[0].term.value + '}';
+                var str = '\\int_{' + document.forms[0].bottom.value + '}^{' + document.forms[0].top.value + '}{' + document.forms[0].term.value + '}';
                 ed.execCommand('mceInsertContent', false, str);
                 tinyMCEPopup.close();
             }
@@ -19,10 +19,10 @@
 <body>
 
 <form>
-    <p>Create a product:</p>
+    <p>Create an integral:</p>
     <p>Top: <input id="top" name="top" type="text" class="text" /></p>
     <p>Bottom: <input id="bottom" name="bottom" type="text" class="text" /></p>
-    <p>Term: <input id="term" name="term" type="text" class="text" /></p>
+    <p>Function: <input id="term" name="term" type="text" class="text" /></p>
 
     <div class="mceActionPanel">
 		<input type="button" id="insert" name="insert" value="Insert" onclick="finish();" />
