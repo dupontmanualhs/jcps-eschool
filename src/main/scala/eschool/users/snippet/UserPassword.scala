@@ -26,7 +26,11 @@ object UserPassword extends LiftScreen {
     if (newPswd.get == reEnterPswd.get) Nil else Text("New passwords do not match.")
   }
 
-  override def validations = checkNewPasswordsMatch _ +: super.validations
+  def checkLength(): List[FieldError] = {
+    if(newPswd.get.length() < 4) Text("New password is too short.") else Nil
+  }
+
+  override def validations = checkNewPasswordsMatch _ +: checkLength _  +: super.validations
 
   def finish() {
     user.password.set(new Password(newPswd.get, ""))
