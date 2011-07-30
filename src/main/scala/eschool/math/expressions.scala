@@ -14,10 +14,28 @@ trait MathExpression {
 	def /(operand: MathExpression): MathOperation = MathQuotient(List[MathExpression](this, operand))
 	def isNegative: Boolean = {
 		this match {
-			case constant: MathConstant => constant != null && constant.getValue < 0
-			case term: MathTerm => term.getCoefficient != null && term.getCoefficient.getValue < 0
+			case complex: MathComplexNumber => complex.getReal.getValue < 0
+			case constant: MathConstant => constant.getValue < 0
+			case term: MathTerm => term.getCoefficient.getValue < 0
 			case neg: MathNegation => true
+			case basicOp: MathOperation if (basicOp.is_Sum_or_Difference_or_Product_or_Quotient) => basicOp.getExpressions != Nil && basicOp.getExpressions.head.isNegative
 			case _ => false
+		}
+	}
+
+	def is_Sum_or_Difference_or_Product_or_Quotient: Boolean = {
+		this match {
+			case sum: MathSum => true
+			case dif: MathDifference => true
+			case prod: MathProduct => true
+			case quot: MathQuotient => true
+			case _ => false
+		}
+	}
+	def simplePrecedence: Int = {
+		this match {
+			case expr: MathOperation if (expr.is_Sum_or_Difference_or_Product_or_Quotient) => expr.getPrecedence / 2
+			case _ => this.getPrecedence
 		}
 	}
 }

@@ -22,9 +22,9 @@ class MathTerm(coefficient: MathConstant, variableSequence: TreeMap[String, Math
 	override def simplify: MathExpression = this
 
 	private def coefficientLaTeX: String = {
-		if (this.getCoefficient.getValue == 1) {
+		if (this.getCoefficient.getValue == 1 && this.getVariableSequence != Nil) {
 			""
-		} else if (this.getCoefficient.getValue == -1) {
+		} else if (this.getCoefficient.getValue == -1 && this.getVariableSequence != Nil) {
 			"-"
 		} else if (this.getCoefficient.isInstanceOf[MathComplexNumber]) {
 			"(%s)".format(this.getCoefficient.toLaTeX)

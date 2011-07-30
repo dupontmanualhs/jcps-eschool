@@ -23,45 +23,45 @@ class TestOperations extends JUnitSuite {
 	@Test def products() {
 		val sixTimesSix = MathInteger(6) * MathInteger(6)
 		assert(sixTimesSix.description === "MathProduct(MathInteger(6), MathInteger(6))")
-		assert(sixTimesSix.toLaTeX === "6*6")
+		assert(sixTimesSix.toLaTeX === "6\\cdot6")
 		//assert(sixTimesSix.simplify === MathInteger(36))
 
 		val sixTimesSixTimesTwo = MathInteger(6) * MathInteger(6) * MathInteger(2)
 		assert(sixTimesSixTimesTwo.description === "MathProduct(MathProduct(MathInteger(6), MathInteger(6)), MathInteger(2))")
-		assert(sixTimesSixTimesTwo.toLaTeX === "6*6*2")
+		assert(sixTimesSixTimesTwo.toLaTeX === "6\\cdot6\\cdot2")
 		//assert(sixTimesSixTimesTwo.simplify === MathInteger(72))
 	}
 	@Test def quotients() {
 		val nineOverThree = MathQuotient(MathInteger(9), MathInteger(3))
 		assert(nineOverThree.description === "MathQuotient(MathInteger(9), MathInteger(3))")
-		assert(nineOverThree.toLaTeX === "9/3")
+		assert(nineOverThree.toLaTeX === "9\\div3")
 		//assert(nineOverFive.simplify === MathInteger(3))
 	}
 	@Test def differences() {
 		val negEightMinusNegTwelve = MathDifference(MathInteger(-8), MathInteger(-12))
 		assert(negEightMinusNegTwelve.description === "MathDifference(MathInteger(-8), MathInteger(-12))")
-		assert(negEightMinusNegTwelve.toLaTeX === "(-8)-(-12)")
+		assert(negEightMinusNegTwelve.toLaTeX === "-8-(-12)")
 		//assert(negEightMinusNegTwelve.simplify === MathInteger(4))
 	}
 	@Test def sums() {
 		val fourTimesSixPlusSevenTimesTwo = MathSum(MathProduct(MathInteger(4), MathInteger(6)), MathProduct(MathInteger(7), MathInteger(2)))
 		assert(fourTimesSixPlusSevenTimesTwo.description === "MathSum(MathProduct(MathInteger(4), MathInteger(6)), MathProduct(MathInteger(7), MathInteger(2)))")
-		assert(fourTimesSixPlusSevenTimesTwo.toLaTeX === "4*6+7*2")
+		assert(fourTimesSixPlusSevenTimesTwo.toLaTeX === "4\\cdot6+7\\cdot2")
 		//assert(fourTimesSixPlusSevenTimesTwo.simplify.description === MathInteger(38))
 	}
 
 	@Test def roots() {
 		val sqrtTwoTimesSqrtSeven = MathProduct(MathSquareRoot(MathInteger(3)), MathSquareRoot(MathInteger(7)))
-		assert(sqrtTwoTimesSqrtSeven.toLaTeX === "\\sqrt{3}*\\sqrt{7}")
+		assert(sqrtTwoTimesSqrtSeven.toLaTeX === "\\sqrt{3}\\cdot\\sqrt{7}")
 		assert(sqrtTwoTimesSqrtSeven.description === "MathProduct(MathSquareRoot(MathInteger(3)), MathSquareRoot(MathInteger(7)))")
 		//assert(sqrtTwoTimesSqrtSeven.simplify === MathExponentiation(MathInteger(14), MathFraction(MathInteger(1), MathInteger(2))))
 
 		val sqrtNegFiveTimesCubeRootFour = MathProduct(MathSquareRoot(MathInteger(-5)), MathCubeRoot(MathInteger(4)))
-		assert(sqrtNegFiveTimesCubeRootFour.toLaTeX === "\\sqrt{-5}*\\sqrt[3]{4}")
+		assert(sqrtNegFiveTimesCubeRootFour.toLaTeX === "\\sqrt{-5}\\cdot\\sqrt[3]{4}")
 		assert(sqrtNegFiveTimesCubeRootFour.description === "MathProduct(MathSquareRoot(MathInteger(-5)), MathCubeRoot(MathInteger(4)))")
 
 		val sqrtThreeTimesSqrtFour = MathProduct(MathSquareRoot(MathInteger(3)), MathSquareRoot(MathInteger(4)))
-		assert(sqrtThreeTimesSqrtFour.toLaTeX === "\\sqrt{3}*\\sqrt{4}")
+		assert(sqrtThreeTimesSqrtFour.toLaTeX === "\\sqrt{3}\\cdot\\sqrt{4}")
 		assert(sqrtThreeTimesSqrtFour.description === "MathProduct(MathSquareRoot(MathInteger(3)), MathSquareRoot(MathInteger(4)))")
 		//assert(sqrtThreeTimesSqrtFour.simplify === MathProduct(MathInteger(2), MathExponentiation(MathInteger(3), MathFraction(MathInteger(1), MathInteger(2)))))
 

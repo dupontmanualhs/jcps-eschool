@@ -111,6 +111,7 @@ object MathFraction {
 
 class MathInteger(anInt: BigInt) extends MathFraction(anInt, BigInt(1)) {
 	def getInt = anInt
+	override def getPrecedence: Int = 6
 	override def getValue: BigDecimal = BigDecimal(anInt)
 	override def description: String = "MathInteger(%s)".format(MathNumber.intDescription(anInt))
 	override def toLaTeX: String = "" + this.getInt
@@ -213,7 +214,7 @@ class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) exte
 	def getReal: MathRealNumber = real
 	def getImaginary: MathRealNumber = imag
 	override def getValue: BigDecimal = null
-	override def getPrecedence: Int = 0
+	override def getPrecedence: Int = -1
 
 	// if either real or imag are approximate, both are coerced to approximate
 	def isApproximation: Boolean = real.isInstanceOf[MathApproximateNumber] || imag.isInstanceOf[MathApproximateNumber]
@@ -239,7 +240,7 @@ class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) exte
 	}
 
 	private def complexString: String = {
-		"(" + realToLaTeX + getOperand + imaginaryToLaTeX + "i)"
+		realToLaTeX + getOperand + imaginaryToLaTeX + "i"
 	}
 
 	private def getOperand: String = if (imaginaryToLaTeX.startsWith("-")) "" else "+"
