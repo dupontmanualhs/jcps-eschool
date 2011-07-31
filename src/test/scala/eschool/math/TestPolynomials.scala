@@ -34,11 +34,8 @@ class TestPolynomials extends JUnitSuite {
 
 	@Test def polynomials() {
 		assert(MathPolynomial("45x^2y^34 - 5x").get === MathPolynomial(List[MathTerm](MathTerm("45x^2y^34").get, MathTerm("-5x").get)))
-		assert(MathExpression("45x^2y^34 - 5x").get === MathPolynomial(List[MathTerm](MathTerm("45x^2y^34").get, MathTerm("-5x").get)))
 		assert(MathPolynomial("-45x^{2}y^{34} + 5x").get === MathPolynomial(List[MathTerm](MathTerm("-45x^2y^34").get, MathTerm("5x").get)))
-		assert(MathExpression("-45x^{2}y^{34} + 5x").get === MathPolynomial(List[MathTerm](MathTerm("-45x^2y^34").get, MathTerm("5x").get)))
 		assert(MathPolynomial("2x^{2}y^{3} - x^{3}y^{4} - 3z^{5}").get === MathPolynomial(List[MathTerm](MathTerm("2x^2y^3").get, MathTerm("-x^3y^4").get, MathTerm("-3z^5").get)))
-		assert(MathExpression("2x^{2}y^{3} - x^{3}y^{4} - 3z^{5}").get === MathPolynomial(List[MathTerm](MathTerm("2x^2y^3").get, MathTerm("-x^3y^4").get, MathTerm("-3z^5").get)))
 
 		val poly = MathPolynomial(List[MathTerm](MathTerm("45x^2y^34").get, MathTerm("-5x").get))
 		assert(poly.description === "MathPolynomial(MathTerm(MathInteger(45), \"x\" -> MathInteger(2), \"y\" -> MathInteger(34)), MathTerm(MathInteger(-5), \"x\" -> MathInteger(1)))")

@@ -21,14 +21,14 @@ class TestValues extends JUnitSuite {
 		assertTrue(MathValue("x/y") == None)
 
 		assert(MathValue("6").get === MathInteger(6))
-		assert(MathValue("5/7").get === MathFraction(MathInteger(5), MathInteger(7)))
+		assert(MathValue("\\frac{5}{7}").get === MathFraction(MathInteger(5), MathInteger(7)))
 		assert(MathValue("\\pi").get === MathConstantPi())
 		assert(MathValue("e").get === MathConstantE())
 		assert(MathValue("7+4i").get === MathComplexNumber(MathInteger(7), MathInteger(4)))
 		assert(MathValue("x").get === MathVariable("x").get)
 		assert(MathValue("4.56").get === MathDecimal(4.56))
-		assert(MathValue("\\approx 5").get === MathApproximateNumber(5))
-		assert(MathValue("\u22489").get === MathApproximateNumber(9))
+		assert(MathValue("\\approx5").get === MathApproximateNumber(5))
+		assert(MathValue("\\approx9").get === MathApproximateNumber(9))
 	}
 	@Test def integers() {
 		val one: MathValue = MathValue("1").get
@@ -40,13 +40,13 @@ class TestValues extends JUnitSuite {
 	}
 
 	@Test def fractions() {
-		val four: MathValue = MathValue("4/1").get
+		val four: MathValue = MathValue("\\frac{4}{1}").get
 		assert(four.description === "MathFraction(4, 1)")
-		assert(four.toLaTeX === "4")
-		val oneHalf = MathValue("1/2").get
+		assert(four.toLaTeX === "\\frac{4}{1}")
+		val oneHalf = MathValue("\\frac{1}{2}").get
 		assert(oneHalf.description === "MathFraction(1, 2)")
 		assert(oneHalf.toLaTeX === "\\frac{1}{2}")
-		val bigFraction = MathValue("4567890123456/-1234567890123").get
+		val bigFraction = MathValue("\\frac{4567890123456}{-1234567890123}").get
 		assert(bigFraction.description === "MathFraction(BigInt(4567890123456), BigInt(-1234567890123))")
 		assert(bigFraction.toLaTeX === "\\frac{4567890123456}{-1234567890123}")
 		val fractionLaTeX = MathValue("\\frac{2}{3}").get
@@ -67,28 +67,28 @@ class TestValues extends JUnitSuite {
 	}
 
 	@Test def approximations() {
-		val one = MathValue("\u22481").get
-		assert(one.description === "MathApproximateNumber(1.0)")
-		assert(one.toLaTeX === "\\approx 1.0")
-		val oneHalf = MathValue("\\approx 0.5").get
+		val one = MathValue("\\approx1").get
+		assert(one.description === "MathApproximateNumber(1)")
+		assert(one.toLaTeX === "\\approx1")
+		val oneHalf = MathValue("\\approx0.5").get
 		assert(oneHalf.description === "MathApproximateNumber(0.5)")
-		assert(oneHalf.toLaTeX === "\\approx 0.5")
+		assert(oneHalf.toLaTeX === "\\approx0.5")
 	}
 
 	@Test def complex() {
-		val oneI = MathComplexNumber("0+1i").get
+		val oneI = MathExpression("0+1i").get
 		assert(oneI.description === "MathComplexNumber(MathInteger(0), MathInteger(1))")
-		assert(oneI.toLaTeX === "0+1i")
-		val approx = MathValue("\\approx 3/5-2/3i").get
+		assert(oneI.toLaTeX === "0+i")
+		val approx = MathExpression("\\approx(\\frac{3}{5}-\\frac{2}{3}i)").get
 		assert(approx.description === "MathComplexNumber(MathApproximateNumber(0.6), MathApproximateNumber(-0.6666666666666666))")
 		assert(approx.toLaTeX === "\\approx(0.6-0.6666666666666666i)")
-		val expts = MathValue("2E+3-4E-3i").get
+		val expts = MathExpression("2E+3-4E-3i").get
 		assert(expts.description === "MathComplexNumber(MathDecimal(\"2E+3\"), MathDecimal(\"-0.004\"))")
 		assert(expts.toLaTeX === "2*10^{3}-0.004i")
-		val withParens = MathValue("(34+6i)").get
+		val withParens = MathExpression("(34+6i)").get
 		assert(withParens.description === "MathComplexNumber(MathInteger(34), MathInteger(6))")
 		assert(withParens.toLaTeX === "34+6i")
-		val neg = MathValue("34-6i").get
+		val neg = MathExpression("34-6i").get
 		assert(neg.description === "MathComplexNumber(MathInteger(34), MathInteger(-6))")
 		assert(neg.toLaTeX === "34-6i")
 		val variable = MathComplexNumber("radius")
