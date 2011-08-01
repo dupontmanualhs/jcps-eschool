@@ -1,13 +1,46 @@
 package eschool.sites.snippet
 
-/**
- * Created by IntelliJ IDEA.
- * User: sysadmin
- * Date: 7/25/11
- * Time: 9:49 AM
- * To change this template use File | Settings | File Templates.
- */
+import net.liftweb.util.Helpers._
 
-class SiteList {
+import eschool.users.model.User
+import xml.NodeSeq
+import eschool.sites.model.Site
+import eschool.utils.Helpers._
 
+import com.foursquare.rogue.Rogue._
+import net.liftweb.http.S
+import net.liftweb.common.{Full, Box}
+
+class SiteList(user: User) {
+  def render: (NodeSeq => NodeSeq) = {
+    val currentUser_? : Boolean = User.getCurrent.isDefined &&
+        User.getCurrent.get.id.get == user.id.get
+    val header: String = (if (currentUser_?) {
+      "Your"
+    } else {
+      user.displayName + "'s"
+    }) + " Sites"
+    val sites = Site where (_.owner eqs user.id.get) fetch()
+    val userHasSites: String = (if (currentUser_?) "You have" else user.displayName + " has") +
+      (if (sites.isEmpty) " no sites." else " the following " + pluralizeInformal(sites.length, "site") + ":")
+    val listOfSites = if (sites.isEmpty) {
+      <br/>
+    } else {
+      <ul>
+      { sites.flatMap(
+        (s: Site) =>
+        <li><a href={ "/sites/%s/%s".format(user.username, s.ident)}>{ s.name }</a></li>
+      )}
+      </ul>
+    }
+    val createSite = if (currentUser_?) {
+      <p><a href="/sites/createSite" class="createLink">Create a New Site</a></p>
+    } else {
+      NodeSeq.Empty
+    }
+    ".header *" #> header &
+    ".userHasSites" #> userHasSites &
+    ".listOfSites" #> listOfSites &
+    ".createSite" #> createSite
+  }
 }

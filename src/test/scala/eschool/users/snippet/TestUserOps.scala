@@ -18,7 +18,7 @@ class TestUserOps extends JUnitSuite with BeforeAndAfterAll {
     .usingAnyFreePort()
     .build()
   service.start()
-  var driver: WebDriver = null
+  var driver: RemoteWebDriver = null
   var selenium: Selenium = null
 
   override def afterAll() {
@@ -52,8 +52,19 @@ class TestUserOps extends JUnitSuite with BeforeAndAfterAll {
     assert(selenium.isTextPresent("Login"))
   }
 
+  @Test
+  def login2() = {
+    selenium.open("/users/login")
+    inputByLabel("Username").sendKeys("rsmith1")
+    inputByLabel("Password").sendKeys("robert1")
+    driver.findElementsByTagName("button").get(1).click()
+    assert(selenium.isTextPresent("Logged in as: Bob Smith"))
+    assert(selenium.isTextPresent("(Logout)"))
+    selenium.click("link=Logout")
+  }
+
   def inputByLabel(text: String): WebElement = {
-    val label: WebElement = driver.findElement(By.xpath("//label@contains(text(), '%s'".format(text)))
+    val label: WebElement = driver.findElement(By.xpath("//label[contains(text(), '%s')]".format(text)))
     driver.findElement(By.id(label.getAttribute("for")))
   }
 }

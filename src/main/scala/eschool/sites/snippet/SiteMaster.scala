@@ -1,39 +1,41 @@
 package eschool.sites.snippet
 
-import xml.NodeSeq
 import eschool.users.model.User
-import eschool.utils.Helpers.pluralizeInformal
+import eschool.utils.Helpers.{pluralizeInformal, getTemplate}
 import net.liftweb.common._
 import eschool.sites.model.Site
 import net.liftweb.util.Helpers._
 import net.liftweb.sitemap.Loc.LinkText._
 import net.liftweb.sitemap.LocPath._
-import net.liftweb.http._
 import net.liftweb.sitemap.{*, Menu}
 import net.liftweb.sitemap.Loc._
 
 import com.foursquare.rogue.Rogue._
+import net.liftweb.http._
+import java.lang.Boolean
+import xml.NodeSeq
 
 class SiteMaster(path: List[String]) {
   def render(in: NodeSeq): NodeSeq = {
     path match {
-      case Nil =>
-    }
-
-    val user = S.request match {
-      case Full(req) => req.path.wholePath match {
-        case "sites" :: Nil => User.getCurrentOrRedirect()
-        case _ => listWithUser.toLoc.currentValue.openOr {
-          S.error("You got to the site list page with no user set. This shouldn't have happened.")
-          S.redirectTo("/error")
+      case Nil => listSites(User.getCurrentOrRedirect())
+      case "createSite" :: Nil => {
+        <head_merge><title>Create a Site</title></head_merge>
+        <div class="lift:CreateSite"></div>
+      }
+      case username :: pathToPage => User where (_.username eqs username) get() match {
+        case None => {
+          S.error("There is no user with the username: " + username)
+          S.redirectTo(S.referer openOr "/")
         }
-      }
-      case _ => {
-        S.error("You got to the site list page without a request. This shouldn't have happened.")
-        S.redirectTo("/error")
+        case Some(user) => listSites(user)
       }
     }
-    val currentUser_? = User.getCurrent.isDefined && User.getCurrent.get.id.get == user.id.get
+  }
+
+  def listSites(user: User): NodeSeq = {
+    val currentUser_? : Boolean = User.getCurrent.isDefined &&
+        User.getCurrent.get.id.get == user.id.get
     val header: String = (if (currentUser_?) {
       "Your"
     } else {
@@ -52,14 +54,14 @@ class SiteMaster(path: List[String]) {
       )}
       </ul>
     }
-    val cssFunc = ".header *" #> header &
-        ".userHasSites" #> userHasSites &
-        ".listOfSites" #> listOfSites
-    val funcWithCreate = if (currentUser_?) { // TODO: should be based on permissions
-      cssFunc
+    val createSite = if (currentUser_?) {
+      <p><a href="/sites/createSite" class="createLink">Create a New Site</a></p>
     } else {
-      cssFunc & ".createLink" #> NodeSeq.Empty
+      NodeSeq.Empty
     }
-    funcWithCreate(in)
+    (".header *" #> header &
+     ".userHasSites" #> userHasSites &
+     ".listOfSites" #> listOfSites &
+     ".createSite" #> createSite)(getTemplate(List("sites", "list")))
   }
 }

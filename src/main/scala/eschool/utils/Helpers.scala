@@ -1,5 +1,9 @@
 package eschool.utils
 
+import xml.NodeSeq
+import net.liftweb.http.{S, Templates, NotFoundResponse, ResponseShortcutException}
+import java.util.Locale
+
 object Helpers {
   def pluralizeInformal(num: Int, word: String, ending: String = "s"): String = {
     intToWordInformal(num) + " " + word + (if (num != 1) ending else "")
@@ -22,4 +26,22 @@ object Helpers {
     9 -> "nine",
     10 -> "ten"
   )
+
+  def getTemplate(path: List[String], locale: Locale): NodeSeq = {
+    Templates(path, locale) openOr  {
+      S.error("Could not find a template: " + path.mkString("/"))
+      S.redirectTo("/error")
+    }
+  }
+
+  def getTemplate(path: List[String]): NodeSeq = getTemplate(path, S.locale)
+
+  def getRawTemplate(path: List[String], locale: Locale): NodeSeq = {
+    Templates.findRawTemplate(path, locale) openOr {
+      S.error("Could not find a template: " + path.mkString("/"))
+      S.redirectTo("/error")
+    }
+  }
+
+  def getRawTemplate(path: List[String]): NodeSeq = getRawTemplate(path, S.locale)
 }

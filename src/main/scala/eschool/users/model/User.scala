@@ -5,10 +5,12 @@ import net.liftweb.mongodb.record.field._
 import net.liftweb.record.field._
 import net.liftweb.json.JsonDSL._
 import net.liftweb.common.{Box, Empty, Full}
+import net.liftweb.common.Box.option2Box
 import eschool.utils.record.Gender
 import org.bson.types.ObjectId
 import net.liftweb.http.{RequestVar, S, SessionVar}
-import java.security.PrivateKey
+
+import com.foursquare.rogue.Rogue._
 
 class User private() extends MongoRecord[User] with ObjectIdPk[User] {
   def meta = User
@@ -48,7 +50,7 @@ object User extends User with MongoMetaRecord[User] {
   private object currentUser extends RequestVar[Box[User]](current.get.flatMap(User.find(_)))
 
   def getByUsername(username: String): Box[User] = {
-    User.find("username" -> username)
+    User where (_.username eqs username) get()
   }
 
   def authenticate(username: String, password: String): Box[User] = {
@@ -69,10 +71,10 @@ object User extends User with MongoMetaRecord[User] {
 
   def loggedIn_? = current.isDefined
 
-  def getCurrent: Box[User] = currentUser.get
+  def getCurrent: Box[User] = current.get.flatMap(User.find(_)) // TODO: fix when bug fixed
 
   def getCurrentOrRedirect(): User = getCurrent openOr {
-    S.error("You must login to access that page.")
+    S.notice("You must login to access that page.")
     S.redirectTo("/users/login")
   }
 }

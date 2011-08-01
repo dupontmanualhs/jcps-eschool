@@ -6,14 +6,21 @@ organization := "net.jcpsky"
 
 scalaVersion := "2.9.0-1"
 
+checksums := Nil
+
+resolvers += ScalaToolsSnapshots
+
+resolvers += "java.net Maven2 Repo" at "http://download.java.net/maven/2/"
+
 seq(WebPlugin.webSettings: _*)
 
 libraryDependencies ++= {
-  val liftVersion = "2.4-M2"
+  val liftVersion = "2.4-SNAPSHOT"
   Seq(
     "net.liftweb" %% "lift-webkit" % liftVersion % "compile->default",
     "net.liftweb" %% "lift-wizard" % liftVersion % "compile->default",
-    "net.liftweb" %% "lift-mongodb-record" % liftVersion)
+    "net.liftweb" %% "lift-mongodb-record" % liftVersion,
+    "com.foursquare" %% "rogue" % "1.0.15")
 }
 
 

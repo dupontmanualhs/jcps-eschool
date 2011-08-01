@@ -1,21 +1,28 @@
+<!DOCTYPE html>
 <html>
-<head>
-</head>
-<body class="lift:content_id=main">
-  <div id="main" class="lift:surround?with=default;at=content">
-    <head_merge><title>Sites</title></head_merge>
-    <div class="lift:SiteList">
-      <h2 class="header">Bob Loblaw's Sites</h2>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+    <title>Site List</title>
+  </head>
+  <body class="lift:content_id=main">
+  <div id="main">
+    <div class="lift:surround?with=default;at=content">
+      <head_merge><title>Site List</title></head_merge>
+      <div class="lift:SiteList">
+        <h2 class="header">Bob Loblaw's Sites</h2>
 
-      <div><span class="userHasSites">Bob Loblaw has the following three sites:</span>
-        <ul class="listOfSites">
+        <div>
+          <span class="userHasSites">Bob Loblaw has the following three sites:</span>
+          <ul class="listOfSites">
             <li><a href="/sites/bob/site1">Site 1</a></li>
             <li><a href="/sites/bob/site2">Site 2</a></li>
             <li><a href="/sites/bob/site3">Site 3</a></li>
-        </ul>
-        <a href="/sites/createSite" class="createLink">Create a New Site</a>
+          </ul>
+
+          <a href="/sites/createSite" class="createSite">Create a New Site</a>
+        </div>
       </div>
     </div>
   </div>
-</body>
+  </body>
 </html>

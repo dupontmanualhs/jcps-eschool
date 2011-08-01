@@ -6,6 +6,8 @@ import common._
 import http._
 import sitemap._
 
+import net.liftweb.sitemap.Loc.Hidden
+
 import eschool.{sites, users}
 import users.model.User
 
@@ -22,7 +24,9 @@ class Boot {
     // Build SiteMap
     def sitemap = SiteMap(
       Array.concat(
-        Array[ConvertableToMenu](Menu("Home") / "index"), // the simple way to declare a menu
+        Array[ConvertableToMenu](Menu.i("Home") / "index",
+                                 Menu.i("Error") / "error" >> Hidden), // the simple way to declare a menu
+
 
         sites.menus,
         users.menus
@@ -35,7 +39,7 @@ class Boot {
     // each page, just comment this line out.
     LiftRules.setSiteMapFunc(() => sitemapMutators(sitemap))
 
-    LiftRules.dispatch.append(sites.Dispatch)
+    //LiftRules.dispatch.append(sites.Dispatch)
 
     // Use jQuery 1.4
     LiftRules.jsArtifacts = net.liftweb.http.js.jquery.JQuery14Artifacts
