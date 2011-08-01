@@ -1,6 +1,6 @@
 package eschool.math
 
-class MathPolynomial(terms: List[MathTerm]) extends MathExpression with Operationable {
+class MathPolynomial(terms: List[MathTerm]) extends MathExpression {
 	def getTerms: List[MathTerm] = terms
 	def simplify: MathExpression = new MathPolynomial(this.getTerms)
 	def getPrecedence: Int = 1
@@ -19,25 +19,19 @@ class MathPolynomial(terms: List[MathTerm]) extends MathExpression with Operatio
 			this.unrefinedLaTeX.substring(0, 1) + this.unrefinedLaTeX.substring(2) //get rid of space in "- <mathterm>"
 		}
 	}
-	def unrefinedLaTeX: String = {
-		(for (term <- this.getTerms) yield monomialLaTeX(term)).mkString(" ")
-	}
+	def unrefinedLaTeX: String = this.getTerms.map(monomialLaTeX(_)).mkString(" ")
 	def monomialLaTeX(monomial: MathTerm): String = {
-		val coefficient = monomial.getCoefficient.getValue
-		 if (coefficient != null && coefficient > 0) {
+		val coefficient = monomial.getCoefficient
+		 if (coefficient != null && !coefficient.isNegative) {
 			 "+ %s".format(monomial.toLaTeX)
 		 } else {
 			 "- %s".format(withoutNegativeSign(monomial.toLaTeX))
 		 }
 	}
 	private def withoutNegativeSign(str: String): String = {
-		if (str.length > 1) str.substring(1) else ""
+		"""-""".r.replaceFirstIn(str, "")
 	}
-	def description: String = "MathPolynomial" + {
-		(for (term <- this.getTerms) yield {
-			term.description
-		}).mkString("(", ", ", ")")
-	}
+	def description: String = this.getTerms.map(_.description).mkString("MathPolynomial(", ", ", ")")
 	override def equals(that: Any): Boolean = {
 		that match {
 			case that: MathPolynomial => this.toMathOperation == that.toMathOperation

@@ -1,7 +1,7 @@
 package eschool.math
 
 //MathConstant subclasses: MathConstantPi & MathConstantE (see below)
-//                                      MathNumber (math numbers.scala)
+//                                      MathNumber (Math numbers.scala)
 abstract class MathConstant extends MathValue {
 	def getValue: BigDecimal
 	override def equals(that: Any): Boolean = {

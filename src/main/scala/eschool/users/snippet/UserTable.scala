@@ -17,6 +17,6 @@ object UserTable {
   }
 
   def allUsers(): List[User] = {
-    User.findAll // TODO: sort by last name, first name
+    User.findAll.sortWith((u1: User, u2: User) => u1.formalName.toLowerCase < u2.formalName.toLowerCase)
   }
 }

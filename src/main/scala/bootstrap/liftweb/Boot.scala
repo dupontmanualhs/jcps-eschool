@@ -10,6 +10,7 @@ import net.liftweb.sitemap.Loc.Hidden
 
 import eschool.{sites, users}
 import users.model.User
+import eschool.math.Math
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -26,7 +27,6 @@ class Boot {
       Array.concat(
         Array[ConvertableToMenu](Menu.i("Home") / "index",
                                  Menu.i("Error") / "error" >> Hidden), // the simple way to declare a menu
-
 
         sites.menus,
         users.menus
@@ -67,6 +67,8 @@ class Boot {
       case "js" :: _ => true
       case "tinymce" :: _ => true
     }
+
+    eschool.math.Math.rules
 
     MongoConfig.init
   }

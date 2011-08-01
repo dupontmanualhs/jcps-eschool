@@ -34,6 +34,7 @@ class DbUser(
 object UserData {
   def create() {
     val users = List[DbUser](
+        new DbUser("madams4", "Michael", "Miscalaneous", "Adams", "Mike", true, "mike@jcpsky.net", "mike4", "G4"),
         new DbUser("rsmith1", "Robert", "John", "Smith", "Bob", true, "bob@jcpsky.net", "robert1", "G1"),
         new DbUser("mjones02", "Mary", "Allison", "Jones", null, false, "mary@stu.jcpsky.net", "mary1", "G2"),
         new DbUser("sjohnson03", "Stephen", "Eric", "Johnson", "Steve", true, "steve@stu.jcpsky.net", "steve1", "G3")
