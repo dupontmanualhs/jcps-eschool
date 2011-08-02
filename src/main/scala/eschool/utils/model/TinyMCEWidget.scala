@@ -1,8 +1,9 @@
 package eschool.utils.model
 
-import scala.xml._
+/*import scala.xml._
 import net.liftweb._
 import http._
+import json.JsonAST.JObject
 import util._
 import js._
 import JsCmds._
@@ -34,36 +35,29 @@ object TinyMCEWidget {
  * which makes use of the TinyMCEWidget to create an instance of TinyMCE.
  *
  * The theme parameter will hold the name of a theme, The plugins parameter should be a string containing the
- * plugins to be loaded seperated by commas. The params parameter should contains parameters in the format
+ * plugins to be loaded separated by commas. The params parameter should contains parameters in the format
  * ("theme_advanced_buttons2_add", "advimage,save,"). The jQuery parameter determines whether jQuery specific files
  * need be loaded.
  *
  * NOTE: The apply methods and constructors which do not explicitly have a jQuery parameter assume jQuery is in use.
  */
-class TinyMCEWidget(theme: String, plugins: String, params: List[(String, String)], jQuery: Boolean, rows: Int, cols: Int) {
-
-  def this(theme: String, plugins: String) = this(theme, plugins, Nil, true, 15, 50)
-
-  def jQueryImport: NodeSeq = <script type="text/javascript" src={"/" + LiftRules.resourceServerPath + "/tinymce/jscripts/tiny_mce/jquery.tinymce.js"} />
+class TinyMCEWidget(
+    config: JsObj = JsObj("mode" -> "specific_textareas",
+                          "editor_selector" -> "mceEditor",
+                          "theme" -> "simple"),
+    rows: Int = 20,
+    cols: Int = 80) {
 
   def head: NodeSeq =
-    <head>
-      <script type="text/javascript" src={"/" + LiftRules.resourceServerPath + "/tinymce/jscripts/tiny_mce/" + (if(jQuery) "tiny_mce_jquery.js" else "tiny_mce.js")} />
-        {
-          Script(JsRaw("""
-                tinyMCE.init({
-                        mode: "textareas",
-                        theme: """" + theme + """",
-                        plugins: """" + plugins + """",
-                        """ + params.map((oneTwo: (String, String)) => oneTwo._1 + " : \"" + oneTwo._2 + "\"").mkString(",\n")
-                        + """
-                        })"""
-                        ))
-        }
-    </head>
+    <head_merge>
+      <script type="text/javascript" src={ "/%s/tinymce/jscripts/tiny_mce/jquery.tinymce.js".format(LiftRules.resourceServerPath) } />
+      <script type="text/javascript" src={ "/%s/tinymce/jscripts/tiny_mce/tiny_mce_jquery.js".format(LiftRules.resourceServerPath) } />
+      { Script(Call("tinyMCE.init", config)) }
+    </head_merge>
 
 
   def render: NodeSeq = {
-    head ++ <textarea rows={rows.toString} cols={cols.toString} name="content" id="content" class="tinymce" />
+    head ++ SHtml.textarea
   }
 }
+*/

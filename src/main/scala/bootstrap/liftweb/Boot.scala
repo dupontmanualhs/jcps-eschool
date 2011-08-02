@@ -26,8 +26,8 @@ class Boot {
     def sitemap = SiteMap(
       Array.concat(
         Array[ConvertableToMenu](Menu.i("Home") / "index",
-                                 Menu.i("Error") / "error" >> Hidden), // the simple way to declare a menu
-
+                                 Menu.i("Error") / "error" >> Hidden,
+                                 Menu.i("TinyMCE") / "tinymce" >> Hidden),
         sites.menus,
         users.menus
       ): _*

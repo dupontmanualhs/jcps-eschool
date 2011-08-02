@@ -1,4 +1,4 @@
-/*package eschool.users.snippet
+package eschool.users.snippet
 
 import org.junit.Assert._
 import org.junit._
@@ -68,4 +68,3 @@ class TestUserOps extends JUnitSuite with BeforeAndAfterAll {
     driver.findElement(By.id(label.getAttribute("for")))
   }
 }
-*/
