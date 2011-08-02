@@ -11,7 +11,7 @@ import net.liftweb.mongodb.record.field._
 object UserPassword extends LiftScreen {
   object user extends ScreenVar[User](User.getCurrentOrRedirect())
   val currentPswd = password("Current Password", "", checkCurrentPassword _)
-  val newPswd = password("New Password", "", valMinLen(5, "The new password must longer than 5 characters."))
+  val newPswd = password("New Password", "", valMinLen(5, "The new password must be at least 5 characters."))
   val reEnterPswd = password("Re-enter New Password", "")
 
   def checkCurrentPassword(s: String): List[FieldError] = {
