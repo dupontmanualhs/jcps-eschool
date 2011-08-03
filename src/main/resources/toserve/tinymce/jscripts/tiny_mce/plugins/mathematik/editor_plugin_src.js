@@ -134,6 +134,14 @@
 			    ed.execCommand('mceInsertContent', false, t._indefInt());
 			});
 
+			ed.addCommand('mceInfty', function(){
+			    ed.execCommand('mceInsertContent', false, '\\infty');
+			});
+
+            ed.addCommand('mcePm', function(){
+			    ed.execCommand('mceInsertContent', false, '\\pm');
+			});
+
 			ed.addCommand('mceIntegral', function(){
 			    ed.windowManager.open({
 			        file : url + '/intMenu.html',
@@ -247,6 +255,18 @@
                 title : 'Definite Integral',
                 cmd : 'mceIntegral',
                 image : url + '/img/integral.png'
+            });
+
+            ed.addButton('pm', {
+                title : 'Plus/Minus',
+                cmd : 'mcePm',
+                image : url + '/img/pm.png'
+            });
+
+            ed.addButton('infty', {
+                title : 'Infinity',
+                cmd : 'mceInfty',
+                image : url + '/img/infty.png'
             });
 
             //ed.onNodeChange.add(function(ed, cm, n){
