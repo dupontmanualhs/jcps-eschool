@@ -8,10 +8,11 @@ import net.liftweb.mongodb.record.field._
 import net.liftweb.mongodb.record.{MongoMetaRecord, MongoRecord}
 import org.bson.types.ObjectId
 import net.liftweb.common.{Full, Failure, Empty, Box}
-import xml.NodeSeq
-
 import com.foursquare.rogue.Rogue._
 import com.mongodb.WriteConcern
+import net.liftweb.util.FieldError
+import javax.xml.soap.Text
+import xml.{Text, NodeSeq}
 
 class Site extends MongoRecord[Site] with ObjectIdPk[Site] {
   def meta = Site
@@ -67,8 +68,20 @@ class Page extends MongoRecord[Page] with ObjectIdPk[Page] {
     this
   }
 
+  def parent(): Either[Site, Page] = {
+    parentSite.valueBox match {
+      case Full(siteOid) => Left(Site.find(siteOid).openOr(
+          throw new Exception("Page with id %s refers to parent site that doesn't exist.".format(id.get))))
+      case _ => parentPage.valueBox match {
+        case Full(pageOid) => Right(Page.find(pageOid).openOr(
+            throw new Exception("Page with id %s refers to parent page that doesn't exist.".format(id.get))))
+        case _ => (throw new Exception("Page with id %s does not have a parent!".format(id.get)))
+      }
+    }
+  }
+
   /**
-   * Produces the path to this page (not including the username and site-ident)
+   * Produces the path to this page (including the username and site-ident)
    */
   def getPath(): List[String] = {
     getPathPlusSuffix(Nil)
@@ -80,7 +93,16 @@ class Page extends MongoRecord[Page] with ObjectIdPk[Page] {
         case Full(page) => page.getPathPlusSuffix(ident.get :: suffix)
         case _ => Nil // TODO: log this problem
       }
-      case _ => ident.get :: suffix
+      case _ => parentSite.valueBox match {
+        case Full(siteOid) => Site.find(siteOid) match {
+          case Full(site) => site.owner.obj match {
+            case Full(user) => user.username.get :: site.ident.get :: ident.get :: suffix
+            case _ => Nil // TODO: log this (site points to owner that doesn't exist)
+          }
+          case _ => Nil // TODO: log this problem
+        }
+        case _ => Nil // TODO: log this problem
+      }
     }
   }
 }
@@ -103,6 +125,47 @@ object Page extends Page with MongoMetaRecord[Page] {
         case None => None
       }
       followPath(topPage, restOfPath)
+    }
+  }
+
+  private def errorIfSome(badPage: Option[Page], problem: String): Box[String] = {
+    badPage match {
+      case Some(page) => Full("There is already a page with that %s.".format(problem))
+      case None => Empty
+    }
+  }
+
+  /**
+   * validates a possible identifier for a page to make sure a page
+   *   with the given identifier doesn't already exist as a child of
+   *   the given Site
+   * returns Nil if okay, and an appropriate error, if not
+   */
+  def uniqueIdent(parent: Either[Site, Page], possIdent: String): Box[String] = {
+    parent match {
+      case Left(parentSite) => errorIfSome(
+          Page where (_.parentSite eqs parentSite.id.get) and (_.ident eqs possIdent) get(),
+          "identifier")
+      case Right(parentPage) => errorIfSome(
+          Page where (_.parentPage eqs parentPage.id.get) and (_.ident eqs possIdent) get(),
+          "identifier")
+    }
+  }
+
+  /**
+   * validates a possible name for a page to make sure a page
+   *   with the given name doesn't already exist as a child of
+   *   the given Site
+   * returns Nil if okay, and an appropriate error, if not
+   */
+  def uniqueName(parent: Either[Site, Page], possName: String): Box[String] = {
+    parent match {
+      case Left(parentSite) => errorIfSome(
+          Page where (_.parentSite eqs parentSite.id.get) and (_.name eqs possName) get(),
+          "name")
+      case Right(parentPage) => errorIfSome(
+          Page where (_.parentPage eqs parentPage.id.get) and (_.name eqs possName) get(),
+          "name")
     }
   }
 }

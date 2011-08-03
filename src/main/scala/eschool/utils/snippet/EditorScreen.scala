@@ -75,4 +75,8 @@ trait EditorScreen extends LiftScreen {
       case e: Exception => "Content must be valid (X)HTML."
     }
   }
+
+  implicit def funcBoxString2funcListFieldError[T](f: T => Box[String]): T => List[FieldError] = {
+    (x: T) => boxStrToListFieldError(f(x))
+  }
 }

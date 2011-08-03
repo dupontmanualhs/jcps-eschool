@@ -26,7 +26,10 @@ package object sites {
       Menu.params[(User, Site, Page)]("Edit Page", "Edit Page",
         parseUserSiteAndPage _, encodeUserSiteAndPage _) / "sites" / "edit" / * / * / * / ** >>
         Template(() => getTemplate(List("sites", "editPage"))) >>
-        Hidden >> If(() => User.loggedIn_?, "You must be logged in to edit pages.")),
+        Hidden >> If(() => User.loggedIn_?, "You must be logged in to edit pages."),
+      Menu.params[(User, Site, Option[Page])]("Add Page", "Add Page",
+        parseUserSiteAndMaybePage _, encodeUserSiteAndMaybePage _) / "sites" / "add" / * / * / ** >>
+        Template(() => getTemplate(List("sites", "addPage")))),
     Menu.param[User]("User's Sites", "User's Sites",
         parseUser _, _.username.get) / "sites" / * >>
         Template(() => getTemplate(List("sites", "list"))) >>
@@ -77,6 +80,30 @@ package object sites {
 
   def encodeUserSiteAndPage(userSiteAndPage: (User, Site, Page)): List[String] = {
     val (user: User, site: Site, page: Page) = userSiteAndPage
-    user.username.is :: site.ident.is :: page.getPath
+    page.getPath
+  }
+
+  def parseUserSiteAndMaybePage(userSiteAndMaybePage: List[String]): Box[(User, Site, Option[Page])] = {
+    userSiteAndMaybePage match {
+      case username :: siteIdent :: pagePath => parseUserAndSite(List(username, siteIdent)) match {
+        case Full((user, site)) => pagePath match {
+          case Nil => Full((user, site, None))
+          case _ => Page.fromSiteAndPath(site, pagePath) match {
+            case Full(page) => Full((user, site, Some(page)))
+            case _ => Failure("There is no page with the given path.")
+          }
+        }
+        case other => other.asInstanceOf[Box[(User, Site, Option[Page])]]
+      }
+      case _ => Failure("How did this even match the pattern?")
+    }
+  }
+
+  def encodeUserSiteAndMaybePage(userSiteAndMaybePage: (User, Site, Option[Page])): List[String] = {
+    val (user: User, site: Site, maybePage: Option[Page]) = userSiteAndMaybePage
+    maybePage match {
+      case Some(page) => encodeUserSiteAndPage((user, site, page))
+      case None => encodeUserAndSite((user, site))
+    }
   }
 }
