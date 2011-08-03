@@ -26,5 +26,4 @@ object Tester {
     inputByLabel("Password").sendKeys(password)
     driver.findElementByXPath("//button[contains(text(), 'Finish')]").click()
   }
-
 }
