@@ -38,7 +38,7 @@ class PageMap(userAndSite: (User, Site)) {
               }
             } }
             { if (currentUser_?) {
-              <li><a href={ insertCommand(pathToPage, "addPage") }>Add Page</a></li>
+              <li><a href={ insertCommand(pathToPage, "add") }>Add Page</a></li>
             } else {
               NodeSeq.Empty
             }
@@ -56,7 +56,7 @@ class PageMap(userAndSite: (User, Site)) {
         }}
       }
       { if (currentUser_?) {
-        <li><a href={ "/sites/addPage/%s/%s".format(owner.username.get, site.ident.get) }>Add Page</a></li>
+        <li><a href={ "/sites/add/%s/%s".format(owner.username.get, site.ident.get) }>Add Page</a></li>
       } else {
         NodeSeq.Empty
       }}</ul>

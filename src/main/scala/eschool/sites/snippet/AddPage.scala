@@ -37,11 +37,11 @@ class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorSc
   val content = mceTextarea("Content", "", 30, 80)
 
   def finish() {
-    newPage.ident(ident.get).name(name.get).content(XML.loadString("<dummy>" + content.get + "</dummy>").child)
+    newPage.ident(ident.get).name(name.get).content(XML.loadString("<dummy>" + content.get + "</dummy>").child).save(true)
     parent match {
-      case Left(site) => newPage.parentSite(site.id.get)
-      case Right(page) => newPage.parentPage(page.id.get)
+      case Left(site) => site.pages(site.pages.get + (ident.get -> newPage.id.get)).save(true)
+      case Right(page) => page.pages(page.pages.get + (ident.get -> newPage.id.get)).save(true)
     }
-    newPage.save(true)
+
   }
 }
