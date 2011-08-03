@@ -74,14 +74,26 @@ class MathFraction(val numerator: BigInt, val denominator: BigInt) extends MathE
 
 	override def toApproximation: MathApproximateNumber = MathApproximateNumber(this.getNumerator.toDouble./(this.getDenominator.toDouble))
 
+	override def simplify: MathExpression = {
+		val gcf: BigInt = this.getGCF(this.getNumerator, this.getDenominator) //gcf: greatest common factor
+		MathFraction(this.getNumerator / gcf, this.getDenominator / gcf) match {
+			case aFrac: MathFraction if (aFrac.getValue < 0) => MathFraction(-(aFrac.getNumerator.abs), aFrac.getDenominator.abs)
+			case aFrac: MathFraction => aFrac
+		}
+	}
+
+	private def getGCF(numerator: BigInt, denominator: BigInt): BigInt = {
+		if (numerator % denominator == 0) {
+			denominator
+		} else {
+			getGCF(denominator, numerator % denominator)
+		}
+	}
+
 	override def getPrecedence: Int = 3
 
 	private def formatString(s: String): String = {
-		/*if (this.getDenominator == 1) {
-			s.format(this.getNumerator.toString())
-		} else {         */
-			s.format(this.getNumerator.toString(), this.getDenominator.toString())
-		//}
+		s.format(this.getNumerator.toString(), this.getDenominator.toString())
 	}
 
 	override def toLaTeX: String = {
@@ -109,10 +121,11 @@ object MathFraction {
 	}
 }
 
-class MathInteger(anInt: BigInt) extends MathFraction(anInt, BigInt(1)) {
+class MathInteger(anInt: BigInt) extends MathExactNumber {
 	def getInt = anInt
-	override def getPrecedence: Int = 6
 	override def getValue: BigDecimal = BigDecimal(anInt)
+	override def simplify = MathInteger(this.getInt)
+	override def toApproximation: MathApproximateNumber = MathApproximateNumber(BigDecimal(anInt))
 	override def description: String = "MathInteger(%s)".format(MathNumber.intDescription(anInt))
 	override def toLaTeX: String = "" + this.getInt
 }
@@ -130,7 +143,7 @@ object MathInteger {
 
 class MathDecimal(val value: BigDecimal) extends MathExactNumber {
 	override def getValue: BigDecimal = value
-
+	override def simplify = MathDecimal(this.getValue)
 	def toApproximation: MathApproximateNumber = MathApproximateNumber(this.getValue.toDouble)
 
 	def toLaTeX: String = {
@@ -183,12 +196,12 @@ object MathDecimal {
 
 class MathApproximateNumber(val value: BigDecimal) extends MathRealNumber {
 	override def getValue: BigDecimal = value
-
+	override def simplify = MathApproximateNumber(this.getValue)
 	def toApproximation: MathApproximateNumber = this
 
 	override def toLaTeX: String = MathApproximateNumber.prefix + this.getValue.toString()
 
-	def description: String = "MathApproximateNumber(%s)".format(this.getValue.toString())
+	override def description: String = "MathApproximateNumber(%s)".format(this.getValue.toString())
 }
 
 object MathApproximateNumber {
@@ -200,6 +213,7 @@ object MathApproximateNumber {
 		val potentialApprox = approxRegex.findFirstMatchIn(s)
 		if (potentialApprox.isDefined) {
 			MathExpression(potentialApprox.get.group("value")) match {
+				case Some(anInteger: MathInteger) => Some(MathApproximateNumber(anInteger.getValue))
 				case Some(aBigDecimal: MathDecimal) => Some(MathApproximateNumber(aBigDecimal.getValue))
 				case Some(aComplexNum: MathComplexNumber) => Some(MathComplexNumber(MathApproximateNumber(aComplexNum.getReal.getValue), MathApproximateNumber(aComplexNum.getImaginary.getValue)))
 				case _ => None
@@ -215,6 +229,12 @@ class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) exte
 	def getImaginary: MathRealNumber = imag
 	override def getValue: BigDecimal = null
 	override def getPrecedence: Int = -1
+	override def simplify = {
+		(this.getReal.simplify, this.getImaginary.simplify) match {
+			case (real: MathRealNumber, imag: MathRealNumber) => MathComplexNumber(real, imag)
+			case _ => MathComplexNumber(this.getReal, this.getImaginary)
+		}
+	}
 
 	// if either real or imag are approximate, both are coerced to approximate
 	def isApproximation: Boolean = real.isInstanceOf[MathApproximateNumber] || imag.isInstanceOf[MathApproximateNumber]
@@ -269,10 +289,8 @@ object MathComplexNumber {
 	}
 
 	def apply(s: String): Option[MathComplexNumber] = {
-		/*val complexString = new ComplexNumberString(s)
-		complexString.toMathComplexNumber       */
 		val basicComplexRegex = new Regex("""^()(.*)?i$""", "real", "imaginary")
-		val complexRegex = new Regex("""^(.*)(?=[+-](?<!E))(.*)?i$""", "real", "imaginary")
+		val complexRegex = new Regex("""^(.*)(?<!E)(?=[+-])(.*)?i$""", "real", "imaginary")
 		val potentialComplex = complexRegex.findFirstMatchIn(s) orElse  basicComplexRegex.findFirstMatchIn(s)
 		if (potentialComplex.isDefined) {
 			val potentialRealPart = {

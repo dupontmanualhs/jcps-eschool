@@ -18,11 +18,10 @@ trait MathExpression {
 			case constant: MathConstant => constant.getValue < 0
 			case term: MathTerm => term.getCoefficient.getValue < 0
 			case neg: MathNegation => true
-			case basicOp: MathOperation if (basicOp.is_Sum_or_Difference_or_Product_or_Quotient) => basicOp.getExpressions != Nil && basicOp.getExpressions.head.isNegative
+			case basicOp: MathOperation if (basicOp != Nil && basicOp.is_Sum_or_Difference_or_Product_or_Quotient) => basicOp.getExpressions.head.isNegative
 			case _ => false
 		}
 	}
-
 	def is_Sum_or_Difference_or_Product_or_Quotient: Boolean = {
 		this match {
 			case sum: MathSum => true
@@ -45,12 +44,15 @@ object MathExpression {
 		if (!parenthesesAlignIn(s)) {
 			None
 		} else {
-			val result: Option[MathExpression] = MathNegation(s) orElse MathValue(s) orElse MathOperation(s) orElse MathTerm(s) orElse MathPolynomial(s)
-			if (!result.isDefined && hasOutsideParens(s)) {
-				MathExpression(removeTrivialParts(s))
-			} else {
-				result
-			}
+			stringToExpression(s)
+		}
+	}
+	private def stringToExpression(s: String): Option[MathExpression] = {
+		val result: Option[MathExpression] = MathNegation(s) orElse MathValue(s) orElse MathOperation(s) orElse MathTerm(s) //orElse MathPolynomial(s)
+		if (!result.isDefined && hasOutsideParens(s)) {
+			MathExpression(removeTrivialParts(s))
+		} else {
+			result
 		}
 	}
 	private def removeTrivialParts(s: String): String = {
@@ -88,7 +90,6 @@ object MathExpression {
 //MathValue subclasses: MathConstant (constants.scala)
 //                                 MathVariable (vars.scala)
 abstract class MathValue extends MathExpression {
-	override def simplify: MathExpression = this
 	override def getPrecedence: Int = 6
 }
 

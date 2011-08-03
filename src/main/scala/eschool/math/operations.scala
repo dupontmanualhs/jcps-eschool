@@ -10,23 +10,29 @@ abstract class MathOperation(expressions: List[MathExpression]) extends MathExpr
 		this.getExpressions.map(_.description).mkString(this.getClassName + "(", ", ", ")")
 	}
 	override def toLaTeX: String = {
-		firstBasicExpressionLaTeX(this.getExpressions.head) + this.getOperator + this.getExpressions.tail.map(expressionLaTeX(_)).mkString(this.getOperator)
+		firstExpressionLaTeX(this.getExpressions.head) + this.getOperator + this.getExpressions.tail.map(expressionLaTeX(_)).mkString(this.getOperator)
 	}
 	def expressionLaTeX(expression: MathExpression): String = {
-		if ((this.isInstanceOf[MathDifference] || this.isInstanceOf[MathQuotient]) && (expression.getPrecedence <= this.getPrecedence || expression.isNegative)) {
-			"(" + expression.toLaTeX + ")"
-		} else if (expression.getPrecedence < this.getPrecedence || expression.isInstanceOf[MathNegation] || (expression.isNegative && this.is_Sum_or_Difference_or_Product_or_Quotient)) {
+		if (expressionNeedsParentheses(this, expression)) {
 			"(" + expression.toLaTeX + ")"
 		} else {
 			expression.toLaTeX
 		}
 	}
-	def firstBasicExpressionLaTeX(expression: MathExpression): String = {
+
+	def firstExpressionLaTeX(expression: MathExpression): String = {
 		if (expression.simplePrecedence < this.simplePrecedence) {
 			"(" + expression.toLaTeX + ")"
 		} else {
 			expression.toLaTeX
 		}
+	}
+
+	def expressionNeedsParentheses(outsideExpression: MathExpression, expressionToTest: MathExpression): Boolean = {
+		((outsideExpression.isInstanceOf[MathDifference] || outsideExpression.isInstanceOf[MathQuotient]) && (expressionToTest.getPrecedence <= outsideExpression.getPrecedence || expressionToTest.isNegative)) ||
+		(expressionToTest.getPrecedence < outsideExpression.getPrecedence) ||
+		(expressionToTest.isInstanceOf[MathNegation]) ||
+		(expressionToTest.isNegative && (outsideExpression.is_Sum_or_Difference_or_Product_or_Quotient || outsideExpression.isInstanceOf[MathNegation]))
 	}
 
 	override def equals(that: Any): Boolean = {

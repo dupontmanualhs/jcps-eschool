@@ -25,6 +25,7 @@ object MathConstant {
 class MathConstantE extends MathConstant {
 	override def getValue: BigDecimal = scala.math.E
 	override def toLaTeX: String = "e"
+	override def simplify = new MathConstantE
 	override def description: String = "MathConstantE"
 }
 
@@ -35,6 +36,7 @@ object MathConstantE {
 class MathConstantPi extends MathConstant {
 	override def getValue: BigDecimal = scala.math.Pi
 	override def toLaTeX: String = MathConstantPi.symbol
+	override def simplify = new MathConstantPi
 	override def description: String = "MathConstantPi"
 }
 

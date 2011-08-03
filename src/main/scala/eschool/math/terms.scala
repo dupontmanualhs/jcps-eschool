@@ -19,7 +19,19 @@ class MathTerm(coefficient: MathConstant, variableSequence: TreeMap[String, Math
 	}
 	override def toLaTeX: String = this.coefficientLaTeX + this.variableSequenceLaTeX
 	override def description: String = "MathTerm(" + this.getCoefficient.description + {if(this.variableSequence == null || this.variableSequence.size == 0) "" else {", " + variableSequenceDescription}} + ")"
-	override def simplify: MathExpression = this
+	override def simplify = this
+	/*override def simplify: MathExpression = {
+		val coefficientSimplified = this.getCoefficient.simplify
+		val varSequenceSimplified = simplifyVarSequence
+		(coefficientSimplified, varSequenceSimplified) match {
+			case (coef: MathConstant, varSeq: TreeMap[String, MathInteger]) => MathTerm(coef, varSeq)
+			case _ => MathTerm(this.getCoefficient, this.getVariableSequence)
+		}
+	}
+
+	private def simplifyVarSequence: TreeMap[String, MathInteger] = {
+
+	}    */
 
 	private def coefficientLaTeX: String = {
 		if (this.getCoefficient.getValue == 1 && this.getVariableSequence != Nil) {
@@ -63,7 +75,7 @@ object MathTerm {
 	def apply(coefficient: MathConstant, variableSequence: TreeMap[String, MathInteger]) = new MathTerm(coefficient, variableSequence)
 	//def apply(coefficient: MathConstant, variableSequence: TreeMap[MathVariable, MathInteger]): MathTerm = MathTerm(coefficient, variableSequence.foreach((mathVar, mathInt) => (mathVar.getName, mathInt)))
 	def apply(variableSequence: TreeMap[String, MathInteger]): MathTerm = MathTerm(MathInteger(1), variableSequence)
-	def apply(coefficient: MathConstant, variableSequence: (String, MathInteger)*): MathTerm = MathTerm(coefficient, variableSequence: _*)
+	def apply(coefficient: MathConstant, variableSequence: (String, MathInteger)*): MathTerm = MathTerm(coefficient, TreeMap[String, MathInteger](variableSequence:_*))
 	def apply(variableSequence: (String, MathInteger)*): MathTerm = MathTerm(MathInteger(1), variableSequence: _*)
 
 	def apply(s: String): Option[MathTerm] = {
