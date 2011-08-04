@@ -8,7 +8,7 @@ import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
 import com.sun.corba.se.spi.presentation.rmi.PresentationManager.StubFactoryFactory
 import java.lang.reflect.Field
-import javax.xml.soap.Text
+import xml.Text
 
 trait EditorScreen extends LiftScreen {
 
@@ -75,5 +75,14 @@ trait EditorScreen extends LiftScreen {
     } catch {
       case e: Exception => "Content must be valid (X)HTML."
     }
+  }
+
+  def validateIdent(s: String): List[FieldError] = {
+    def hasSpaces(s: String): List[FieldError] = {
+         if (s.contains(" ")) Text("The path must not contain a space") else Nil
+    }
+    hasSpaces(s) ++
+    valMinLen(1, "The final path segment must be at least one character.")(s)++
+    valMaxLen(10, "The final path segment must be ten characters or fewer.")(s)
   }
 }
