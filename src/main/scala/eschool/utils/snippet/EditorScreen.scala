@@ -85,4 +85,9 @@ trait EditorScreen extends LiftScreen {
     valMinLen(1, "The final path segment must be at least one character.")(s)++
     valMaxLen(10, "The final path segment must be ten characters or fewer.")(s)
   }
+
+  def validatePage(s: String): List[FieldError] = {
+    valMinLen(1, "The page name must be at least one character.") (s)++
+    valMaxLen(80, "The page name must be 80 characters or fewer.") (s)
+  }
 }
