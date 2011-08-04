@@ -30,8 +30,7 @@ class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorSc
       validateIdent _,
       (s: String) => boxStrToListFieldError(Page.uniqueIdent(parent, s)))
   val name = text("Page Name", "",
-      valMinLen(1, "The page name must be at least one character."),
-      valMaxLen(80, "The page name must be 80 characters or fewer."),
+      validatePage _,
       (s: String) => boxStrToListFieldError(Page.uniqueName(parent, s)))
   val content = mceTextarea("Content", "", 30, 80)
 

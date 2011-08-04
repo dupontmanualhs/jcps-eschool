@@ -18,8 +18,7 @@ class EditPage(userSiteAndPage: (User, Site, Page)) extends EditorScreen {
   }
 
   val name = text("Page Name", page.name.get,
-      valMinLen(1, "The page name must be at least one character."),
-      valMaxLen(80, "The page name must be 80 characters or fewer."),
+      validatePage _,
       (s: String) => boxStrToListFieldError(Page.uniqueName(page.parent, s)))
   val content = mceTextarea("Content", page.content.get.toString, 30, 80)
 
