@@ -29,8 +29,8 @@ package object sites {
         Hidden >> If(() => User.loggedIn_?, "You must be logged in to edit pages."),
       Menu.params[(User, Site, Option[Page])]("Add Page", "Add Page",
         parseUserSiteAndMaybePage _, encodeUserSiteAndMaybePage _) / "sites" / "add" / * / * / ** >>
-        Template(() => getTemplate(List("sites", "addPage")))) >>
-        Hidden >> If(() => User.loggedIn_?, "You must be logged in to add pages."),
+        Template(() => getTemplate(List("sites", "addPage"))) >>
+        Hidden >> If(() => User.loggedIn_?, "You must be logged in to add pages.")),
     Menu.param[User]("User's Sites", "User's Sites",
         parseUser _, _.username.get) / "sites" / * >>
         Template(() => getTemplate(List("sites", "list"))) >>
