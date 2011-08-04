@@ -13,11 +13,11 @@ import net.liftweb.mongodb.record.field._
 
 object CreateSite extends LiftScreen {
   object user extends ScreenVar[User](User.getCurrentOrRedirect())
-  val name = field("Site Name", "",
+  val name = text("Site Name", "",
       valMinLen(1, "Name must be at least one character."),
       valMaxLen(80, "Name must be no more than 80 characters."),
       uniqueName _)
-  val path = field("Path: sites/%s/".format(user.username.get), "",
+  val path = text("Path: sites/%s/".format(user.username.get), "",
       valMinLen(1, "Path segment must be at least one character."),
       valMaxLen(10, "Path segment must be no more than ten characters."),
       uniqueIdent _)

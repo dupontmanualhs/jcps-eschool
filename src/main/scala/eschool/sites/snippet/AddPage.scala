@@ -22,13 +22,14 @@ class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorSc
   }
   val parent: Either[Site, Page] = maybePage match {
     case Some(page) => Right(page)
-    case none => Left(site)
+    case None => Left(site)
   }
   object newPage extends ScreenVar[Page](Page.createRecord)
 
   val ident = text("Page Path: " + pathToParent.mkString("/", "/", "/"), "",
       valMinLen(1, "The final path segment must be at least one character."),
       valMaxLen(10, "The final path segment must be ten characters or fewer."),
+      (s: String) => if (s.contains(" ")) Text("The path can't contain a space.") else Nil,
       (s: String) => boxStrToListFieldError(Page.uniqueIdent(parent, s)))
   val name = text("Page Name", "",
       valMinLen(1, "The page name must be at least one character."),

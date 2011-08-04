@@ -8,6 +8,7 @@ import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
 import com.sun.corba.se.spi.presentation.rmi.PresentationManager.StubFactoryFactory
 import java.lang.reflect.Field
+import javax.xml.soap.Text
 
 trait EditorScreen extends LiftScreen {
 
@@ -74,9 +75,5 @@ trait EditorScreen extends LiftScreen {
     } catch {
       case e: Exception => "Content must be valid (X)HTML."
     }
-  }
-
-  implicit def funcBoxString2funcListFieldError[T](f: T => Box[String]): T => List[FieldError] = {
-    (x: T) => boxStrToListFieldError(f(x))
   }
 }
