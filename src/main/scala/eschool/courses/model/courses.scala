@@ -11,10 +11,10 @@ import eschool.utils.model.HtmlField
 class Course extends MongoRecord[Course] with ObjectIdPk[Course] {
   def meta = Course
 
-  object courseName extends StringField(this, 80)
-  object courseId extends StringField(this, 20)  // This is for the state course ID
+  object name extends StringField(this, 80)
+  object stateId extends StringField(this, 20)
   object objectives extends MongoListField[Course, ObjectId](this)
-  object courseContent extends MongoListField[Course, ObjectId](this)
+  object content extends MongoListField[Course, ObjectId](this)
 }
 
 object Course extends Course with MongoMetaRecord[Course] {
