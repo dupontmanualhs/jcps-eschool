@@ -11,85 +11,85 @@ object Helpers {
       return intToWordInformal(num) + " " + word
     }
     if (word.matches(".*child$")){
-      return intToWordInformal(num) + " " + word.replaceAll("d$", "dren")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("d$", "dren") else word)
     }
     if (word.matches("^person$")){
-      return intToWordInformal(num) + " " + word.replaceAll("person", "people")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("person", "people") else word)
     }
     if (word.matches(".*(?<![a])bus$")){
-      return intToWordInformal(num) + " " + word.replaceAll("bus$", "buses")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("bus$", "buses") else word)
     }
     if (word.matches("^circus$")){
-      return intToWordInformal(num) + " " + word.replaceAll("s$", "ses")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("s$", "ses") else word)
     }
     if (word.matches("^vertebra$")){
-      return intToWordInformal(num) + " " + word.replaceAll("bra$", "brae")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("bra$", "brae") else word)
     }
     if (word.matches(".*genus$")){
-      return intToWordInformal(num) + " " + word.replaceAll("us$", "era")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("us$", "era") else word)
     }
     if (word.matches(".*corpus")){
-      return intToWordInformal(num) + " " + word.replaceAll("us$", "ora")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("us$", "ora") else word)
     }
     if (word.matches(".*[otf]ax")){
-      return intToWordInformal(num) + " " + word.replaceAll("x$", "xes")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("x$", "xes") else word)
     }
     if (word.matches(".*[mnf]ix")){
-      return intToWordInformal(num) + " " + word.replaceAll("x$", "xes")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("x$", "xes") else word)
     }
     if (word.matches(".*(?<![aeiou])y$")){
-      return intToWordInformal(num) + " " + word.replaceAll("y$", "ies")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("y$", "ies") else word)
     }
     if (word.matches(".*[cs]h$")){
-      return intToWordInformal(num) + " " + word.replaceAll("h$", "hes")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("h$", "hes") else word)
     }
     if (word.matches(".*fe$")){
-      return intToWordInformal(num) + " " + word.replaceAll("fe$", "ves")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("fe$", "ves") else word)
     }
     if (word.matches(".*f$")){
-      return intToWordInformal(num) + " " + word.replaceAll("f$", "ves")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("f$", "ves") else word)
     }
     if (word.matches(".*o$")){
-      return intToWordInformal(num) + " " + word.replaceAll("o$", "oes")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("o$", "oes") else word)
     }
     if (word.matches(".*z$")){
-      return intToWordInformal(num) + " " + word.replaceAll("z$", "zzes")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("z$", "zzes") else word)
     }
     if (word.matches(".*us$")){
-      return intToWordInformal(num) + " " + word.replaceAll("us$", "i")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("us$", "i") else word)
     }
     if (word.matches(".*is$")){
-      return intToWordInformal(num) + " " + word.replaceAll("is$", "es")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("is$", "es") else word)
     }
     if (word.matches(".*fe$")){
-      return intToWordInformal(num) + " " + word.replaceAll("fe$", "ves")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("fe$", "ves") else word)
     }
     if (word.matches(".*(?<![z])on$")){
-      return intToWordInformal(num) + " " + word.replaceAll("on$", "a")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("on$", "a") else word)
     }
     if (word.matches(".*um$")){
-      return intToWordInformal(num) + " " + word.replaceAll("um$", "a")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("um$", "a") else word)
     }
     if (word.matches("[ml]ouse$")){
-      return intToWordInformal(num) + " " + word.replaceAll("ouse$", "ice")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("ouse$", "ice") else word)
     }
     if (word.matches(".*(?<![r])a$")){
-      return intToWordInformal(num) + " " + word.replaceAll("a$", "ae")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("a$", "ae") else word)
     }
     if (word.matches(".*[tgf]oo(?![d]).*{1,2}$")){
-      return intToWordInformal(num) + " " + word.replaceAll("oo", "ee")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("oo", "ee") else word)
     }
     if (word.matches(".*x$")){
-      return intToWordInformal(num) + " " + word.replaceAll("x$", "ces")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("x$", "ces") else word)
     }
     if (word.matches(".*eau$")){
-      return intToWordInformal(num) + " " + word.replaceAll("eau$", "eaux")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("eau$", "eaux") else word)
     }
     if (word.matches(".*man$")){
-      return intToWordInformal(num) + " " + word.replaceAll("man$", "men")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("man$", "men") else word)
     }
     if (word.matches(".*s$")){
-      return intToWordInformal(num) + " " + word.replaceAll("s$", "ses")
+      return intToWordInformal(num) + " " + (if (num != 1) word.replaceAll("s$", "ses") else word)
     }
     intToWordInformal(num) + " " + word + (if (num != 1) "s" else "")
   }
