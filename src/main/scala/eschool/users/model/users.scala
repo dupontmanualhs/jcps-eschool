@@ -12,7 +12,7 @@ import net.liftweb.http.{RequestVar, S, SessionVar}
 
 import com.foursquare.rogue.Rogue._
 
-class User private() extends MongoRecord[User] with ObjectIdPk[User] {
+class User extends MongoRecord[User] with ObjectIdPk[User] {
   def meta = User
 
   object username extends StringField(this, 15)
@@ -81,4 +81,38 @@ object User extends User with MongoMetaRecord[User] {
     S.notice("You must login to access that page.")
     S.redirectTo("/users/login")
   }
+}
+
+trait Perspective[OwnerType <: MongoRecord[OwnerType]] extends ObjectIdPk[OwnerType] {
+  self: OwnerType =>
+
+  object user extends ObjectIdRefField(this.asInstanceOf[OwnerType], User)
+}
+
+class Student extends MongoRecord[Student] with Perspective[Student] {
+  def meta = Student
+
+  object grade extends IntField(this)
+}
+
+object Student extends Student with MongoMetaRecord[Student] {
+  override def collectionName = "students"
+}
+
+class Teacher extends MongoRecord[Teacher] with Perspective[Teacher] {
+  def meta = Teacher
+}
+
+object Teacher extends Teacher with MongoMetaRecord[Teacher] {
+  override def collectionName = "teachers"
+}
+
+class Guardian extends MongoRecord[Guardian] with Perspective[Guardian] {
+  def meta = Guardian
+
+  object children extends MongoListField[Guardian, ObjectId](this)
+}
+
+object Guardian extends Guardian with MongoMetaRecord[Guardian] {
+  override def collectionName = "guardians"
 }

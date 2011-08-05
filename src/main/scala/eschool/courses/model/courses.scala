@@ -29,7 +29,8 @@ class Section extends MongoRecord[Section] with ObjectIdPk[Section] {
   object course extends ObjectIdRefField[Section, Course](this, Course)
   object content extends MongoListField[Section, ObjectId](this)
   object terms extends MongoListField[Section, ObjectId](this)
-  object users extends MongoListField[Section, ObjectId](this)
+  object teachers extends MongoListField[Section, ObjectId](this)
+  object students extends MongoListField[Section, ObjectId](this)
 
   // TODO: Write definition for teachers and students to pick them out of users
 }
