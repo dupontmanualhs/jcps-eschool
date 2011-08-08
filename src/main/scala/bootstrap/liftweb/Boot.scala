@@ -21,6 +21,7 @@ class Boot {
     // where to search snippet
     LiftRules.addToPackages("eschool.sites")
     LiftRules.addToPackages("eschool.users")
+    LiftRules.addToPackages("eschool.utils")
 
     // Build SiteMap
     def sitemap = SiteMap(
