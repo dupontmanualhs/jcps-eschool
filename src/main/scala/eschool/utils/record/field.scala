@@ -1,26 +1,24 @@
 package eschool.utils.record.field
 
-import tools.cmd.Meta
+import scala.collection.JavaConversions._
+
 import net.liftweb.common.{Failure, Empty, Full, Box}
-import net.liftweb.json.JsonAST.{JArray, JValue}
 import net.liftweb.record.{FieldHelpers, MandatoryTypedField, Field}
 import net.liftweb.json.JsonParser
 import xml.NodeSeq
-import net.liftweb.mongodb.record.{MongoMetaRecord, BsonRecord}
-import org.apache.xalan.xsltc.compiler.util.ObjectType
-import org.ietf.jgss.Oid
-import org.bson.types.ObjectId
 import com.mongodb.{BasicDBList, DBObject}
+import org.bson.types.ObjectId
+import net.liftweb.json.JsonAST._
+import net.liftweb.util.Helpers.tryo
 import net.liftweb.mongodb.record.field.{ObjectIdPk, MongoFieldFlavor}
+import net.liftweb.mongodb.record.{MongoRecord, MongoMetaRecord, BsonRecord}
 
-class MongoRecordListField[OwnerType <: BsonRecord[OwnerType], ObjType <: ObjectIdPk[ObjType]](rec: OwnerType)
+class MongoRecordListField[OwnerType <: BsonRecord[OwnerType], ObjType <: MongoRecord[ObjType] with ObjectIdPk[ObjType]]
+(rec: OwnerType, meta: MongoMetaRecord[ObjType])
   extends Field[List[ObjType], OwnerType]
   with MandatoryTypedField[List[ObjType]]
   with MongoFieldFlavor[List[ObjType]]
 {
-
-  import Meta.Reflection._
-
   def owner = rec
 
   def defaultValue = List[ObjType]()
@@ -42,7 +40,9 @@ class MongoRecordListField[OwnerType <: BsonRecord[OwnerType], ObjType <: Object
 
   def setFromJValue(jvalue: JValue) = jvalue match {
     case JNothing|JNull if optional_? => setBox(Empty)
-    case JArray(arr) => setBox(Full(arr.map(_.values.asInstanceOf[ObjType])))
+    case JArray(arr) => setBox(Full(arr map ((v: JValue) => {
+      (meta.find(new ObjectId(v.asInstanceOf[JString].toString)) openOr null).asInstanceOf[ObjType]
+    })))
     case other => setBox(FieldHelpers.expectedA("JArray", other))
   }
 
@@ -56,23 +56,24 @@ class MongoRecordListField[OwnerType <: BsonRecord[OwnerType], ObjType <: Object
   // TODO: This should return a multiple select form
   def toForm: Box[NodeSeq] = Empty
 
-  def asJValue = JArray(value.map(li => li.asInstanceOf[AnyRef] match {
-    case x if primitive_?(x.getClass) => primitive2jvalue(x)
-    case x if mongotype_?(x.getClass) => mongotype2jvalue(x)(owner.meta.formats)
-    case x if datetype_?(x.getClass) => datetype2jvalue(x)(owner.meta.formats)
-    case _ => JNothing
-  }))
+  def asJValue = JArray(value.map((obj: ObjType) => JString(obj.id.get.toString)))
 
   /*
   * Convert this field's value into a DBObject so it can be stored in Mongo.
   */
   def asDBObject: DBObject = {
-    new BasicDBList().addAll(value map _.id.get)
+    val dbo: BasicDBList = new BasicDBList()
+    dbo.addAll(value map ((obj: ObjType) => obj.id.get))
+    dbo
   }
 
   // set this field's value using a DBObject returned from Mongo.
-  def setFromDBObject(dbo: DBObject): Box[List[ObjType]] =
-    setBox(Full(dbo.asInstanceOf[BasicDBList].toList.map(
-      (oid: Object) => ObjType.find(oid.asInstanceOf[ObjectId]) openOr null))
-    )
+  def setFromDBObject(dbo: DBObject): Box[List[ObjType]] = {
+    def jStringToObj(js: JString): ObjType = {
+      (meta.find(new ObjectId(js.toString)) openOr null).asInstanceOf[ObjType]
+    }
+    val listOfOids: List[JString] = iterableAsScalaIterable(
+      dbo.asInstanceOf[BasicDBList]).toList.map(_.asInstanceOf[JString])
+    setBox(Full(listOfOids.map(jStringToObj _)))
+  }
 }

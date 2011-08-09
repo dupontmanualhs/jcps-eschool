@@ -7,6 +7,8 @@ import net.liftweb.json.JsonDSL._
 import net.liftweb.common.{Box, Empty, Full}
 import org.bson.types.ObjectId
 import eschool.utils.model.HtmlField
+import eschool.utils.record.field.MongoRecordListField
+import eschool.users.model.{Student, Teacher}
 
 class Course extends MongoRecord[Course] with ObjectIdPk[Course] {
   def meta = Course
@@ -29,10 +31,8 @@ class Section extends MongoRecord[Section] with ObjectIdPk[Section] {
   object course extends ObjectIdRefField[Section, Course](this, Course)
   object content extends MongoListField[Section, ObjectId](this)
   object terms extends MongoListField[Section, ObjectId](this)
-  object teachers extends MongoListField[Section, ObjectId](this)
-  object students extends MongoListField[Section, ObjectId](this)
-
-  // TODO: Write definition for teachers and students to pick them out of users
+  object teachers extends MongoRecordListField[Section, Teacher](this, Teacher)
+  object students extends MongoRecordListField[Section, Student](this, Student)
 }
 
 object Section extends Section with MongoMetaRecord[Section] {
