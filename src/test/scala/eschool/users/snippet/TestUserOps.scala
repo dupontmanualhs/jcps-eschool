@@ -121,7 +121,7 @@ class TestUserOps extends JUnitSuite with BeforeAndAfterAll {
     driver.findElementsByLinkText("All About Bob").get(0).click()
     assert(selenium.isTextPresent("Alternative Home"))
     driver.findElementsByLinkText("edit").get(1).click()
-    selenium.typeKeys(driver.findElementsByName("<\\li>").get(1), "<li>Frog Gigging<\\li>")
+    //driver.findElementsByName("<\\li>").get(1), "<li>Frog Gigging<\\li>")
     driver.findElementsByTagName("button").get(1).click()
     driver.findElementsByLinkText("Alternative Home").get(0).click()
     assert(selenium.isTextPresent("Frog Gigging"))
