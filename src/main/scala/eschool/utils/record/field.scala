@@ -6,12 +6,63 @@ import net.liftweb.common.{Failure, Empty, Full, Box}
 import net.liftweb.record.{FieldHelpers, MandatoryTypedField, Field}
 import net.liftweb.json.JsonParser
 import xml.NodeSeq
-import com.mongodb.{BasicDBList, DBObject}
 import org.bson.types.ObjectId
 import net.liftweb.json.JsonAST._
 import net.liftweb.util.Helpers.tryo
 import net.liftweb.mongodb.record.field.{ObjectIdPk, MongoFieldFlavor}
 import net.liftweb.mongodb.record.{MongoRecord, MongoMetaRecord, BsonRecord}
+import com.mongodb.{BasicDBObject, BasicDBList, DBObject}
+
+class MongoRecordField[OwnerType <: BsonRecord[OwnerType], ObjType <: MongoRecord[ObjType] with ObjectIdPk[ObjType]]
+(rec: OwnerType, meta: MongoMetaRecord[ObjType])
+  extends Field[ObjType, OwnerType]
+  with MandatoryTypedField[ObjType]
+  with MongoFieldFlavor[ObjType]
+{
+  def owner = rec
+
+  def defaultValue = null.asInstanceOf[ObjType]
+
+  def setFromAny(in: Any): Box[ObjType] = {
+    in match {
+      case dbo: DBObject => setFromDBObject(dbo)
+      case Some(obj: ObjType) => setBox(Full(obj))
+      case Full(obj: ObjType) => setBox(Full(obj))
+      case s: String => setFromString(s)
+      case Some(s: String) => setFromString(s)
+      case Full(s: String) => setFromString(s)
+      case null|None|Empty => setBox(defaultValueBox)
+      case f: Failure => setBox(f)
+      case o => setFromString(o.toString)
+    }
+  }
+
+  def setFromJValue(jvalue: JValue) = jvalue match {
+    case JNothing|JNull if optional_? => setBox(Empty)
+    case js: JString => setBox(meta.find(new ObjectId(js.toString)))
+    case other => setBox(FieldHelpers.expectedA("JString", other))
+  }
+
+  // parse String into a JObject
+  def setFromString(in: String): Box[ObjType] = tryo(JsonParser.parse(in)) match {
+    case Full(jv: JValue) => setFromJValue(jv)
+    case f: Failure => setBox(f)
+    case other => setBox(Failure("Error parsing String into a JValue: "+in))
+  }
+
+  // TODO: This should return a select form
+  def toForm: Box[NodeSeq] = Empty
+
+  def asJValue = JString(value.id.get.toString)
+
+  def asDBObject: DBObject = {
+    new BasicDBObject("id", value.id.get)
+  }
+
+  def setFromDBObject(dbo: DBObject): Box[ObjType] = {
+    meta.find(new ObjectId(dbo.get("id").asInstanceOf[String]))
+  }
+}
 
 class MongoRecordListField[OwnerType <: BsonRecord[OwnerType], ObjType <: MongoRecord[ObjType] with ObjectIdPk[ObjType]]
 (rec: OwnerType, meta: MongoMetaRecord[ObjType])
