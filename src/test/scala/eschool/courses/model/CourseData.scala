@@ -1,12 +1,15 @@
 package eschool.courses.model
 
-import model.Course
-import net.liftweb.http.js.JE.ValById
-import eschool.users.model.User
-import xml.NodeSeq
-import org.apache.derby.iapi.sql.dictionary.UniqueSQLObjectDescriptor
+object CourseData {
+  def create() {
+    val intro = Course.createRecord.name("Intro to Computer Programming").stateId("45639911")
+    intro.save(true)
+    val apcs = Course.createRecord.name("AP Computer Science A").stateId("45640761")
+    apcs.save(true)
 
+}
 
+/*
 object CourseData {
   //COURSES ------------------------------------------------------------------------------------------------------------
   val intro = Course.createRecord.name("Intro to Computer Programming").stateId("123456").objectives(List()).content(List())
@@ -145,9 +148,6 @@ object CourseData {
 
 }
 
-
-
-
 object CourseList {
   def render = ".userRow *" #> allTeachers().map(renderUser(_))
 
@@ -163,7 +163,4 @@ object CourseList {
   def allCourses(): List[User] = {
     User.findAll.sortWith((u1: User, u2: User) => u1.formalName.toLowerCase < u2.formalName.toLowerCase)
   }
-
-
-         teacher->  uniqueid -> teacherlists-> sections-> courses!!!!
-
+*/

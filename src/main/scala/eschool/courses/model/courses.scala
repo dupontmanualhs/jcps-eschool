@@ -7,73 +7,71 @@ import net.liftweb.json.JsonDSL._
 import net.liftweb.common.{Box, Empty, Full}
 import org.bson.types.ObjectId
 import eschool.utils.model.HtmlField
-import eschool.utils.record.field.MongoRecordListField
 import eschool.users.model.{Student, Teacher}
+import eschool.utils.record.field.{MongoRecordField, MongoRecordListField}
+
+class School extends MongoRecord[School] with ObjectIdPk[School] {
+  def meta = School
+
+  object name extends StringField(this, 80)
+  object shortName extends StringField(this, 20)
+}
+
+object School extends School with MongoMetaRecord[School] {
+  override def collectionName = "schools"
+}
 
 class Course extends MongoRecord[Course] with ObjectIdPk[Course] {
   def meta = Course
 
   object name extends StringField(this, 80)
   object stateId extends StringField(this, 20)
-  object objectives extends MongoListField[Course, ObjectId](this)
-  object content extends MongoListField[Course, ObjectId](this)
 }
 
 object Course extends Course with MongoMetaRecord[Course] {
   ensureIndex("courseName" -> 1, "unique" -> true)
-  ensureIndex("courseId" -> 1)
-  ensureIndex("objectives" -> 1)
+  ensureIndex("stateId" -> 1, "unique" -> true)
+
+  override def collectionName = "courses"
 }
 
 class Section extends MongoRecord[Section] with ObjectIdPk[Section] {
   def meta = Section
 
-  object course extends ObjectIdRefField[Section, Course](this, Course)
-  object content extends MongoListField[Section, ObjectId](this)
-  object terms extends MongoListField[Section, ObjectId](this)
-  object teachers extends MongoRecordListField[Section, Teacher](this, Teacher)
-  object students extends MongoRecordListField[Section, Student](this, Student)
+  object course extends MongoRecordField[Section, Course](this, Course)
+  object school extends MongoRecordField[Section, School](this, School)
+  object number extends IntField(this)
+  object terms extends MongoRecordListField[Section, ObjectId](this)
+  object teacherAssignments extends MongoRecordListField[Section, TeacherAssignment](this, TeacherAssignment)
+  object studentEnrollments extends MongoRecordListField[Section, StudentEnrollment](this, StudentEnrollment)
 }
 
 object Section extends Section with MongoMetaRecord[Section] {
   ensureIndex("course" -> 1)
+
+  override def collectionName = "sections"
 }
 
 class Term extends MongoRecord[Term] with ObjectIdPk[Term] {
   def meta = Term
 
+  object year extends MongoRecordField[Term, AcademicYear](this, AcademicYear)
   object startDate extends DateField(this)
   object endDate extends DateField(this)
-  object year extends ObjectIdRefField[Term, AcadYear](this, AcadYear)
 }
 
 object Term extends Term with MongoMetaRecord[Term] {
-  ensureIndex("startDate" -> 1, "unique" -> true)
-  ensureIndex("endDate" -> 1, "unique" -> true)
-  ensureIndex("year" -> 1)
+  override def collectionName = "terms"
 }
 
-class AcadYear extends MongoRecord[AcadYear] with ObjectIdPk[AcadYear] {
-  def meta = AcadYear
+class AcademicYear extends MongoRecord[AcademicYear] with ObjectIdPk[AcademicYear] {
+  def meta = AcademicYear
 
   object startDate extends DateField(this)
   object endDate extends DateField(this)
 }
 
-object AcadYear extends AcadYear with MongoMetaRecord[AcadYear] {
-  ensureIndex("startDate" -> 1, "unique" -> true)
-  ensureIndex("endDate" -> 1, "unique" -> true)
+object AcademicYear extends AcademicYear with MongoMetaRecord[AcademicYear] {
+  override def collectionName = "acadyears"
 }
 
-class Content extends MongoRecord[Content] with ObjectIdPk[Content] {
-  def meta = Content
-
-  object parent extends StringField(this, 80)
-  object contentType extends StringField(this, 20)
-  object material extends HtmlField(this)
-}
-
-object Content extends Content with MongoMetaRecord[Content] {
-  ensureIndex("parent" -> 1)
-  ensureIndex("contentType" -> 1)
-}
