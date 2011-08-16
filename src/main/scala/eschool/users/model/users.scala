@@ -11,6 +11,7 @@ import org.bson.types.ObjectId
 import net.liftweb.http.{RequestVar, S, SessionVar}
 
 import com.foursquare.rogue.Rogue._
+import eschool.utils.record.field.MongoRecordField
 
 class User extends MongoRecord[User] with ObjectIdPk[User] {
   def meta = User
@@ -22,7 +23,9 @@ class User extends MongoRecord[User] with ObjectIdPk[User] {
   object preferred extends OptionalStringField(this, 30)
   object gender extends EnumField(this, Gender, Gender.None)
   object email extends OptionalEmailField(this, 100)
-  object password extends MongoPasswordField(this, 5)
+  object password extends MongoPasswordField(this, 5) {
+    override def optional_? = true
+  }
   object guid extends OptionalStringField(this, 30)
 
   def displayName = {
@@ -86,17 +89,23 @@ object User extends User with MongoMetaRecord[User] {
 trait Perspective[OwnerType <: MongoRecord[OwnerType]] extends ObjectIdPk[OwnerType] {
   self: OwnerType =>
 
-  object user extends ObjectIdRefField(this.asInstanceOf[OwnerType], User)
+  object user extends MongoRecordField(this.asInstanceOf[OwnerType], User)
 }
 
 class Student extends MongoRecord[Student] with Perspective[Student] {
   def meta = Student
 
+  object stateId extends StringField(this, 10)
+  object studentNumber extends StringField(this, 6)
   object grade extends IntField(this)
+  object teamName extends StringField(this, 20)
 }
 
 object Student extends Student with MongoMetaRecord[Student] {
   override def collectionName = "students"
+
+  ensureIndex("stateId" -> 1)
+  ensureIndex("studentNumber" -> 1)
 }
 
 class Teacher extends MongoRecord[Teacher] with Perspective[Teacher] {
