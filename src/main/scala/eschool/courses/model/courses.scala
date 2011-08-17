@@ -6,15 +6,13 @@ import net.liftweb.record.field._
 import net.liftweb.json.JsonDSL._
 import net.liftweb.common.{Box, Empty, Full}
 import org.bson.types.ObjectId
-import eschool.utils.model.HtmlField
+import eschool.utils.model.XmlField
 
 class Course extends MongoRecord[Course] with ObjectIdPk[Course] {
   def meta = Course
 
   object name extends StringField(this, 80)
   object stateId extends StringField(this, 20)
-  object objectives extends MongoListField[Course, ObjectId](this)
-  object content extends MongoListField[Course, ObjectId](this)
 }
 
 object Course extends Course with MongoMetaRecord[Course] {
@@ -27,12 +25,14 @@ class Section extends MongoRecord[Section] with ObjectIdPk[Section] {
   def meta = Section
 
   object course extends ObjectIdRefField[Section, Course](this, Course)
-  object content extends MongoListField[Section, ObjectId](this)
+  object content extends MongoListField[Section, ObjectId](this) // At this level, this is either units and/or assessments
   object terms extends MongoListField[Section, ObjectId](this)
   object teachers extends MongoListField[Section, ObjectId](this)
   object students extends MongoListField[Section, ObjectId](this)
 
   // TODO: Write definition for teachers and students to pick them out of users
+  // TODO: Add a definition for schools and a field for schools in Section
+  // TODO: Add a way to keep track of blocks/periods
 }
 
 object Section extends Section with MongoMetaRecord[Section] {
@@ -65,15 +65,38 @@ object AcadYear extends AcadYear with MongoMetaRecord[AcadYear] {
   ensureIndex("endDate" -> 1, "unique" -> true)
 }
 
-class Content extends MongoRecord[Content] with ObjectIdPk[Content] {
-  def meta = Content
+class CourseUnit extends MongoRecord[CourseUnit] with ObjectIdPk[CourseUnit] {
+  def meta = CourseUnit
 
-  object parent extends StringField(this, 80)
-  object contentType extends StringField(this, 20)
-  object material extends HtmlField(this)
+  object name extends StringField(this, 40)
+  object content extends MongoListField[CourseUnit, ObjectId](this) // At this level, this is either lessons and/or assessments
 }
 
-object Content extends Content with MongoMetaRecord[Content] {
-  ensureIndex("parent" -> 1)
-  ensureIndex("contentType" -> 1)
+object CourseUnit extends CourseUnit with MongoMetaRecord[CourseUnit] {
+  ensureIndex("name" -> 1)
+}
+
+class Lesson extends MongoRecord[Lesson] with ObjectIdPk[Lesson] {
+  def meta = Lesson
+
+  object name extends StringField(this, 40)
+  object objectives extends MongoListField[Lesson, ObjectId](this)
+  object content extends MongoListField[Lesson, ObjectId](this) // This could be assessments in addition to other types of content
+}
+
+object Lesson extends Lesson with MongoMetaRecord[Lesson] {
+  ensureIndex("name" -> 1)
+}
+
+class Objective extends MongoRecord[Objective] with ObjectIdPk[Objective] {
+  def meta = Objective
+
+  object name extends StringField(this, 40)
+  object stateId extends StringField(this, 20)
+  object description extends XmlField(this)
+}
+
+object Objective extends Objective with MongoMetaRecord[Objective] {
+  ensureIndex("name" -> 1, "unique" -> true)
+  ensureIndex("stateId" -> 1, "unique" -> true)
 }
