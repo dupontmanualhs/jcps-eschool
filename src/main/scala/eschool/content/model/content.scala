@@ -19,26 +19,16 @@ object Assessment extends Assessment with MongoMetaRecord[Assessment] {
   ensureIndex("name" -> 1)
 }
 
-class MCQuestion extends MongoRecord[MCQuestion] with ObjectIdPk[MCQuestion] {
-  def meta = MCQuestion
+class Question extends MongoRecord[Question] with ObjectIdPk[Question] {
+  def meta = Question
 
-  object prompt extends XmlField(this)
-  object choices extends MongoListField[MCQuestion, ObjectId](this)
+  object content extends XmlField(this)
+  object source extends StringField(this, 80)
+  object subject extends StringField(this, 80)
 }
 
-object MCQuestion extends MCQuestion with MongoMetaRecord[MCQuestion] {
-  ensureIndex("prompt" -> 1)
-}
-
-class MCChoice extends MongoRecord[MCChoice] with ObjectIdPk[MCChoice] {
-  def meta = MCChoice
-
-  object choice extends XmlField(this)
-  object correct extends BooleanField(this)
-}
-
-object MCChoice extends MCChoice with MongoMetaRecord[MCChoice] {
-  ensureIndex("choice" -> 1)
+object Question extends Question with MongoMetaRecord[Question] {
+  ensureIndex("content" -> 1)
 }
 
 class Presentation extends MongoRecord[Presentation] with ObjectIdPk[Presentation] {
@@ -55,7 +45,7 @@ object Presentation extends Presentation with MongoMetaRecord[Presentation] {
 class PresentationPage extends MongoRecord[PresentationPage] with ObjectIdPk[PresentationPage] {
   def meta = PresentationPage
 
-  object pageNumber extends StringField(this, 10)
+  object pageNumber extends IntField(this)
   object pageContent extends XmlField(this)
 }
 
