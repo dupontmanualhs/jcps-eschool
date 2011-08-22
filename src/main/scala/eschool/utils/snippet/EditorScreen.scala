@@ -6,7 +6,6 @@ import net.liftweb.common._
 import xml.{XML, Elem, NodeSeq, Unparsed}
 import net.liftweb.http.js.JE._
 import net.liftweb.http.js.JsCmds._
-import com.sun.corba.se.spi.presentation.rmi.PresentationManager.StubFactoryFactory
 import java.lang.reflect.Field
 import xml.Text
 

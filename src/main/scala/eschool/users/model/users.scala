@@ -11,7 +11,6 @@ import org.bson.types.ObjectId
 import net.liftweb.http.{RequestVar, S, SessionVar}
 
 import com.foursquare.rogue.Rogue._
-import eschool.utils.record.field.MongoRecordField
 
 class User extends MongoRecord[User] with ObjectIdPk[User] {
   def meta = User
@@ -89,7 +88,7 @@ object User extends User with MongoMetaRecord[User] {
 trait Perspective[OwnerType <: MongoRecord[OwnerType]] extends ObjectIdPk[OwnerType] {
   self: OwnerType =>
 
-  object user extends MongoRecordField(this.asInstanceOf[OwnerType], User)
+  object user extends ObjectIdRefField(this.asInstanceOf[OwnerType], User)
 }
 
 class Student extends MongoRecord[Student] with Perspective[Student] {
@@ -110,10 +109,15 @@ object Student extends Student with MongoMetaRecord[Student] {
 
 class Teacher extends MongoRecord[Teacher] with Perspective[Teacher] {
   def meta = Teacher
+
+  object personId extends StringField(this, 10)
+  object stateId extends StringField(this, 10)
 }
 
 object Teacher extends Teacher with MongoMetaRecord[Teacher] {
   override def collectionName = "teachers"
+
+  ensureIndex("personId" -> 1)
 }
 
 class Guardian extends MongoRecord[Guardian] with Perspective[Guardian] {
