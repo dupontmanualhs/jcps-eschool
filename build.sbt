@@ -31,7 +31,9 @@ libraryDependencies ++= {
     "com.novocode" % "junit-interface" % "0.6" % "test->default",
     "org.scala-tools.testing" %% "specs" % "1.6.8" % "test->default",
     "org.scalatest" % "scalatest_2.9.0" % "1.6.1" % "test->default",
-    "org.seleniumhq.selenium" % "selenium-java" % "2.0.0" % "test->default"
+    "org.seleniumhq.selenium" % "selenium-java" % "2.0.0" % "test->default",
+    "org.apache.poi" % "poi" % "3.8-beta3",
+    "org.apache.poi" % "poi-ooxml" % "3.8-beta3"
   )
 }
 
