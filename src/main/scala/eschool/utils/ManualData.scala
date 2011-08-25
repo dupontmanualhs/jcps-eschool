@@ -15,6 +15,7 @@ import com.foursquare.rogue.Rogue._
 import net.liftweb.common._
 import java.util.Date
 import org.joda.time.format.DateTimeFormat
+import org.bson.types.ObjectId
 
 object ManualData {
   val netIdMap: Map[String, String] = buildNetIdMap()
@@ -166,13 +167,14 @@ object ManualData {
       })
       val teacherPersonId = (section \ "@sectionInfo.teacherPersonID").text
       val teacher = (Teacher where (_.personId eqs teacherPersonId) get()).get
-      val teacherAssignment = TeacherAssignment.createRecord.teacher(teacher.id.get).startDate(Empty).endDate(Empty)
-      teacherAssignment.save(true)
       val dbSection: Section = Section.createRecord.course(course.id.get)
       dbSection.sectionId(sectionId).terms(terms.map(_.id.get))
-      dbSection.periods(periods.map(_.id.get)).room(room.id.get).teacherAssignments(List(teacherAssignment.id.get))
-      dbSection.studentEnrollments(List())
+      dbSection.periods(periods.map(_.id.get)).room(room.id.get)
       dbSection.save(true)
+      terms foreach ((term: Term) => {
+        val teacherAssignment = TeacherAssignment.createRecord.teacher(teacher.id.get).section(dbSection.id.get).term(term.id.get).startDate(Empty).endDate(Empty)
+        teacherAssignment.save(true)
+      })
     })
   }
 
@@ -187,10 +189,11 @@ object ManualData {
       if (debug) println("Adding student #%s to section #%s".format(studentNumber, sectionId))
       val startDate = asDateBox((enrollment \ "@roster.startDate").text)
       val endDate = asDateBox((enrollment \ "@roster.endDate").text)
-      val dbEnrollment = StudentEnrollment.createRecord.student(student.id.get).startDate(startDate).endDate(endDate)
-      dbEnrollment.save(true)
-      section.studentEnrollments(dbEnrollment.id.get :: section.studentEnrollments.get)
-      section.save(true)
+      section.terms.get foreach ((oid: ObjectId) => {
+        val term = Term.find(oid).get
+        val dbEnrollment = StudentEnrollment.createRecord.student(student.id.get).section(section.id.get).term(term.id.get).startDate(startDate).endDate(endDate)
+        dbEnrollment.save(true)
+      })
     })
   }
 

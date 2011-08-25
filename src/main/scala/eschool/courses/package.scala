@@ -10,7 +10,7 @@ import net.liftweb.sitemap.{*, Menu, ConvertableToMenu}
 package object courses {
   def menus: Array[ConvertableToMenu] = Array(
     Menu.param[Teacher]("Teacher Schedule", "Teacher Schedule",
-        Teacher.getByUsername, _.user.get.username.get) / "courses" / "teacher" / * >>
+        Teacher.getByUsername _, _.user.obj.open_!.username.get) / "courses" / "teacher" / * >>
         Template(() => getTemplate(List("courses", "teacherSchedule")))
   )
 }

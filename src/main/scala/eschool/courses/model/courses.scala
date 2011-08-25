@@ -31,6 +31,9 @@ class Term extends MongoRecord[Term] with ObjectIdPk[Term] {
 
 object Term extends Term with MongoMetaRecord[Term] {
   override def collectionName = "terms"
+
+  //TODO: this shouldn't be specified here
+  lazy val current = (Term where (_.name eqs "Fall 2011") get()).get
 }
 
 class Period extends MongoRecord[Period] with ObjectIdPk[Period] {
@@ -101,8 +104,10 @@ class Section extends MongoRecord[Section] with ObjectIdPk[Section] {
   object terms extends MongoListField[Section, ObjectId](this)
   object periods extends MongoListField[Section, ObjectId](this)
   object room extends ObjectIdRefField(this, Room)
-  object teacherAssignments extends MongoListField[Section, ObjectId](this)
-  object studentEnrollments extends MongoListField[Section, ObjectId](this)
+
+  def periodNames(): String = {
+    Period.findAll(periods.get).map(_.name.get).mkString(", ")
+  }
 }
 
 object Section extends Section with MongoMetaRecord[Section] {
@@ -136,6 +141,8 @@ class TeacherAssignment extends MongoRecord[TeacherAssignment] with ObjectIdPk[T
   def meta = TeacherAssignment
 
   object teacher extends ObjectIdRefField(this, Teacher)
+  object section extends ObjectIdRefField(this, Section)
+  object term extends ObjectIdRefField(this, Term)
   object startDate extends DateField(this) {
     override def optional_? = true
   }
@@ -153,6 +160,8 @@ class StudentEnrollment extends MongoRecord[StudentEnrollment] with ObjectIdPk[S
   def meta = StudentEnrollment
 
   object student extends ObjectIdRefField(this, Student)
+  object section extends ObjectIdRefField(this, Section)
+  object term extends ObjectIdRefField(this, Term)
   object startDate extends DateField(this) {
     override def optional_? = true
   }
