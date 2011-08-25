@@ -9,7 +9,6 @@ import eschool.users.model.{Student, Teacher}
 
 import com.foursquare.rogue.Rogue._
 import org.bson.types.ObjectId
-import java.util.jar.Attributes.Name
 
 class AcademicYear extends MongoRecord[AcademicYear] with ObjectIdPk[AcademicYear] {
   def meta = AcademicYear
@@ -98,7 +97,6 @@ class Section extends MongoRecord[Section] with ObjectIdPk[Section] {
   def meta = Section
 
   object course extends ObjectIdRefField(this, Course)
-  object number extends IntField(this)
   object sectionId extends StringField(this, 10)
   object terms extends MongoListField[Section, ObjectId](this)
   object periods extends MongoListField[Section, ObjectId](this)

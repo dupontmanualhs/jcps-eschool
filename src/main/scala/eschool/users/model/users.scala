@@ -118,6 +118,13 @@ object Teacher extends Teacher with MongoMetaRecord[Teacher] {
   override def collectionName = "teachers"
 
   ensureIndex("personId" -> 1)
+
+  def getByUsername(username: String): Box[Teacher] = {
+    User.getByUsername(username) match {
+      case Full(user) => Teacher where (_.user eqs user.id.get) get()
+      case _ => Empty
+    }
+  }
 }
 
 class Guardian extends MongoRecord[Guardian] with Perspective[Guardian] {

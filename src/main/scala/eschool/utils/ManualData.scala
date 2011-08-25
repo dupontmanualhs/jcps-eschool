@@ -127,7 +127,7 @@ object ManualData {
 
   def loadCourses(debug: Boolean) {
     val doc = XML.load(getClass.getResourceAsStream("/manual-data/Courses.xml"))
-    val courses = doc \\ "person"
+    val courses = doc \\ "curriculum"
     courses foreach ((course: Node) => {
       val name = (course \ "@courseInfo.courseName").text
       val masterNumber = asIdNumber((course \ "@courseInfo.courseMasterNumber").text)
@@ -140,13 +140,12 @@ object ManualData {
 
   def loadSections(debug: Boolean) {
     val doc = XML.load(getClass.getResourceAsStream("/manual-data/Sections.xml"))
-    val sections = doc \\ "person"
+    val sections = doc \\ "curriculum"
     val fall11 = (Term where (_.name eqs "Fall 2011") get ()).get
     val spring12 = (Term where (_.name eqs "Spring 2012") get()).get
     sections foreach ((section: Node) => {
       val sectionId = (section \ "@sectionInfo.sectionID").text
-      println("Working on section: %s".format(sectionId))
-      val sectionNumber = asIdNumber((section \ "@sectionInfo.sectionNumber").text).toInt
+      if (debug) println("Working on section: %s".format(sectionId))
       val courseMasterNumber = asIdNumber((section \ "@courseInfo.courseMasterNumber").text)
       val course = Course.where(_.masterNumber eqs courseMasterNumber).get().get
       val roomNum = (section \ "@sectionInfo.roomName").text
@@ -169,7 +168,7 @@ object ManualData {
       val teacher = (Teacher where (_.personId eqs teacherPersonId) get()).get
       val teacherAssignment = TeacherAssignment.createRecord.teacher(teacher.id.get).startDate(Empty).endDate(Empty)
       teacherAssignment.save(true)
-      val dbSection: Section = Section.createRecord.course(course.id.get).number(sectionNumber)
+      val dbSection: Section = Section.createRecord.course(course.id.get)
       dbSection.sectionId(sectionId).terms(terms.map(_.id.get))
       dbSection.periods(periods.map(_.id.get)).room(room.id.get).teacherAssignments(List(teacherAssignment.id.get))
       dbSection.studentEnrollments(List())
@@ -236,5 +235,4 @@ object ManualData {
     })).toList
     Map(pairs: _*)
   }
-
 }
