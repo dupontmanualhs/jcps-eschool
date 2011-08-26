@@ -3,7 +3,7 @@ package eschool.math
 import util.Random
 
 object MathRandom {
-  private var NumberGenerator = new Random(3)
+  private var NumberGenerator = new Random()
   private val defaultRange = 1 to 10
   private val defaultDecimals = 1
   private val defaultVariableArray = Array[String]("a","b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","u","v","w","x","y","z",

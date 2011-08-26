@@ -2,6 +2,7 @@ package eschool.math
 
 import java.math.MathContext
 import util.matching.Regex
+import ch.qos.logback.core.joran.conditional.ElseAction
 
 abstract class MathNumber extends MathConstant {
 	//def toMathMlPresentation(): NodeSeq
@@ -56,15 +57,74 @@ object MathNumber {
 abstract class MathRealNumber extends MathNumber {
 	override def getValue: BigDecimal = this.toApproximation.getValue
 	def toApproximation: MathApproximateNumber
+    def +(right: MathRealNumber): MathRealNumber = {
+        (this, right) match {
+            case (left: MathExactNumber, right: MathExactNumber) => left + right
+            case _ => MathApproximateNumber(this.getValue + right.getValue)
+        }
+    }
+    def -(right: MathRealNumber): MathRealNumber = {
+        (this, right) match {
+            case (left: MathExactNumber, right: MathExactNumber) => left - right
+            case _ => MathApproximateNumber(this.getValue - right.getValue)
+        }
+    }
+    def *(right: MathRealNumber): MathRealNumber = {
+        (this, right) match {
+            case (left: MathExactNumber, right: MathExactNumber) => left * right
+            case _ => MathApproximateNumber(this.getValue * right.getValue)
+        }
+    }
+    def /(right: MathRealNumber): MathRealNumber = {
+        (this, right) match {
+            case (left: MathExactNumber, right: MathExactNumber) => left / right
+            case _ => MathApproximateNumber(this.getValue / right.getValue)
+        }
+    }
 }
-
 object MathRealNumber {
 	def apply(s: String): Option[MathNumber] = {
 		MathInteger(s) orElse MathFraction(s) orElse MathDecimal(s) orElse MathApproximateNumber(s)
 	}
 }
 
-abstract class MathExactNumber extends MathRealNumber
+abstract class MathExactNumber extends MathRealNumber{
+    def +(right: MathExactNumber): MathExactNumber = {
+        (this, right) match {
+            case (left: MathInteger, right: MathInteger) => MathInteger(left.getInt + right.getInt)
+            case (left: MathInteger, right: MathFraction) => MathFraction(left.getInt * right.getDenominator + right.getNumerator, right.getDenominator).simplify
+            case (left: MathFraction, right: MathFraction) => MathFraction(left.getNumerator * right.getDenominator + right.getNumerator * left.getDenominator, left.getDenominator * right.getDenominator).simplify
+            case (left: MathFraction, right: MathInteger) => right + left
+            case (_, _) => MathDecimal(this.getValue + right.getValue)
+        }
+    }
+    def -(right: MathExactNumber): MathExactNumber = {
+        (this, right) match {
+            case (left: MathInteger, right: MathInteger) => MathInteger(left.getInt - right.getInt)
+            case (left: MathInteger, right: MathFraction) => MathFraction(left.getInt * right.getDenominator - right.getNumerator, right.getDenominator).simplify
+            case (left: MathFraction, right: MathFraction) => MathFraction(left.getNumerator * right.getDenominator - right.getNumerator * left.getDenominator, left.getDenominator * right.getNumerator).simplify
+            case (left: MathFraction, right: MathInteger) => MathFraction(left.getNumerator - right.getInt * left.getDenominator, left.getDenominator).simplify
+            case (_, _) => MathDecimal(this.getValue - right.getValue)
+        }
+    }
+    def *(right: MathExactNumber): MathExactNumber = {
+        (this, right) match {
+            case (left: MathInteger, right: MathInteger) => MathInteger(left.getInt * right.getInt)
+            case (left: MathInteger, right: MathFraction) => MathFraction(left.getInt * right.getNumerator, right.getDenominator).simplify
+            case (left: MathFraction, right: MathFraction) => MathFraction(left.getNumerator * right.getNumerator, left.getDenominator * right.getDenominator).simplify
+            case (left: MathFraction, right: MathInteger) => right * left
+            case (_, _) => MathDecimal(this.getValue * right.getValue)
+        }
+    }
+    def /(right: MathExactNumber): MathExactNumber = {
+        (this, right) match {
+            case (left: MathInteger, right: MathInteger) => MathFraction(left, right).simplify
+            case (_, right: MathFraction) => this * right.getReciprocal
+            case (left: MathFraction, right: MathInteger) => MathFraction(left.getNumerator, left.getDenominator * right.getInt).simplify
+            case (_, _) => MathDecimal(this.getValue / right.getValue)
+        }
+    }
+}
 
 class MathFraction(val numerator: BigInt, val denominator: BigInt) extends MathExactNumber {
 	def getNumerator = numerator
@@ -74,11 +134,12 @@ class MathFraction(val numerator: BigInt, val denominator: BigInt) extends MathE
 
 	override def toApproximation: MathApproximateNumber = MathApproximateNumber(this.getNumerator.toDouble./(this.getDenominator.toDouble))
 
-	override def simplify: MathExpression = {
+	override def simplify: MathExactNumber = {
 		val gcf: BigInt = this.getGCF(this.getNumerator, this.getDenominator) //gcf: greatest common factor
 		MathFraction(this.getNumerator / gcf, this.getDenominator / gcf) match {
 			case aFrac: MathFraction if (aFrac.getValue < 0) => MathFraction(-(aFrac.getNumerator.abs), aFrac.getDenominator.abs)
-			case aFrac: MathFraction => aFrac
+			case aFrac: MathFraction if(aFrac.getDenominator.abs == 1) => MathInteger(aFrac.getNumerator * aFrac.getDenominator)  //turns a fraction with a denominator of 1 or -1 into an integer
+            case aFrac: MathFraction => aFrac
 		}
 	}
 
@@ -89,6 +150,8 @@ class MathFraction(val numerator: BigInt, val denominator: BigInt) extends MathE
 			getGCF(denominator, numerator % denominator)
 		}
 	}
+
+    def getReciprocal = MathFraction(getDenominator, getNumerator)
 
 	override def getPrecedence: Int = 3
 
@@ -225,8 +288,8 @@ object MathApproximateNumber {
 }
 
 class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) extends MathNumber {
-	def getReal: MathRealNumber = real
-	def getImaginary: MathRealNumber = imag
+	def getReal: MathRealNumber = if(isApproximation) real.toApproximation else real
+	def getImaginary: MathRealNumber = if(isApproximation) imag.toApproximation else imag
 	override def getValue: BigDecimal = null
 	override def getPrecedence: Int = -1
 	override def simplify = {
@@ -239,31 +302,19 @@ class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) exte
 	// if either real or imag are approximate, both are coerced to approximate
 	def isApproximation: Boolean = real.isInstanceOf[MathApproximateNumber] || imag.isInstanceOf[MathApproximateNumber]
 
-	private def realToLaTeX: String = {
-		if (isApproximation) {
-			this.getReal.toApproximation.getValue.toString()
-		} else {
-			this.getReal.toLaTeX
-		}
-	}
-
-	private def imaginaryToLaTeX: String = {
-		if (isApproximation) {
-			this.getImaginary.toApproximation.getValue.toString()
-		} else {
-			this.getImaginary.toLaTeX match {
-				case "1" => ""
-				case "-1" => "-"
-				case str: String => str
-			}
-		}
-	}
+    private def imaginaryToLaTeX: String = {
+        this.getImaginary.toLaTeX match {
+            case "1" => ""
+            case "-1" => "-"
+            case str: String => str
+        }
+    }
 
 	private def complexString: String = {
-		realToLaTeX + getOperand + imaginaryToLaTeX + "i"
+		getReal.toLaTeX + getOperator + imaginaryToLaTeX + "i"
 	}
 
-	private def getOperand: String = if (imaginaryToLaTeX.startsWith("-")) "" else "+"
+	private def getOperator: String = if (imaginaryToLaTeX.startsWith("-")) "" else "+"
 
 	def toLaTeX: String = {
 		if (isApproximation) "\\approx(%s)".format(complexString) else complexString
