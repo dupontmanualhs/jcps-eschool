@@ -8,6 +8,42 @@ import net.liftweb.common.{Box, Empty, Full}
 import org.bson.types.ObjectId
 import eschool.utils.model.XmlField
 
+class UnitOfStudy extends MongoRecord[UnitOfStudy] with ObjectIdPk[UnitOfStudy] {
+  def meta = UnitOfStudy
+
+  object name extends StringField(this, 40)
+  object content extends MongoListField[UnitOfStudy, ObjectId](this) // This could be lessons or assessments
+}
+
+object UnitOfStudy extends UnitOfStudy with MongoMetaRecord[UnitOfStudy] {
+  ensureIndex("name" -> 1)
+}
+
+class Lesson extends MongoRecord[Lesson] with ObjectIdPk[Lesson] {
+  def meta = Lesson
+
+  object name extends StringField(this, 40)
+  object objectives extends MongoListField[Lesson, ObjectId](this)
+  object content extends MongoListField[Lesson, ObjectId](this) // This could be assessments in addition to other types of content
+}
+
+object Lesson extends Lesson with MongoMetaRecord[Lesson] {
+  ensureIndex("name" -> 1)
+}
+
+class Objective extends MongoRecord[Objective] with ObjectIdPk[Objective] {
+  def meta = Objective
+
+  object name extends StringField(this, 40)
+  object stateId extends StringField(this, 20)
+  object description extends XmlField(this)
+}
+
+object Objective extends Objective with MongoMetaRecord[Objective] {
+  ensureIndex("name" -> 1, "unique" -> true)
+  ensureIndex("stateId" -> 1, "unique" -> true)
+}
+
 class Assessment extends MongoRecord[Assessment] with ObjectIdPk[Assessment] {
   def meta = Assessment
 
