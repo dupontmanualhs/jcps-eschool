@@ -4,99 +4,174 @@ import net.liftweb.mongodb.record._
 import net.liftweb.mongodb.record.field._
 import net.liftweb.record.field._
 import net.liftweb.json.JsonDSL._
-import net.liftweb.common.{Box, Empty, Full}
+import net.liftweb.common._
+import eschool.users.model.{Student, Teacher}
+
+import com.foursquare.rogue.Rogue._
 import org.bson.types.ObjectId
-import eschool.utils.model.XmlField
 
-class Course extends MongoRecord[Course] with ObjectIdPk[Course] {
-  def meta = Course
+class AcademicYear extends MongoRecord[AcademicYear] with ObjectIdPk[AcademicYear] {
+  def meta = AcademicYear
 
-  object name extends StringField(this, 80)
-  object stateId extends StringField(this, 20)
+  object name extends StringField(this, 20)
 }
 
-object Course extends Course with MongoMetaRecord[Course] {
-  ensureIndex("courseName" -> 1, "unique" -> true)
-  ensureIndex("courseId" -> 1)
-  ensureIndex("objectives" -> 1)
-}
-
-class Section extends MongoRecord[Section] with ObjectIdPk[Section] {
-  def meta = Section
-
-  object course extends ObjectIdRefField[Section, Course](this, Course)
-  object content extends MongoListField[Section, ObjectId](this) // At this level, this is either units and/or assessments
-  object terms extends MongoListField[Section, ObjectId](this)
-  object teachers extends MongoListField[Section, ObjectId](this)
-  object students extends MongoListField[Section, ObjectId](this)
-
-  // TODO: Write definition for teachers and students to pick them out of users
-  // TODO: Add a definition for schools and a field for schools in Section
-  // TODO: Add a way to keep track of blocks/periods
-}
-
-object Section extends Section with MongoMetaRecord[Section] {
-  ensureIndex("course" -> 1)
+object AcademicYear extends AcademicYear with MongoMetaRecord[AcademicYear] {
+  override def collectionName = "academicYears"
 }
 
 class Term extends MongoRecord[Term] with ObjectIdPk[Term] {
   def meta = Term
 
+  object name extends StringField(this, 20)
+  object year extends ObjectIdRefField(this, AcademicYear)
   object startDate extends DateField(this)
   object endDate extends DateField(this)
-  object year extends ObjectIdRefField[Term, AcadYear](this, AcadYear)
 }
 
 object Term extends Term with MongoMetaRecord[Term] {
-  ensureIndex("startDate" -> 1, "unique" -> true)
-  ensureIndex("endDate" -> 1, "unique" -> true)
-  ensureIndex("year" -> 1)
+  override def collectionName = "terms"
+
+  //TODO: this shouldn't be specified here
+  lazy val current = (Term where (_.name eqs "Fall 2011") get()).get
 }
 
-class AcadYear extends MongoRecord[AcadYear] with ObjectIdPk[AcadYear] {
-  def meta = AcadYear
+class Period extends MongoRecord[Period] with ObjectIdPk[Period] {
+  def meta = Period
 
-  object startDate extends DateField(this)
-  object endDate extends DateField(this)
+  object name extends StringField(this, 20)
 }
 
-object AcadYear extends AcadYear with MongoMetaRecord[AcadYear] {
-  ensureIndex("startDate" -> 1, "unique" -> true)
-  ensureIndex("endDate" -> 1, "unique" -> true)
+object Period extends Period with MongoMetaRecord[Period] {
+  override def collectionName = "periods"
 }
 
-class CourseUnit extends MongoRecord[CourseUnit] with ObjectIdPk[CourseUnit] {
-  def meta = CourseUnit
+/*
+class School extends MongoRecord[School] with ObjectIdPk[School] {
+  def meta = School
 
-  object name extends StringField(this, 40)
-  object content extends MongoListField[CourseUnit, ObjectId](this) // At this level, this is either lessons and/or assessments
+  object name extends StringField(this, 80)
+  object shortName extends StringField(this, 20)
 }
 
-object CourseUnit extends CourseUnit with MongoMetaRecord[CourseUnit] {
-  ensureIndex("name" -> 1)
+object School extends School with MongoMetaRecord[School] {
+  override def collectionName = "schools"
+}
+*/
+
+class Department extends MongoRecord[Department] with ObjectIdPk[Department] {
+  def meta = Department
+
+  object name extends StringField(this, 80)
+
+  override def toString = name.get
 }
 
-class Lesson extends MongoRecord[Lesson] with ObjectIdPk[Lesson] {
-  def meta = Lesson
+object Department extends Department with MongoMetaRecord[Department] {
+  override def collectionName = "departments"
 
-  object name extends StringField(this, 40)
-  object objectives extends MongoListField[Lesson, ObjectId](this)
-  object content extends MongoListField[Lesson, ObjectId](this) // This could be assessments in addition to other types of content
+  def getOrCreate(name: String): Department = {
+    Department where (_.name eqs name) get() match {
+      case Some(dept) => dept
+      case None => {
+        val dept = Department.createRecord.name(name)
+        dept.save(true)
+        dept
+      }
+    }
+  }
 }
 
-object Lesson extends Lesson with MongoMetaRecord[Lesson] {
-  ensureIndex("name" -> 1)
+class Course extends MongoRecord[Course] with ObjectIdPk[Course] {
+  def meta = Course
+
+  object name extends StringField(this, 80)
+  object masterNumber extends StringField(this, 10)
+  object department extends ObjectIdRefField(this, Department)
 }
 
-class Objective extends MongoRecord[Objective] with ObjectIdPk[Objective] {
-  def meta = Objective
+object Course extends Course with MongoMetaRecord[Course] {
+  ensureIndex("masterNumber" -> 1, "unique" -> true)
 
-  object name extends StringField(this, 40)
-  object stateId extends StringField(this, 20)
-  object description extends XmlField(this)
+  override def collectionName = "courses"
 }
 
-object Objective extends Objective with MongoMetaRecord[Objective] {
-  ensureIndex("name" -> 1, "unique" -> true)
-  ensureIndex("stateId" -> 1, "unique" -> true)
+class Section extends MongoRecord[Section] with ObjectIdPk[Section] {
+  def meta = Section
+
+  object course extends ObjectIdRefField(this, Course)
+  object sectionId extends StringField(this, 10)
+  object terms extends MongoListField[Section, ObjectId](this)
+  object periods extends MongoListField[Section, ObjectId](this)
+  object room extends ObjectIdRefField(this, Room)
+
+  def periodNames(): String = {
+    Period.findAll(periods.get).map(_.name.get).mkString(", ")
+  }
 }
+
+object Section extends Section with MongoMetaRecord[Section] {
+  ensureIndex("course" -> 1)
+
+  override def collectionName = "sections"
+}
+
+class Room extends MongoRecord[Room] with ObjectIdPk[Room] {
+  def meta = Room
+
+  object name extends StringField(this, 15)
+
+  def getOrCreate(name: String): Room = {
+    Room where (_.name eqs name) get() match {
+      case Some(room) => room
+      case None => {
+        val room = Room.createRecord.name(name)
+        room.save(true)
+        room
+      }
+    }
+  }
+}
+
+object Room extends Room with MongoMetaRecord[Room] {
+  override def collectionName = "rooms"
+}
+
+class TeacherAssignment extends MongoRecord[TeacherAssignment] with ObjectIdPk[TeacherAssignment] {
+  def meta = TeacherAssignment
+
+  object teacher extends ObjectIdRefField(this, Teacher)
+  object section extends ObjectIdRefField(this, Section)
+  object term extends ObjectIdRefField(this, Term)
+  object startDate extends DateField(this) {
+    override def optional_? = true
+  }
+  object endDate extends DateField(this) {
+    override def optional_? = true
+  }
+}
+
+object TeacherAssignment extends TeacherAssignment with MongoMetaRecord[TeacherAssignment] {
+  override def collectionName = "teacherAssignments"
+  ensureIndex("teacher" -> 1)
+}
+
+class StudentEnrollment extends MongoRecord[StudentEnrollment] with ObjectIdPk[StudentEnrollment] {
+  def meta = StudentEnrollment
+
+  object student extends ObjectIdRefField(this, Student)
+  object section extends ObjectIdRefField(this, Section)
+  object term extends ObjectIdRefField(this, Term)
+  object startDate extends DateField(this) {
+    override def optional_? = true
+  }
+  object endDate extends DateField(this) {
+    override def optional_? = true
+  }
+}
+
+object StudentEnrollment extends StudentEnrollment with MongoMetaRecord[StudentEnrollment] {
+  override def collectionName = "studentEnrollments"
+  ensureIndex("student" -> 1)
+}
+

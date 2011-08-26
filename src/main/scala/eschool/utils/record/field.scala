@@ -13,6 +13,9 @@ import net.liftweb.mongodb.record.field.{ObjectIdPk, MongoFieldFlavor}
 import net.liftweb.mongodb.record.{MongoRecord, MongoMetaRecord, BsonRecord}
 import com.mongodb.{BasicDBObject, BasicDBList, DBObject}
 
+/**
+ TODO: Eventually fix this, but can't use because Rogue isn't compatible
+
 class MongoRecordField[OwnerType <: BsonRecord[OwnerType], ObjType <: MongoRecord[ObjType] with ObjectIdPk[ObjType]]
 (rec: OwnerType, meta: MongoMetaRecord[ObjType])
   extends Field[ObjType, OwnerType]
@@ -128,3 +131,4 @@ class MongoRecordListField[OwnerType <: BsonRecord[OwnerType], ObjType <: MongoR
     setBox(Full(listOfOids.map(jStringToObj _)))
   }
 }
+*/
