@@ -1,15 +1,16 @@
 package eschool.courses.model
 
+/*
 object CourseData {
   def create() {
     val intro = Course.createRecord.name("Intro to Computer Programming").stateId("45639911")
     intro.save(true)
     val apcs = Course.createRecord.name("AP Computer Science A").stateId("45640761")
     apcs.save(true)
+  }
 
 }
 
-/*
 object CourseData {
   //COURSES ------------------------------------------------------------------------------------------------------------
   val intro = Course.createRecord.name("Intro to Computer Programming").stateId("123456").objectives(List()).content(List())
