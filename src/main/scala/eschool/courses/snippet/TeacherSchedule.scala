@@ -20,7 +20,12 @@ class TeacherSchedule(teacher: Teacher) {
     ".room *" #> section.room.obj.open_!.name.get
   }
 
-  def render = ".name" #> teacher.user.obj.open_!.displayName &
+  def scheduleTitle() = <head_merge><title>{
+    "Schedule For " + teacher.user.obj.open_!.displayName
+  }</title></head_merge>
+
+  def render = ".scheduleTitlePlaceholder" #> scheduleTitle() &
+      ".name" #> teacher.user.obj.open_!.displayName &
       ".list *" #> sections.map(sectionParts(_))
 
 }
