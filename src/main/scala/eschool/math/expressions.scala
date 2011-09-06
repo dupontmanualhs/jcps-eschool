@@ -49,7 +49,7 @@ object MathExpression {
 	}
 	private def stringToExpression(s: String): Option[MathExpression] = {
 		val result: Option[MathExpression] = MathNegation(s) orElse MathValue(s) orElse MathOperation(s) orElse MathTerm(s) //orElse MathPolynomial(s)
-		if (!result.isDefined && hasOutsideParens(s)) {
+		if (!result.isDefined && (hasOutsideParens(s) || s.contains(" "))) {
 			MathExpression(removeTrivialParts(s))
 		} else {
 			result

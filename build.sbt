@@ -12,7 +12,7 @@ resolvers += ScalaToolsSnapshots
 
 resolvers += "java.net Maven2 Repo" at "http://download.java.net/maven/2/"
 
-seq(WebPlugin.webSettings: _*)
+seq(webSettings: _*)
 
 libraryDependencies ++= {
   val liftVersion = "2.4-SNAPSHOT"

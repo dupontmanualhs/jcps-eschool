@@ -40,6 +40,7 @@ class Period extends MongoRecord[Period] with ObjectIdPk[Period] {
   def meta = Period
 
   object name extends StringField(this, 20)
+  object order extends IntField(this)
 }
 
 object Period extends Period with MongoMetaRecord[Period] {
