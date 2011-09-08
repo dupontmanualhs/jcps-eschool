@@ -105,6 +105,13 @@ object Student extends Student with MongoMetaRecord[Student] {
 
   ensureIndex("stateId" -> 1)
   ensureIndex("studentNumber" -> 1)
+
+  def getByUsername(username: String): Box[Student] = {
+    User.getByUsername(username) match {
+      case Full(user) => Student where (_.user eqs user.id.get) get()
+      case _ => Empty
+    }
+  }
 }
 
 class Teacher extends MongoRecord[Teacher] with Perspective[Teacher] {
