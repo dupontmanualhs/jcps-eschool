@@ -22,7 +22,9 @@ class User extends MongoRecord[User] with ObjectIdPk[User] {
   object preferred extends OptionalStringField(this, 30)
   object gender extends EnumField(this, Gender, Gender.None)
   object email extends OptionalEmailField(this, 100)
-  object password extends MongoPasswordField(this, 5)
+  object password extends MongoPasswordField(this, 5) {
+    override def optional_? = true
+  }
   object guid extends OptionalStringField(this, 30)
 
   def displayName = {
@@ -92,19 +94,44 @@ trait Perspective[OwnerType <: MongoRecord[OwnerType]] extends ObjectIdPk[OwnerT
 class Student extends MongoRecord[Student] with Perspective[Student] {
   def meta = Student
 
+  object stateId extends StringField(this, 10)
+  object studentNumber extends StringField(this, 6)
   object grade extends IntField(this)
+  object teamName extends StringField(this, 20)
 }
 
 object Student extends Student with MongoMetaRecord[Student] {
   override def collectionName = "students"
+
+  ensureIndex("stateId" -> 1)
+  ensureIndex("studentNumber" -> 1)
+
+  def getByUsername(username: String): Box[Student] = {
+    User.getByUsername(username) match {
+      case Full(user) => Student where (_.user eqs user.id.get) get()
+      case _ => Empty
+    }
+  }
 }
 
 class Teacher extends MongoRecord[Teacher] with Perspective[Teacher] {
   def meta = Teacher
+
+  object personId extends StringField(this, 10)
+  object stateId extends StringField(this, 10)
 }
 
 object Teacher extends Teacher with MongoMetaRecord[Teacher] {
   override def collectionName = "teachers"
+
+  ensureIndex("personId" -> 1)
+
+  def getByUsername(username: String): Box[Teacher] = {
+    User.getByUsername(username) match {
+      case Full(user) => Teacher where (_.user eqs user.id.get) get()
+      case _ => Empty
+    }
+  }
 }
 
 class Guardian extends MongoRecord[Guardian] with Perspective[Guardian] {

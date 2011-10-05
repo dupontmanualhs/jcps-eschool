@@ -1,9 +1,7 @@
-resolvers += "Web plugin repo" at "http://siasia.github.com/maven2"
+resolvers += "Web plugin repo" at "http://siasia.github.com/maven2"    
 
-libraryDependencies <+= 
-    sbtVersion("com.github.siasia" %% "xsbt-web-plugin" % _)
+addSbtPlugin("com.github.siasia" %% "xsbt-web-plugin" % "0.1.2")
 
-resolvers += "sbt-idea-repo" at "http://mpeltonen.github.com/maven/"
+resolvers += Classpaths.typesafeResolver
 
-libraryDependencies += "com.github.mpeltonen" %% "sbt-idea" % "0.10.0-SNAPSHOT"
-
+addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse" % "1.4.0")

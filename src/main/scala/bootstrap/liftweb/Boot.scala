@@ -8,7 +8,7 @@ import sitemap._
 
 import net.liftweb.sitemap.Loc.Hidden
 
-import eschool.{sites, users}
+import eschool.{courses, sites, users}
 import users.model.User
 import eschool.math.Math
 
@@ -22,6 +22,7 @@ class Boot {
     LiftRules.addToPackages("eschool.sites")
     LiftRules.addToPackages("eschool.users")
     LiftRules.addToPackages("eschool.utils")
+    LiftRules.addToPackages("eschool.courses")
 
     // Build SiteMap
     def sitemap = SiteMap(
@@ -30,7 +31,8 @@ class Boot {
                                  Menu.i("Error") / "error" >> Hidden,
                                  Menu.i("TinyMCE") / "tinymce" >> Hidden),
         sites.menus,
-        users.menus
+        users.menus,
+        courses.menus
       ): _*
     )
 
