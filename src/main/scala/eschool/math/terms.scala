@@ -6,7 +6,7 @@ class MathTerm(coefficient: MathConstant, variableSequence: TreeMap[String, Math
 	def getCoefficient: MathConstant = coefficient
 	def getVariableSequence: TreeMap[String, MathInteger] = variableSequence
 	override def getPrecedence: Int = 2
-	def toMathOperation: MathOperation = {
+	def toMathOperation: MathExpression = {
 		if (this.getVariableSequence == Nil) {
 			this.getCoefficient * MathInteger(1)
 		} else {

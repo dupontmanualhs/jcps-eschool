@@ -206,6 +206,7 @@ object MathInteger {
 
 class MathDecimal(val value: BigDecimal) extends MathExactNumber {
 	override def getValue: BigDecimal = value
+	
 	override def simplify = MathDecimal(this.getValue)
 	def toApproximation: MathApproximateNumber = MathApproximateNumber(this.getValue.toDouble)
 
@@ -288,10 +289,10 @@ object MathApproximateNumber {
 }
 
 class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) extends MathNumber {
-	def getReal: MathRealNumber = if(isApproximation) real.toApproximation else real
-	def getImaginary: MathRealNumber = if(isApproximation) imag.toApproximation else imag
+	def getReal: MathRealNumber = if(real.isInstanceOf[MathApproximateNumber]) MathDecimal(real.getValue) else real
+	def getImaginary: MathRealNumber = if(imag.isInstanceOf[MathApproximateNumber]) MathDecimal(imag.getValue) else imag
 	override def getValue: BigDecimal = null
-	override def getPrecedence: Int = -1
+	override def getPrecedence: Int = if(getReal.getValue != 0) -1 else super.getPrecedence
 	override def simplify = {
 		(this.getReal.simplify, this.getImaginary.simplify) match {
 			case (real: MathRealNumber, imag: MathRealNumber) => MathComplexNumber(real, imag)
@@ -304,17 +305,21 @@ class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) exte
 
     private def imaginaryToLaTeX: String = {
         this.getImaginary.toLaTeX match {
-            case "1" => ""
-            case "-1" => "-"
-            case str: String => str
+          case "0" => ""
+        	case "1" => "i"
+            case "-1" => "-i"
+            case str: String => str + "i"
         }
     }
 
 	private def complexString: String = {
-		getReal.toLaTeX + getOperator + imaginaryToLaTeX + "i"
-	}
+	  if(getReal.getValue == 0 && getImaginary.getValue == 0) "0"
+	  else if(getReal.getValue == 0) imaginaryToLaTeX
+	  else if(getImaginary.getValue == 0) getReal.toLaTeX
+	  else getReal.toLaTeX + getOperator + imaginaryToLaTeX
+	  }
 
-	private def getOperator: String = if (imaginaryToLaTeX.startsWith("-")) "" else "+"
+	private def getOperator: String = if (imaginaryToLaTeX.startsWith("-") || imaginaryToLaTeX == "") "" else "+"
 
 	def toLaTeX: String = {
 		if (isApproximation) "\\approx(%s)".format(complexString) else complexString
@@ -332,38 +337,47 @@ class MathComplexNumber(val real: MathRealNumber, val imag: MathRealNumber) exte
 
 object MathComplexNumber {
 	def apply(real: MathRealNumber, imaginary: MathRealNumber): MathComplexNumber = {
-		if (real.isInstanceOf[MathApproximateNumber] || imaginary.isInstanceOf[MathApproximateNumber]) {
-			new MathComplexNumber(real.toApproximation, imaginary.toApproximation)
-		} else {
-			new MathComplexNumber(real, imaginary)
-		}
+		new MathComplexNumber(real, imaginary)
 	}
 
 	def apply(s: String): Option[MathComplexNumber] = {
-		val basicComplexRegex = new Regex("""^()(.*)?i$""", "real", "imaginary")
-		val complexRegex = new Regex("""^(.*)(?<!E)(?=[+-])(.*)?i$""", "real", "imaginary")
+		val basicComplexRegex = new Regex("""^()(.*)$""", "real", "imaginary")
+		val complexRegex = new Regex("""^(.*)(?<!E)(?=[+-])(.*)$""", "real", "imaginary")
 		val potentialComplex = complexRegex.findFirstMatchIn(s) orElse  basicComplexRegex.findFirstMatchIn(s)
-		if (potentialComplex.isDefined) {
-			val potentialRealPart = {
-				potentialComplex.get.group("real") match {
-					case "" => "0"
-					case str: String => str
-				}
+		if (!potentialComplex.isDefined) return None
+		
+		if (potentialComplex.get.group("real").endsWith("i") && 
+		    potentialComplex.get.group("imaginary").endsWith("i")) {
+		  return None
+		} else if (!(potentialComplex.get.group("real").endsWith("i") || 
+		    potentialComplex.get.group("imaginary").endsWith("i"))) {
+		  return None
+		}
+		val actualRealGroup: String = {
+		  if (potentialComplex.get.group("real").endsWith("i")) potentialComplex.get.group("imaginary") else 
+		    potentialComplex.get.group("real")
+		}
+		val actualImaginaryGroup: String = {
+		  if (potentialComplex.get.group("real").endsWith("i")) potentialComplex.get.group("real").dropRight(1) else 
+		    potentialComplex.get.group("imaginary").dropRight(1)
+		}
+		val potentialRealPart = {
+			actualRealGroup match {
+				case "" => "0"
+				case str: String => str
 			}
-			val potentialImaginaryPart = {
-				potentialComplex.get.group("imaginary") match {
-					case "" => "1"
-					case "+" => "1"
-					case "-" => "-1"
-					case str: String => str
-				}
+		}
+		val potentialImaginaryPart = {
+			actualImaginaryGroup match {
+				case "" => "1"
+				case "+" => "1"
+				case "-" => "-1"
+				case str: String => str
 			}
-			(MathRealNumber(potentialRealPart), MathRealNumber(potentialImaginaryPart)) match {
-				case (Some(real: MathRealNumber), Some(imag: MathRealNumber)) => Some(MathComplexNumber(real, imag))
-				case _ => None
-			}
-		} else {
-			None
+		}
+		(MathRealNumber(potentialRealPart), MathRealNumber(potentialImaginaryPart)) match {
+			case (Some(real: MathRealNumber), Some(imag: MathRealNumber)) => Some(MathComplexNumber(real, imag))
+			case _ => None
 		}
 	}
 }

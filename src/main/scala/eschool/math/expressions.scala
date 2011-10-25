@@ -8,10 +8,34 @@ trait MathExpression {
 	def toLaTeX: String
 	def description: String
 	override def toString = this.toLaTeX
-	def +(operand: MathExpression): MathOperation = MathSum(List[MathExpression](this, operand))
-	def -(operand: MathExpression): MathOperation = MathDifference(List[MathExpression](this, operand))
-	def *(operand: MathExpression): MathOperation = MathProduct(List[MathExpression](this, operand))
-	def /(operand: MathExpression): MathOperation = MathQuotient(List[MathExpression](this, operand))
+	def +(operand: MathExpression): MathExpression = {
+	  (this, operand) match {
+	    case (left: MathConstant, right: MathConstant) => left + right
+	    case _ => MathSum(this, operand)
+	  }
+	}
+	
+	def -(operand: MathExpression): MathExpression = {
+	  (this, operand) match {
+	    case (left: MathConstant, right: MathConstant) => left - right
+	    case _ => MathDifference(this, operand)
+	  }
+	}
+	
+	def *(operand: MathExpression): MathExpression = {
+	  (this, operand) match {
+	    case (left: MathConstant, right: MathConstant) => left * right
+	    case _ => MathProduct(this, operand)
+	  }
+	}
+	
+	def /(operand: MathExpression): MathExpression = {
+	  (this, operand) match {
+	    case (left: MathConstant, right: MathConstant) => left / right
+	    case _ => MathQuotient(this, operand)
+	  }
+	}
+	
 	def isNegative: Boolean = {
 		this match {
 			case complex: MathComplexNumber => complex.getReal.getValue < 0

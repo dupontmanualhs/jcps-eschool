@@ -4,10 +4,10 @@ class MathPolynomial(terms: List[MathTerm]) extends MathExpression {
 	def getTerms: List[MathTerm] = terms
 	def simplify: MathExpression = new MathPolynomial(this.getTerms)
 	def getPrecedence: Int = 1
-	def toMathOperation: MathOperation = {
-		val termOperations: List[MathOperation] = this.getTerms.map(_.toMathOperation).toList
+	def toMathOperation: MathExpression = {
+		val termOperations: List[MathExpression] = this.getTerms.map(_.toMathOperation).toList
 		if (termOperations.size >= 1) {
-			termOperations.tail.foldLeft(termOperations.head)((x: MathOperation, y: MathOperation) => x.+(y))
+			termOperations.tail.foldLeft(termOperations.head)((x: MathExpression, y: MathExpression) => x.+(y))
 		} else {
 			MathTerm("0").get.toMathOperation
 		}
@@ -68,3 +68,16 @@ object MathPolynomial {
 		}).toList
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
