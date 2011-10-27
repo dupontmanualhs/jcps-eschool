@@ -1,15 +1,5 @@
 package eschool.courses.model
 
-import net.liftweb.mongodb.record._
-import net.liftweb.mongodb.record.field._
-import net.liftweb.record.field._
-import net.liftweb.json.JsonDSL._
-import net.liftweb.common._
-import eschool.users.model.{Student, Teacher}
-
-import com.foursquare.rogue.Rogue._
-import org.bson.types.ObjectId
-
 /*
 class AcademicYear extends MongoRecord[AcademicYear] with ObjectIdPk[AcademicYear] {
   def meta = AcademicYear
@@ -40,6 +30,7 @@ object Term extends Term with MongoMetaRecord[Term] {
 }
 */
 
+/*
 class Period extends MongoRecord[Period] with ObjectIdPk[Period] {
   def meta = Period
 
@@ -50,6 +41,7 @@ class Period extends MongoRecord[Period] with ObjectIdPk[Period] {
 object Period extends Period with MongoMetaRecord[Period] {
   override def collectionName = "periods"
 }
+*/
 
 /*
 class School extends MongoRecord[School] with ObjectIdPk[School] {
@@ -64,6 +56,7 @@ object School extends School with MongoMetaRecord[School] {
 }
 */
 
+/*
 class Department extends MongoRecord[Department] with ObjectIdPk[Department] {
   def meta = Department
 
@@ -86,7 +79,9 @@ object Department extends Department with MongoMetaRecord[Department] {
     }
   }
 }
+*/
 
+/*
 class Course extends MongoRecord[Course] with ObjectIdPk[Course] {
   def meta = Course
 
@@ -100,7 +95,9 @@ object Course extends Course with MongoMetaRecord[Course] {
 
   override def collectionName = "courses"
 }
+*/
 
+/*
 class Section extends MongoRecord[Section] with ObjectIdPk[Section] {
   def meta = Section
 
@@ -120,7 +117,9 @@ object Section extends Section with MongoMetaRecord[Section] {
 
   override def collectionName = "sections"
 }
+*/
 
+/*
 class Room extends MongoRecord[Room] with ObjectIdPk[Room] {
   def meta = Room
 
@@ -141,7 +140,9 @@ class Room extends MongoRecord[Room] with ObjectIdPk[Room] {
 object Room extends Room with MongoMetaRecord[Room] {
   override def collectionName = "rooms"
 }
+*/
 
+/*
 class TeacherAssignment extends MongoRecord[TeacherAssignment] with ObjectIdPk[TeacherAssignment] {
   def meta = TeacherAssignment
 
@@ -160,7 +161,9 @@ object TeacherAssignment extends TeacherAssignment with MongoMetaRecord[TeacherA
   override def collectionName = "teacherAssignments"
   ensureIndex("teacher" -> 1)
 }
+*/
 
+/*
 class StudentEnrollment extends MongoRecord[StudentEnrollment] with ObjectIdPk[StudentEnrollment] {
   def meta = StudentEnrollment
 
@@ -179,4 +182,4 @@ object StudentEnrollment extends StudentEnrollment with MongoMetaRecord[StudentE
   override def collectionName = "studentEnrollments"
   ensureIndex("student" -> 1)
 }
-
+*/

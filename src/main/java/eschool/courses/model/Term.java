@@ -15,9 +15,9 @@ public class Term {
 	private String name;
 	
 	private AcademicYear year;
-	
+	@Persistent
 	private LocalDate start;
-	
+	@Persistent
 	private LocalDate end;
 	
 	public Term() {}
