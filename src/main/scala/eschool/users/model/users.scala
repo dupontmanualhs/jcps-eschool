@@ -1,17 +1,16 @@
 package eschool.users.model
 
+/*
 import net.liftweb.mongodb.record._
 import net.liftweb.mongodb.record.field._
 import net.liftweb.record.field._
 import net.liftweb.json.JsonDSL._
+*/
+
 import net.liftweb.common.{Box, Empty, Full}
-import net.liftweb.common.Box.option2Box
-import eschool.utils.record.Gender
-import org.bson.types.ObjectId
 import net.liftweb.http.{RequestVar, S, SessionVar}
 
-import com.foursquare.rogue.Rogue._
-
+/*
 class User extends MongoRecord[User] with ObjectIdPk[User] {
   def meta = User
 
@@ -43,17 +42,11 @@ class User extends MongoRecord[User] with ObjectIdPk[User] {
     User.current.set(Empty)
   }
 }
+*/
 
-object User extends User with MongoMetaRecord[User] {
-  ensureIndex("username" -> 1, "unique" -> true)
-  ensureIndex("email" -> 1, ("sparse" -> true) ~ ("unique" -> true))
-  ensureIndex("guid" -> 1, ("sparse" -> true) ~ ("unique" -> true))
-  ensureIndex(("last" -> 1) ~ ("first" -> 1))
-
-  override def collectionName = "users"
-
-  private object current extends SessionVar[Box[ObjectId]](Empty)
-  private object currentUser extends RequestVar[Box[User]](current.get.flatMap(User.find(_)))
+object User {
+  private object currentId extends SessionVar[Box[Long]](Empty)
+  private object currentUser extends RequestVar[Box[User]](currentId.get.flatMap(User.find(_)))
 
   def getByUsername(username: String): Box[User] = {
     User where (_.username eqs username) get()
@@ -85,12 +78,16 @@ object User extends User with MongoMetaRecord[User] {
   }
 }
 
+
+/*
 trait Perspective[OwnerType <: MongoRecord[OwnerType]] extends ObjectIdPk[OwnerType] {
   self: OwnerType =>
 
   object user extends ObjectIdRefField(this.asInstanceOf[OwnerType], User)
 }
+*/
 
+/*
 class Student extends MongoRecord[Student] with Perspective[Student] {
   def meta = Student
 
@@ -143,3 +140,4 @@ class Guardian extends MongoRecord[Guardian] with Perspective[Guardian] {
 object Guardian extends Guardian with MongoMetaRecord[Guardian] {
   override def collectionName = "guardians"
 }
+*/

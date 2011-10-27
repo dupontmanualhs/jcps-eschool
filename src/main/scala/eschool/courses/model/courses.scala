@@ -10,6 +10,7 @@ import eschool.users.model.{Student, Teacher}
 import com.foursquare.rogue.Rogue._
 import org.bson.types.ObjectId
 
+/*
 class AcademicYear extends MongoRecord[AcademicYear] with ObjectIdPk[AcademicYear] {
   def meta = AcademicYear
 
@@ -19,7 +20,9 @@ class AcademicYear extends MongoRecord[AcademicYear] with ObjectIdPk[AcademicYea
 object AcademicYear extends AcademicYear with MongoMetaRecord[AcademicYear] {
   override def collectionName = "academicYears"
 }
+*/
 
+/*
 class Term extends MongoRecord[Term] with ObjectIdPk[Term] {
   def meta = Term
 
@@ -35,6 +38,7 @@ object Term extends Term with MongoMetaRecord[Term] {
   //TODO: this shouldn't be specified here
   lazy val current = (Term where (_.name eqs "Fall 2011") get()).get
 }
+*/
 
 class Period extends MongoRecord[Period] with ObjectIdPk[Period] {
   def meta = Period
