@@ -4,13 +4,7 @@ version := "0.1"
 
 organization := "net.jcpsky"
 
-scalaVersion := "2.9.0-1"
-
-checksums := Nil
-
-resolvers += ScalaToolsSnapshots
-
-resolvers += "java.net Maven2 Repo" at "http://download.java.net/maven/2/"
+scalaVersion := "2.9.1"
 
 seq(webSettings: _*)
 
@@ -27,6 +21,7 @@ libraryDependencies ++= {
 libraryDependencies ++= {
   Seq(
     "org.eclipse.jetty" % "jetty-webapp" % "7.3.0.v20110203" % "jetty",
+    "javax.servlet" % "servlet-api" % "2.5" % "provided->default",
     "ch.qos.logback" % "logback-classic" % "0.9.26",
     "com.novocode" % "junit-interface" % "0.6" % "test->default",
     "org.scala-tools.testing" %% "specs" % "1.6.8" % "test->default",
@@ -37,4 +32,24 @@ libraryDependencies ++= {
   )
 }
 
+// JDO dependencies
+libraryDependencies ++= Seq(
+  "org.datanucleus" % "datanucleus-core" % "3.0.1",
+  "org.datanucleus" % "datanucleus-api-jdo" % "3.0.1",
+  "org.datanucleus" % "datanucleus-enhancer" % "3.0.0-release",
+  "org.datanucleus" % "datanucleus-jdo-query" % "3.0.0-release",
+  "asm" % "asm" % "3.3.1",
+  "javax.jdo" % "jdo-api" % "3.0",
+  "org.datanucleus" % "datanucleus-rdbms" % "3.0.1",
+  "org.datanucleus" % "datanucleus-jodatime" % "3.0.0-release"
+)
+
+// H2 dependencies
+libraryDependencies ++= Seq(
+  "com.h2database" % "h2" % "1.3.160"
+)
+
+
 scalacOptions ++= Seq("-deprecation", "-unchecked") 
+
+compileOrder := CompileOrder.JavaThenScala
