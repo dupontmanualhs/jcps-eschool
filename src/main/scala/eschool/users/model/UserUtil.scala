@@ -1,6 +1,9 @@
 package eschool.users.model
 
-object User {
+import net.liftweb.common.{Box, Empty, Full}
+import net.liftweb.http.{RequestVar, SessionVar}
+
+object UserUtil {
   private object currentId extends SessionVar[Box[Long]](Empty)
   private object currentUser extends RequestVar[Box[User]](currentId.get.flatMap(User.find(_)))
 
