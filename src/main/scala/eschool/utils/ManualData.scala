@@ -4,25 +4,22 @@ import record.Gender
 import scala.collection.JavaConversions._
 import org.apache.poi.ss.usermodel.{Sheet, Row, WorkbookFactory}
 import xml.{Node, Elem, XML}
-import com.mongodb.Mongo
 import eschool.users.model.{Student, Teacher, User}
 import bootstrap.liftweb.Boot
 import org.joda.time.LocalDate
 import eschool.courses.model._
 
-import com.foursquare.rogue.Rogue._
 
 import net.liftweb.common._
 import java.util.Date
 import org.joda.time.format.DateTimeFormat
-import org.bson.types.ObjectId
 
 object ManualData {
   val netIdMap: Map[String, String] = buildNetIdMap()
 
   def load(debug: Boolean = false) {
     new Boot().boot()
-    new Mongo().dropDatabase("eschool")
+    //new Mongo().dropDatabase("eschool")
     createYearsAndTerms(debug)
     loadStudents(debug)
     loadTeachers(debug)

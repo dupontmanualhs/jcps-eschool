@@ -1,8 +1,5 @@
 package eschool.sites.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jdo.annotations.*;
 
 import eschool.users.model.User;
@@ -16,7 +13,6 @@ public class Site {
 	private User owner;
 	private String name;
 	private String ident;
-	private List<Page> pages;
 	
 	public Site() {}
 	
@@ -24,7 +20,6 @@ public class Site {
 		this.owner = owner;
 		this.name = name;
 		this.ident = ident;
-		this.pages = new ArrayList<Page>();
 	}
 
 	public User getOwner() {

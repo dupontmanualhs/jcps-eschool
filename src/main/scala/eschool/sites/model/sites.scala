@@ -1,114 +1,48 @@
 package eschool.sites.model
 
-import net.liftweb.json.JsonDSL._
-import net.liftweb.record.field.StringField
-import eschool.users.model.User
-import eschool.utils.model.HtmlField
-import net.liftweb.mongodb.record.field._
-import net.liftweb.mongodb.record.{MongoMetaRecord, MongoRecord}
-import org.bson.types.ObjectId
-import net.liftweb.common.{Full, Failure, Empty, Box}
-import com.foursquare.rogue.Rogue._
-import com.mongodb.WriteConcern
-import net.liftweb.util.FieldError
-import javax.xml.soap.Text
-import xml.{Text, NodeSeq}
+import net.liftweb.common._
 
-class Site extends MongoRecord[Site] with ObjectIdPk[Site] {
-  def meta = Site
+import bootstrap.liftweb.DataStore
 
-  object owner extends ObjectIdRefField(this, User)
-  object name extends StringField(this, 80)
-  object ident extends StringField(this, 10)
-  object pages extends MongoMapField[Site, ObjectId](this)
-
-  override def save(concern: WriteConcern): Site = {
-    super.save(concern)
-    if (pages.dirty_?) {
-      for ((ident, oid) <- pages.get) {
-        Page.find(oid) match {
-          case Full(page) => page.ident(ident).parentSite(this.id.get).save(concern)
-          case _ => Unit
-        }
-      }
-    }
-    this
+object SiteUtil {
+  def getPages(site: Site): Map[String, Page] = {
+    val cand = QPage.candidate
+    Map(DataStore.pm.query[Page].filter(cand.parentSite.eq(site)).executeList().map((page: Page) => (page.getIdent, page)): _*)
   }
 }
 
-object Site extends Site with MongoMetaRecord[Site] {
-  ensureIndex(("owner" -> 1) ~ ("name" -> 1), "unique" -> 1)
-  ensureIndex(("owner" -> 1) ~ ("ident" -> 1), "unique" -> 1)
-}
-
-class Page extends MongoRecord[Page] with ObjectIdPk[Page] {
-  def meta = Page
-
-  object parentSite extends ObjectIdRefField(this, Site) {
-    override def optional_? = true
-  }
-  object parentPage extends ObjectIdRefField(this, Page) {
-    override def optional_? = true
-  }
-  object ident extends StringField(this, 10)
-  object name extends StringField(this, 80)
-  object content extends HtmlField(this)
-  object pages extends MongoMapField[Page, ObjectId](this)
-
-  override def save(concern: WriteConcern): Page = {
-    super.save(concern)
-    if (pages.dirty_?) {
-      for ((ident, oid) <- pages.get) {
-        Page.find(oid) match {
-          case Full(page) => page.ident(ident).parentPage(this.id.get).save(concern)
-          case _ => Unit
-        }
+object PageUtil {
+  def getParent(page: Page): Either[Site, Page] = {
+    page.getParentSite() match {
+      case null => page.getParentPage() match {
+        case null => throw new Exception("Page with id %s does not have a parent!".format(page.getId))
+        case page: Page => Right(page)
       }
+      case site: Site => Left(site)
     }
-    this
   }
-
-  def parent(): Either[Site, Page] = {
-    parentSite.valueBox match {
-      case Full(siteOid) => Left(Site.find(siteOid).openOr(
-          throw new Exception("Page with id %s refers to parent site that doesn't exist.".format(id.get))))
-      case _ => parentPage.valueBox match {
-        case Full(pageOid) => Right(Page.find(pageOid).openOr(
-            throw new Exception("Page with id %s refers to parent page that doesn't exist.".format(id.get))))
-        case _ => (throw new Exception("Page with id %s does not have a parent!".format(id.get)))
-      }
-    }
+  
+  def getPages(page: Page): Map[String, Page] = {
+    val cand = QPage.candidate
+    Map(DataStore.pm.query[Page].filter(cand.parentPage.eq(page)).executeList().map((page: Page) => (page.getIdent, page)): _*)
   }
 
   /**
-   * Produces the path to this page (including the username and site-ident)
+   * Produces the path to page (including the username and site-ident)
    */
-  def getPath(): List[String] = {
-    getPathPlusSuffix(Nil)
+  def getPath(page: Page): List[String] = {
+    getPathPlusSuffix(page, Nil)
   }
 
-  private def getPathPlusSuffix(suffix: List[String]): List[String] = {
-    parentPage.valueBox match {
-      case Full(pageOid) => Page.find(pageOid) match {
-        case Full(page) => page.getPathPlusSuffix(ident.get :: suffix)
-        case _ => Nil // TODO: log this problem
+  private def getPathPlusSuffix(page: Page, suffix: List[String]): List[String] = {
+    page.getParentPage() match {
+      case null => page.getParentSite() match {
+        case null => Nil // TODO: log this (page has no parent)
+        case site: Site => site.getOwner.getUsername :: site.getIdent :: page.getIdent :: suffix
       }
-      case _ => parentSite.valueBox match {
-        case Full(siteOid) => Site.find(siteOid) match {
-          case Full(site) => site.owner.obj match {
-            case Full(user) => user.username.get :: site.ident.get :: ident.get :: suffix
-            case _ => Nil // TODO: log this (site points to owner that doesn't exist)
-          }
-          case _ => Nil // TODO: log this problem
-        }
-        case _ => Nil // TODO: log this problem
-      }
+      case parentPage: Page => getPathPlusSuffix(parentPage, page.getIdent :: suffix)
     }
   }
-}
-
-object Page extends Page with MongoMetaRecord[Page] {
-  // TODO: indices
 
   def fromSiteAndPath(site: Site, path: List[String]): Box[Page] = path match {
     case Nil => Failure("How did I get here without a page path?")
@@ -116,14 +50,11 @@ object Page extends Page with MongoMetaRecord[Page] {
       def followPath(current: Option[Page], path: List[String]): Box[Page] = current match {
         case Some(page) => path match {
           case Nil => Full(page)
-          case next :: rest => followPath(Page.find(page.pages.get(next)), rest)
+          case next :: rest => followPath(PageUtil.getPages(page).get(next), rest)
         }
         case _ => Failure("There is no page with the given path.")
       }
-      val topPage: Option[Page] = site.pages.get.get(topPageIdent) match {
-        case Some(pageId) => Page where (_.id eqs pageId) get()
-        case None => None
-      }
+      val topPage: Option[Page] = SiteUtil.getPages(site).get(topPageIdent)
       followPath(topPage, restOfPath)
     }
   }
@@ -142,13 +73,16 @@ object Page extends Page with MongoMetaRecord[Page] {
    * returns Nil if okay, and an appropriate error, if not
    */
   def uniqueIdent(parent: Either[Site, Page], possIdent: String): Box[String] = {
+    val cand = QPage.candidate
     parent match {
-      case Left(parentSite) => errorIfSome(
-          Page where (_.parentSite eqs parentSite.id.get) and (_.ident eqs possIdent) get(),
-          "identifier")
-      case Right(parentPage) => errorIfSome(
-          Page where (_.parentPage eqs parentPage.id.get) and (_.ident eqs possIdent) get(),
-          "identifier")
+      case Left(parentSite) => {
+        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentSite.eq(parentSite).and(cand.ident.eq(possIdent))).executeOption()
+        errorIfSome(possPage, "identifier")
+      }
+      case Right(parentPage) => {
+        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentPage.eq(parentPage).and(cand.ident.eq(possIdent))).executeOption()
+        errorIfSome(possPage, "identifier")
+      }
     }
   }
 
@@ -159,13 +93,16 @@ object Page extends Page with MongoMetaRecord[Page] {
    * returns Nil if okay, and an appropriate error, if not
    */
   def uniqueName(parent: Either[Site, Page], possName: String): Box[String] = {
+    val cand = QPage.candidate
     parent match {
-      case Left(parentSite) => errorIfSome(
-          Page where (_.parentSite eqs parentSite.id.get) and (_.name eqs possName) get(),
-          "name")
-      case Right(parentPage) => errorIfSome(
-          Page where (_.parentPage eqs parentPage.id.get) and (_.name eqs possName) get(),
-          "name")
+      case Left(parentSite) => {
+        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentSite.eq(parentSite).and(cand.name.eq(possName))).executeOption()
+        errorIfSome(possPage, "name")
+      }
+      case Right(parentPage) => {
+        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentPage.eq(parentPage).and(cand.name.eq(possName))).executeOption()
+        errorIfSome(possPage, "name")
+      }
     }
   }
 }

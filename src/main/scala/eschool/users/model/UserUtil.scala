@@ -1,36 +1,53 @@
 package eschool.users.model
 
-import net.liftweb.common.{Box, Empty, Full}
+import net.liftweb.common._
 import net.liftweb.http.{RequestVar, SessionVar}
+import bootstrap.liftweb.DataStore
+import net.liftweb.http.S
 
 object UserUtil {
   private object currentId extends SessionVar[Box[Long]](Empty)
-  private object currentUser extends RequestVar[Box[User]](currentId.get.flatMap(User.find(_)))
+  private object currentUser extends RequestVar[Box[User]](fetchUser)
+  
+  def fetchUser(): Box[User] = {
+    currentId.get match {
+      case Empty => Empty
+      case Full(id) => {
+        val cand = QUser.candidate
+        DataStore.pm.query[User].filter(cand.id.eq(id)).executeOption()
+      }
+    }
+  }
+  
+  def getById(id: Long): Box[User] = {
+    val cand = QUser.candidate
+    DataStore.pm.query[User].filter(cand.id.eq(id)).executeOption()
+  }
 
   def getByUsername(username: String): Box[User] = {
-    User where (_.username eqs username) get()
+    val cand = QUser.candidate
+    DataStore.pm.query[User].filter(cand.username.eq(username)).executeOption()
   }
 
   def authenticate(username: String, password: String): Box[User] = {
-    val usersByName = User.findAll("username" -> username)
-    usersByName match {
-      case user :: Nil => authenticate(user, password)
-      case _ => Empty // maybe more than one user, which shouldn't happen
+    getByUsername(username) match {
+      case Full(user) => authenticate(user, password)
+      case _ => Empty
     }
   }
 
   def authenticate(user: User, password: String): Box[User] = {
-    if (user.password.isMatch(password)) {
+    if (user.getPassword.matches(password)) {
       Full(user)
     } else {
       Empty
     }
   }
 
-  def loggedIn_? = current.isDefined
+  def loggedIn_? = currentId.isDefined
 
-  def getCurrent: Box[User] = current.get.flatMap(User.find(_)) // TODO: fix when bug fixed
-
+  def getCurrent: Box[User] = currentId.get.flatMap(getById(_)) // TODO: fix when bug fixed
+    
   def getCurrentOrRedirect(): User = getCurrent openOr {
     S.notice("You must login to access that page.")
     S.redirectTo("/users/login")

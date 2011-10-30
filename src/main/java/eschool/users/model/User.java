@@ -90,6 +90,10 @@ public class User {
 	public void setEmail(String email) {
 		this.email.set(email);
 	}
+	
+	public Password getPassword() {
+		return this.password;
+	}
 
 	public void setPassword(String password) {
 		this.password.set(password);
@@ -97,5 +101,9 @@ public class User {
 
 	public long getId() {
 		return id;
+	}
+	
+	public String displayName() {
+		return getFirst() + " " + getLast();
 	}
 }

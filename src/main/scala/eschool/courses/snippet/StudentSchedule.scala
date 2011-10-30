@@ -1,7 +1,5 @@
 package eschool.courses.snippet
 
-import com.foursquare.rogue.Rogue._
-
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
 

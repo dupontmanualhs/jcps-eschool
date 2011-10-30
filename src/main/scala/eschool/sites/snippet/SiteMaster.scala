@@ -1,16 +1,17 @@
 package eschool.sites.snippet
 
-import eschool.users.model.User
+import eschool.users.model.{QUser, User, UserUtil}
 import eschool.utils.Helpers.{pluralizeInformal, getTemplate}
 import net.liftweb.common._
-import eschool.sites.model.Site
+import eschool.sites.model.{QSite, Site}
 import net.liftweb.util.Helpers._
 import net.liftweb.sitemap.Loc.LinkText._
 import net.liftweb.sitemap.LocPath._
 import net.liftweb.sitemap.{*, Menu}
 import net.liftweb.sitemap.Loc._
 
-import com.foursquare.rogue.Rogue._
+import bootstrap.liftweb.DataStore
+
 import net.liftweb.http._
 import java.lang.Boolean
 import xml.NodeSeq
@@ -18,30 +19,34 @@ import xml.NodeSeq
 class SiteMaster(path: List[String]) {
   def render(in: NodeSeq): NodeSeq = {
     path match {
-      case Nil => listSites(User.getCurrentOrRedirect())
+      case Nil => listSites(UserUtil.getCurrentOrRedirect())
       case "createSite" :: Nil => {
         <head_merge><title>Create a Site</title></head_merge>
         <div class="lift:CreateSite"></div>
       }
-      case username :: pathToPage => User where (_.username eqs username) get() match {
-        case None => {
-          S.error("There is no user with the username: " + username)
-          S.redirectTo(S.referer openOr "/")
+      case username :: pathToPage => {
+        val cand = QUser.candidate
+        DataStore.pm.query[User].filter(cand.username.eq(username)).executeOption() match {
+	        case None => {
+	          S.error("There is no user with the username: " + username)
+	          S.redirectTo(S.referer openOr "/")
+	        }
+	        case Some(user) => listSites(user)
         }
-        case Some(user) => listSites(user)
       }
     }
   }
 
   def listSites(user: User): NodeSeq = {
     val currentUser_? : Boolean = User.getCurrent.isDefined &&
-        User.getCurrent.get.id.get == user.id.get
+        User.getCurrent.get.getId == user.getId
     val header: String = (if (currentUser_?) {
       "Your"
     } else {
       user.displayName + "'s"
     }) + " Sites"
-    val sites = Site where (_.owner eqs user.id.get) fetch()
+    val cand = QSite.candidate
+    val sites = DataStore.pm.query[Site].filter(cand.owner.eq(user)).executeList()
     val userHasSites: String = (if (currentUser_?) "You have" else user.displayName + " has") +
       (if (sites.isEmpty) " no sites." else " the following " + pluralizeInformal(sites.length, "site") + ":")
     val listOfSites = if (sites.isEmpty) {
@@ -50,7 +55,7 @@ class SiteMaster(path: List[String]) {
       <ul>
       { sites.flatMap(
         (s: Site) =>
-        <li><a href={ "/sites/%s/%s".format(user.username, s.ident)}>{ s.name }</a></li>
+        <li><a href={ "/sites/%s/%s".format(user.getUsername, s.getIdent)}>{ s.getName }</a></li>
       )}
       </ul>
     }

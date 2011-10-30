@@ -1,41 +1,44 @@
 package eschool.sites.snippet
 
-import eschool.sites.model.{Page, Site}
-import eschool.users.model.User
+import eschool.sites.model.{Page, PageUtil, Site, SiteUtil}
+import eschool.users.model.{User, UserUtil}
 import net.liftweb.util.FieldError
-import com.foursquare.rogue.Rogue._
 import net.liftweb.common._
 import net.liftweb.http.S
 import xml._
 import eschool.utils.snippet.EditorScreen
 
 class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorScreen {
-  object currentUser extends ScreenVar[User](User.getCurrentOrRedirect())
+  object currentUser extends ScreenVar[User](UserUtil.getCurrentOrRedirect)
+  
   val (user: User, site: Site, maybePage: Option[Page]) = userSiteAndMaybePage
-  if (currentUser.id.get != user.id.get) {
+  if (currentUser.get.getId != user.getId) {
     S.error("You do not have permission to add a page to this site.")
     S.redirectTo(S.referer openOr "/index")
   }
+  
   val pathToParent: List[String] = maybePage match {
-    case Some(page) => "sites" :: page.getPath
-    case None => "sites" :: user.username.get :: site.ident.get :: Nil
+    case Some(page) => "sites" :: PageUtil.getPath(page)
+    case None => "sites" :: user.getUsername :: site.getIdent :: Nil
   }
   val parent: Either[Site, Page] = maybePage match {
     case Some(page) => Right(page)
     case None => Left(site)
   }
-  object newPage extends ScreenVar[Page](Page.createRecord)
+  object newPage extends ScreenVar[Page](new Page())
 
   val ident = text("Page Path: " + pathToParent.mkString("/", "/", "/"), "",
       validateIdent _,
-      (s: String) => boxStrToListFieldError(Page.uniqueIdent(parent, s)))
+      (s: String) => boxStrToListFieldError(PageUtil.uniqueIdent(parent, s)))
   val name = text("Page Name", "",
       validatePage _,
-      (s: String) => boxStrToListFieldError(Page.uniqueName(parent, s)))
+      (s: String) => boxStrToListFieldError(PageUtil.uniqueName(parent, s)))
   val content = mceTextarea("Content", "", 30, 80)
 
   def finish() {
-    newPage.ident(ident.get).name(name.get).content(XML.loadString("<dummy>" + content.get + "</dummy>").child).save(true)
+    newPage.setIdent(ident.get)
+    newPage.setName(name.get)
+    newPage.setContent(content.get)
     parent match {
       case Left(site) => site.pages(site.pages.get + (ident.get -> newPage.id.get)).save(true)
       case Right(page) => page.pages(page.pages.get + (ident.get -> newPage.id.get)).save(true)

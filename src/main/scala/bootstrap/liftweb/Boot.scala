@@ -1,23 +1,24 @@
 package bootstrap.liftweb
 
 import net.liftweb._
-
 import common._
 import http._
 import sitemap._
-
 import net.liftweb.sitemap.Loc.Hidden
-
 import eschool.{courses, sites, users}
 import users.model.User
-import eschool.math.Math
+import net.liftweb.db.DB
+import net.liftweb.db.StandardDBVendor
+import net.liftweb.util.Props
+import net.liftweb.db.DefaultConnectionIdentifier
+import eschool.users.model.UserUtil
 
 /**
  * A class that's instantiated early and run.  It allows the application
  * to modify lift's environment
  */
 class Boot {
-  def boot() {
+  def boot() {    
     // where to search snippet
     LiftRules.addToPackages("eschool.sites")
     LiftRules.addToPackages("eschool.users")
@@ -59,7 +60,7 @@ class Boot {
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
 
     // What is the function to test if a user is logged in?
-    LiftRules.loggedInTest = Full(() => User.loggedIn_?)
+    LiftRules.loggedInTest = Full(() => UserUtil.loggedIn_?)
 
     // Use HTML5 for rendering
     LiftRules.htmlProperties.default.set((r: Req) =>
@@ -70,9 +71,5 @@ class Boot {
       case "js" :: _ => true
       case "tinymce" :: _ => true
     }
-
-    eschool.math.Math.rules
-
-    MongoConfig.init
   }
 }
