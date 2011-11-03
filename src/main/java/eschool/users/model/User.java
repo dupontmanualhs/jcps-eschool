@@ -106,4 +106,8 @@ public class User {
 	public String displayName() {
 		return getFirst() + " " + getLast();
 	}
+
+	public String formalName() {
+		return getLast() + ", " + getFirst() + " " + getMiddle();
+	}
 }

@@ -4,8 +4,6 @@ import javax.jdo.annotations.*;
 
 import org.joda.time.LocalDate;
 
-
-
 @PersistenceCapable
 public class Term {
 	@PrimaryKey

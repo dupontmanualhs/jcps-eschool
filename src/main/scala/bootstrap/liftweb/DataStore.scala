@@ -1,4 +1,5 @@
 package bootstrap.liftweb
+
 import javax.jdo.JDOHelper
 import net.liftweb.http.RequestVar
 import org.datanucleus.api.jdo.JDOPersistenceManager
@@ -10,6 +11,7 @@ import org.datanucleus.api.jdo.JDOPersistenceManagerFactory
 import javax.jdo.PersistenceManagerFactory
 import org.datanucleus.api.jdo.query.JDOTypesafeQuery
 import javax.jdo.PersistenceManager
+import javax.jdo.spi.PersistenceCapable
 
 object DataStore {
   val pmf: JDOPersistenceManagerFactory = 
@@ -43,8 +45,13 @@ class ScalaPersistenceManager(val jpm: JDOPersistenceManager) {
     jpm.close()
   }
   
-  def makePersistent(dataObj: Object) = { // TODO: can this be PersistenceCapable
-    jpm.makePersistent(dataObj)
+  def makePersistent[T](dataObj: T): T = { // TODO: can this be PersistenceCapable
+    jpm.makePersistent[T](dataObj)
+  }
+  
+  def makePersistentAll[T](dataObjs: Collection[T]): Collection[T] = {
+    import scala.collection.JavaConverters._
+    jpm.makePersistentAll[T](dataObjs.asInstanceOf[java.util.Collection[T]]).asScala
   }
   
   def query[T: ClassManifest](): ScalaQuery[T] = ScalaQuery[T](jpm)

@@ -1,5 +1,47 @@
 package eschool.courses.model
 
+import scala.collection.JavaConverters._
+
+import bootstrap.liftweb.DataStore
+
+object TermUtil {
+  lazy val current: Term = {
+    val cand = QTerm.candidate
+    DataStore.pm.query[Term].filter(cand.name.eq("Fall 2011")).executeOption().get
+  }
+}
+
+object SectionUtil {
+  def periodNames(section: Section): String = {
+    section.getPeriods().asScala.toList.map(_.getName).mkString(", ")
+  }
+}
+
+object DepartmentUtil {
+  def getOrCreate(name: String): Department = {
+    val cand = QDepartment.candidate
+    DataStore.pm.query[Department].filter(cand.name.eq(name)).executeOption() match {
+      case Some(dept) => dept
+      case None => {
+        val dept = new Department(name)
+        DataStore.pm.makePersistent(dept)
+      }
+    }
+  }
+}
+
+object RoomUtil {
+  def getOrCreate(name: String): Room = {
+    val cand = QRoom.candidate
+    DataStore.pm.query[Room].filter(cand.name.eq(name)).executeOption() match {
+      case Some(room) => room
+      case None => {
+        val room = new Room(name)
+        DataStore.pm.makePersistent(room)
+      }
+    }
+  }
+}
 /*
 class AcademicYear extends MongoRecord[AcademicYear] with ObjectIdPk[AcademicYear] {
   def meta = AcademicYear
@@ -68,16 +110,6 @@ class Department extends MongoRecord[Department] with ObjectIdPk[Department] {
 object Department extends Department with MongoMetaRecord[Department] {
   override def collectionName = "departments"
 
-  def getOrCreate(name: String): Department = {
-    Department where (_.name eqs name) get() match {
-      case Some(dept) => dept
-      case None => {
-        val dept = Department.createRecord.name(name)
-        dept.save(true)
-        dept
-      }
-    }
-  }
 }
 */
 

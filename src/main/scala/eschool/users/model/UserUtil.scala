@@ -44,6 +44,14 @@ object UserUtil {
     }
   }
 
+  def login(user: User): Unit = {
+    currentId.set(Full(user.getId))
+  }
+
+  def logout(): Unit = {
+    currentId.set(Empty)
+  }
+
   def loggedIn_? = currentId.isDefined
 
   def getCurrent: Box[User] = currentId.get.flatMap(getById(_)) // TODO: fix when bug fixed

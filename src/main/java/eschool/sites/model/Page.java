@@ -2,6 +2,8 @@ package eschool.sites.model;
 
 import javax.jdo.annotations.*;
 
+import scala.xml.NodeSeq;
+
 import jdohelpers.HtmlString;
 
 @PersistenceCapable
@@ -16,6 +18,11 @@ public class Page {
 	private HtmlString content;
 	
 	public Page() {}
+	
+	public Page(String name, NodeSeq content) {
+		this.name = name;
+		this.setContent(content);
+	}
 
 	public Site getParentSite() {
 		return parentSite;
@@ -49,11 +56,15 @@ public class Page {
 		this.name = name;
 	}
 
-	public HtmlString getContent() {
-		return content;
+	public NodeSeq getContent() {
+		return content.get();
 	}
 
 	public void setContent(String content) {
+		this.content.set(content);
+	}
+	
+	public void setContent(NodeSeq content) {
 		this.content.set(content);
 	}
 

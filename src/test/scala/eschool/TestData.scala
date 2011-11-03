@@ -6,8 +6,6 @@ import bootstrap.liftweb.Boot
 
 import users.model.UserData
 import sites.model.SiteData
-import net.liftweb.mongodb.{DefaultMongoIdentifier, MongoDB}
-import com.mongodb.Mongo
 
 object TestData {
   def create() {
@@ -18,6 +16,6 @@ object TestData {
   }
 
   def dropAllData() {
-    new Mongo().dropDatabase("eschool") // TODO: parameter for db name
+    // TODO: delete the H2 file
   }
 }
