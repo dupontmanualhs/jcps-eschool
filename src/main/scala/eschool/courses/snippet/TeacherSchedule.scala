@@ -2,29 +2,27 @@ package eschool.courses.snippet
 
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
-
 import eschool.users.model.Teacher
-import eschool.courses.model.{Term, Section, TeacherAssignment}
+import eschool.courses.model.{Term, Section, SectionUtil, TeacherAssignment, QTeacherAssignment, TermUtil}
 import xml.NodeSeq
+import bootstrap.liftweb.DataStore
 
 class TeacherSchedule(teacher: Teacher) {
   // TODO: handle current term correctly
-  val assignments: List[TeacherAssignment] = TeacherAssignment where (_.teacher eqs teacher.id.get) and (_.term eqs Term.current.id.get) fetch
-  val sections: List[Section] = assignments.map(_.section.obj.open_!)
+  val assignments: List[TeacherAssignment] = {
+    val cand = QTeacherAssignment.candidate
+    DataStore.pm.query[TeacherAssignment].filter(cand.teacher.eq(teacher).and(cand.term.eq(TermUtil.current))).executeList()
+  }
+  val sections: List[Section] = assignments.map(_.getSection)
 
   def sectionParts(section: Section): (NodeSeq => NodeSeq) = {
-    ".periods *" #> section.periodNames &
-    ".course *" #> section.course.obj.open_!.name.get &
-    ".room *" #> section.room.obj.open_!.name.get
+    ".periods *" #> SectionUtil.periodNames(section) &
+    ".course *" #> section.getCourse.getName &
+    ".room *" #> section.getRoom.getName
   }
 
-  /*def scheduleTitle() = <head_merge><title>{
-    "Schedule For " + teacher.user.obj.open_!.displayName
-  }</title></head_merge>
-  */
-  
   def render = //".scheduleTitlePlaceholder" #> scheduleTitle() &
-      ".name" #> teacher.user.obj.open_!.displayName &
+      ".name" #> teacher.getUser.displayName &
       ".list *" #> sections.map(sectionParts(_))
 
 }

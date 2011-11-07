@@ -1,14 +1,13 @@
 package eschool.sites.snippet
 
 import net.liftweb.util.Helpers._
-
 import eschool.users.model.{User, UserUtil}
 import xml.NodeSeq
-import eschool.sites.model.Site
+import eschool.sites.model.{QSite, Site}
 import eschool.utils.Helpers._
-
 import net.liftweb.http.S
 import net.liftweb.common.{Full, Box}
+import bootstrap.liftweb.DataStore
 
 class SiteList(user: User) {
   def render: (NodeSeq => NodeSeq) = {
@@ -19,7 +18,7 @@ class SiteList(user: User) {
     } else {
       user.displayName + "'s"
     }) + " Sites"
-    val sites = Site where (_.owner eqs user.id.get) fetch()
+    val sites = DataStore.pm.query[Site].filter(QSite.candidate.owner.eq(user)).executeList()
     val userHasSites: String = (if (currentUser_?) "You have" else user.displayName + " has") +
       (if (sites.isEmpty) " no sites." else " the following " + pluralizeInformal(sites.length, "site") + ":")
     val listOfSites = if (sites.isEmpty) {
@@ -28,7 +27,7 @@ class SiteList(user: User) {
       <ul>
       { sites.flatMap(
         (s: Site) =>
-        <li><a href={ "/sites/%s/%s".format(user.username, s.ident)}>{ s.name }</a></li>
+        <li><a href={ "/sites/%s/%s".format(user.getUsername, s.getIdent)}>{ s.getName }</a></li>
       )}
       </ul>
     }

@@ -1,5 +1,8 @@
 package eschool.sites.snippet
 
+import scala.collection.JavaConversions._
+import scala.collection.immutable.ListMap
+
 import eschool.sites.model.{Page, PageUtil, Site, SiteUtil}
 import eschool.users.model.{User, UserUtil}
 import net.liftweb.util.FieldError
@@ -7,6 +10,7 @@ import net.liftweb.common._
 import net.liftweb.http.S
 import xml._
 import eschool.utils.snippet.EditorScreen
+import bootstrap.liftweb.DataStore
 
 class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorScreen {
   object currentUser extends ScreenVar[User](UserUtil.getCurrentOrRedirect)
@@ -39,9 +43,10 @@ class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorSc
     newPage.setIdent(ident.get)
     newPage.setName(name.get)
     newPage.setContent(content.get)
+    DataStore.pm.makePersistent(newPage)
     parent match {
-      case Left(site) => site.pages(site.pages.get + (ident.get -> newPage.id.get)).save(true)
-      case Right(page) => page.pages(page.pages.get + (ident.get -> newPage.id.get)).save(true)
+      case Left(site) => site.getChildren.put(ident, newPage)
+      case Right(page) => page.getChildren.put(ident, newPage)
     }
 
   }

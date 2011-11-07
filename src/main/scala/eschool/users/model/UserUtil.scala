@@ -11,11 +11,11 @@ object UserUtil {
   
   def fetchUser(): Box[User] = {
     currentId.get match {
-      case Empty => Empty
       case Full(id) => {
         val cand = QUser.candidate
         DataStore.pm.query[User].filter(cand.id.eq(id)).executeOption()
       }
+      case _ => Empty
     }
   }
   

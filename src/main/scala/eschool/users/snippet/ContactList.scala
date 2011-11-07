@@ -20,6 +20,6 @@ object ContactList {
 
   def allUsers(): List[User] = {
     val cand = QUser.candidate
-    DataStore.pm.query[User].orderBy(cand.last, cand.first, cand.middle).executeList()
+    DataStore.pm.query[User].orderBy(cand.last.asc, cand.first.asc, cand.middle.asc).executeList()
   }
 }

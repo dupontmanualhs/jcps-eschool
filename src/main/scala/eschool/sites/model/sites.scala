@@ -1,8 +1,8 @@
 package eschool.sites.model
 
 import net.liftweb.common._
-
 import bootstrap.liftweb.DataStore
+import scala.xml.{Node, NodeSeq, XML}
 
 object SiteUtil {
   def getPages(site: Site): Map[String, Page] = {
@@ -20,6 +20,15 @@ object PageUtil {
       }
       case site: Site => Left(site)
     }
+  }
+  
+  def getContent(page: Page): NodeSeq = {
+    val node = XML.loadString("<dummy>" + page.getContent + "</dummy>")
+    NodeSeq.fromSeq(node.child);
+  }
+  
+  def setContent(page: Page, content: NodeSeq) {
+    page.setContent(content.toString)
   }
   
   def getPages(page: Page): Map[String, Page] = {

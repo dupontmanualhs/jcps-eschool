@@ -5,6 +5,8 @@ import collection.immutable.ListMap
 import scala.xml.NodeSeq
 import bootstrap.liftweb.DataStore
 
+import scala.collection.JavaConversions._
+
 object SiteData {
   def create() {
     val bob: User = UserUtil.getByUsername("rsmith1").get
@@ -20,7 +22,8 @@ object SiteData {
         </ul>
       </p>
     )
-    val homepage = new Page("Home", hpContent)
+    val homepage = new Page("Home")
+    PageUtil.setContent(homepage, hpContent)
     DataStore.pm.makePersistent(homepage)
     val ahContent: NodeSeq = (
       <h2>Bob Smith - The Professional</h2>
@@ -31,22 +34,25 @@ object SiteData {
         </ul>
       </p>
     )
-    val altHome = new Page("Alternative Home", ahContent)
+    val altHome = new Page("Alternative Home")
+    PageUtil.setContent(altHome, ahContent)
     DataStore.pm.makePersistent(altHome)
-    val bobPersonal: Site = Site.createRecord.owner(bob.id.get).name("All About Bob")
-        .ident("personal").pages(ListMap("home" -> homepage.id.get, "altHome" -> altHome.id.get))
-    bobPersonal.save(true)
-    val alice = Page.createRecord.name("Alice").content(
+    bobPersonal.setChildren(mapAsJavaMap(ListMap("home" -> homepage, "altHome" -> altHome)))
+    val aliceContent = (
       <h2>Alice</h2>
       <p>Alice plays goalie.</p>
     )
-    alice.save(true)
-    val clarissa = Page.createRecord.name("Clarissa").content(
+    val alice = new Page("Alice")
+    PageUtil.setContent(alice, aliceContent)
+    DataStore.pm.makePersistent(alice)
+    val clarissaContent = (
       <h2>Clarissa</h2>
       <p>Clarissa explains it all.</p>
     )
-    clarissa.save(true)
-    val roster = Page.createRecord.name("Roster").content(
+    val clarissa = new Page("Clarissa")
+    PageUtil.setContent(clarissa, clarissaContent)
+    DataStore.pm.makePersistent(clarissa)
+    val rosterContent = (
       <h2>Roster</h2>
       <p>The players are:
         <ul>
@@ -55,9 +61,12 @@ object SiteData {
           <li>Clarissa</li>
         </ul>
       </p>
-    ).pages(Map("alice" -> alice.id.get, "clarissa" -> clarissa.id.get))
-    roster.save(true)
-    val sched = Page.createRecord.name("Schedule").content(
+    )
+    val roster = new Page("Roster")
+    PageUtil.setContent(roster, rosterContent)
+    roster.setChildren(mapAsJavaMap(ListMap("alice" -> alice, "clarissa" -> clarissa)))
+    DataStore.pm.makePersistent(roster)
+    val schedContent = (
       <h2>Schedule</h2>
       <table>
         <tr><th>Date</th><th>Opponent</th></tr>
@@ -65,8 +74,10 @@ object SiteData {
         <tr><td>July 20</td><td>East High</td></tr>
       </table>
     )
-    sched.save(true)
-    val soccerHome = Page.createRecord.name("Home").content(
+    val sched = new Page("Schedule")
+    PageUtil.setContent(sched, schedContent)
+    DataStore.pm.makePersistent(sched)
+    val soccerHomeContent = (
       <h2>Girls Soccer</h2>
       <p>Click below to access:
         <ul>
@@ -75,19 +86,22 @@ object SiteData {
         </ul>
       </p>
     )
-    soccerHome.pages(ListMap("roster" -> roster.id.get, "sched" -> sched.id.get))
-    soccerHome.save(true)
-    val bobSoccer: Site = Site.createRecord.owner(bob.id.get).name("Bob's Soccer Site")
-        .ident("soccer").pages(ListMap("home" -> soccerHome.id.get))
-    bobSoccer.save(true)
-    val mary = User.getByUsername("mjones02").open_!
-    val maryHomepage = Page.createRecord.name("Mary's Homepage").content(
+    val soccerHome = new Page("Soccer Home")
+    PageUtil.setContent(soccerHome, soccerHomeContent)
+    DataStore.pm.makePersistent(soccerHome)
+    soccerHome.setChildren(mapAsJavaMap(ListMap("roster" -> roster, "sched" -> sched)))
+    val bobSoccer: Site = new Site(bob, "Bob's Soccer Site", "soccer")
+    bobSoccer.setChildren(mapAsJavaMap(ListMap("home" -> soccerHome)))
+    DataStore.pm.makePersistent(bobSoccer)
+    val mary = UserUtil.getByUsername("mjones02").open_!
+    val maryHomepage = new Page("Mary's Homepage")
+    PageUtil.setContent(maryHomepage, (
       <h1>Mary</h1>
       <p>Mary only has one page and it doesn't have much on it.</p>
-    )
-    maryHomepage.save(true)
-    val marysSite = Site.createRecord.owner(mary.id.get).name("Mary's Site")
-        .ident("site").pages(ListMap("home" -> maryHomepage.id.get))
-    marysSite.save(true)
+    ))
+    DataStore.pm.makePersistent(maryHomepage)
+    val marysSite = new Site(mary, "Mary's Site", "site")
+    marysSite.setChildren(mapAsJavaMap(ListMap("home" -> maryHomepage)))
+    DataStore.pm.makePersistent(marysSite)
   }
 }

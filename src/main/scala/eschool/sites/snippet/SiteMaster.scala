@@ -38,8 +38,8 @@ class SiteMaster(path: List[String]) {
   }
 
   def listSites(user: User): NodeSeq = {
-    val currentUser_? : Boolean = User.getCurrent.isDefined &&
-        User.getCurrent.get.getId == user.getId
+    val currentUser_? : Boolean = UserUtil.getCurrent.isDefined &&
+        UserUtil.getCurrent.get.getId == user.getId
     val header: String = (if (currentUser_?) {
       "Your"
     } else {

@@ -10,7 +10,7 @@ import net.liftweb.util.Helpers._
 class PageMap(userAndSite: (User, Site)) {
   def render(in: NodeSeq): NodeSeq = {
     val (owner: User, site: Site) = userAndSite
-    val currentUser_? = UserUtil.getCurrent.isDefined && User.getCurrent.get.getId == owner.getId
+    val currentUser_? = UserUtil.getCurrent.isDefined && UserUtil.getCurrent.get.getId == owner.getId
     val siteName = site.getName
     val ownerDisplayName = owner.displayName
     val linkOtherSites = <a href={ "/sites/%s".format(owner.getUsername) }>other sites</a>

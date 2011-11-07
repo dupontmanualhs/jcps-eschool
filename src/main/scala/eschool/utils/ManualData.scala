@@ -40,16 +40,18 @@ object ManualData {
     DataStore.pm.makePersistent(fall2011)
     val spring2012 = new Term("Spring2012", acadYear, new LocalDate(2012, 1, 3), new LocalDate(2012, 5, 25))
     DataStore.pm.makePersistent(spring2012)
-    val periods: Array[Period] = Array(
+    val periods: List[Period] = List(
         new Period("Red 1", 1), new Period("Red 2", 2), new Period("Red 3", 3), new Period("Red 4", 4),
         new Period("Red Activity", 5), new Period("Red Advisory", 6),
         new Period("White 1", 7), new Period("White 2", 8), new Period("White 3", 9), new Period("White 4", 10),
         new Period("White Activity", 11), new Period("White Advisory", 12))
     DataStore.pm.makePersistentAll(periods)
     if (debug) println("Created AcademicYear, Terms, and Periods")
+    DataStore.pm.commitTransaction()
   }
 
   def loadStudents(debug: Boolean) {
+    DataStore.pm.beginTransaction()
     val doc = XML.load(getClass.getResourceAsStream("/manual-data/Students.xml"))
     val students = doc \\ "student"
     students foreach ((student: Node) => {
@@ -78,9 +80,11 @@ object ManualData {
       DataStore.pm.makePersistent(dbStudent)
       if (debug) println("student saved")
     })
+    DataStore.pm.commitTransaction()
   }
 
   def loadTeachers(debug: Boolean) {
+    DataStore.pm.beginTransaction()
     val doc = XML.load(getClass.getResourceAsStream("/manual-data/Teachers.xml"))
     val teachers = doc \\ "person"
     teachers foreach ((teacher: Node) => {
@@ -104,9 +108,11 @@ object ManualData {
       DataStore.pm.makePersistent(dbTeacher)
       if (debug) println("teacher saved")
     })
+    DataStore.pm.commitTransaction()
   }
 
   def loadCourses(debug: Boolean) {
+    DataStore.pm.beginTransaction()
     val doc = XML.load(getClass.getResourceAsStream("/manual-data/Courses.xml"))
     val courses = doc \\ "curriculum"
     courses foreach ((course: Node) => {
@@ -117,9 +123,11 @@ object ManualData {
       val dbCourse = new Course(name, masterNumber, dept)
       DataStore.pm.makePersistent(dbCourse)
     })
+    DataStore.pm.commitTransaction()
   }
 
   def loadSections(debug: Boolean) {
+    DataStore.pm.beginTransaction()
     val doc = XML.load(getClass.getResourceAsStream("/manual-data/Sections.xml"))
     val sections = doc \\ "curriculum"
     val fall11 = DataStore.pm.query[Term].filter(QTerm.candidate.name.eq("Fall 2011")).executeOption().get
@@ -154,9 +162,11 @@ object ManualData {
         DataStore.pm.makePersistent(teacherAssignment)
       })
     })
+    DataStore.pm.commitTransaction()
   }
 
   def loadEnrollments(debug: Boolean) {
+    DataStore.pm.beginTransaction()
 	import scala.collection.JavaConversions.asScalaSet
     val doc = XML.load(getClass.getResourceAsStream("/manual-data/Schedule.xml"))
     val enrollments = doc \\ "student"
@@ -173,6 +183,7 @@ object ManualData {
         DataStore.pm.makePersistent(dbEnrollment)
       })
     })
+    DataStore.pm.commitTransaction()
   }
 
   def asLocalDate(date: String): LocalDate = {

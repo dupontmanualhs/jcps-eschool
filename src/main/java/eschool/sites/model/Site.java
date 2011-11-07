@@ -1,5 +1,7 @@
 package eschool.sites.model;
 
+import java.util.Map;
+
 import javax.jdo.annotations.*;
 
 import eschool.users.model.User;
@@ -13,6 +15,7 @@ public class Site {
 	private User owner;
 	private String name;
 	private String ident;
+	private Map<String, Page> children;
 	
 	public Site() {}
 	
@@ -20,6 +23,19 @@ public class Site {
 		this.owner = owner;
 		this.name = name;
 		this.ident = ident;
+	}
+	
+	public void setChildren(Map<String, Page> children) {
+		for (String ident : children.keySet()) {
+			Page p = children.get(ident);
+			p.setIdent(ident);
+			p.setParentSite(this);
+		}
+		this.children = children;
+	}
+	
+	public Map<String, Page> getChildren() {
+		return this.children;
 	}
 
 	public User getOwner() {

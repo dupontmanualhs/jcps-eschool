@@ -1,8 +1,12 @@
 package eschool.sites.model;
 
+import java.util.Map;
+
 import javax.jdo.annotations.*;
 
+import scala.xml.Node;
 import scala.xml.NodeSeq;
+import scala.xml.XML;
 
 import jdohelpers.HtmlString;
 
@@ -15,13 +19,34 @@ public class Page {
 	private Page parentPage;
 	private String ident;
 	private String name;
-	private HtmlString content;
+	private String content;
+	private Map<String, Page> children;
 	
 	public Page() {}
 	
-	public Page(String name, NodeSeq content) {
+	public Page(String name) {
 		this.name = name;
-		this.setContent(content);
+	}
+	
+	public String getContent() {
+		return this.content;
+	}
+	
+	public void setContent(String content) {
+		this.content = content;
+	}
+	
+	public void setChildren(Map<String, Page> identsAndPages) {
+		for (String ident : identsAndPages.keySet()) {
+			Page p = identsAndPages.get(ident);
+			p.setIdent(ident);
+			p.setParentPage(this);
+		}
+		this.children = identsAndPages;
+	}
+	
+	public Map<String, Page> getChildren() {
+		return this.children;
 	}
 
 	public Site getParentSite() {
@@ -31,7 +56,7 @@ public class Page {
 	public void setParentSite(Site parentSite) {
 		this.parentSite = parentSite;
 	}
-
+	
 	public Page getParentPage() {
 		return parentPage;
 	}
@@ -39,7 +64,7 @@ public class Page {
 	public void setParentPage(Page parentPage) {
 		this.parentPage = parentPage;
 	}
-
+	
 	public String getIdent() {
 		return ident;
 	}
@@ -54,18 +79,6 @@ public class Page {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public NodeSeq getContent() {
-		return content.get();
-	}
-
-	public void setContent(String content) {
-		this.content.set(content);
-	}
-	
-	public void setContent(NodeSeq content) {
-		this.content.set(content);
 	}
 
 	public long getId() {

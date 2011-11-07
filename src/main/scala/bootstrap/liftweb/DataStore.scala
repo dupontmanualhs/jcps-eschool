@@ -1,11 +1,13 @@
 package bootstrap.liftweb
 
+import scala.collection.JavaConversions._
+
 import javax.jdo.JDOHelper
 import net.liftweb.http.RequestVar
 import org.datanucleus.api.jdo.JDOPersistenceManager
-import org.datanucleus.query.typesafe.{BooleanExpression, TypesafeQuery}
+import org.datanucleus.query.typesafe.{BooleanExpression, OrderExpression, TypesafeQuery}
 import net.liftweb.common._
-import net.liftweb.http.LiftSession
+import net.liftweb.http.{LiftSession, S}
 import javax.jdo.Transaction
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory
 import javax.jdo.PersistenceManagerFactory
@@ -16,18 +18,32 @@ import javax.jdo.spi.PersistenceCapable
 object DataStore {
   val pmf: JDOPersistenceManagerFactory = 
 		  JDOHelper.getPersistenceManagerFactory("props/datastore.props").asInstanceOf[JDOPersistenceManagerFactory]
+  val pmOutsideRequest = ScalaPersistenceManager.create(pmf)
   object pmVar extends RequestVar[ScalaPersistenceManager](ScalaPersistenceManager.create(pmf)) {
     registerCleanupFunc(ignore => this.get.commitTransactionAndClose())
   }
   
   def pm: ScalaPersistenceManager = {
-    pmVar.get
+    S.request match {
+      case Full(req) => pmVar.get
+      case _ => pmOutsideRequest
+    }
   }
 }
 
 class ScalaPersistenceManager(val jpm: JDOPersistenceManager) {
   def beginTransaction() {
     jpm.currentTransaction.begin()
+  }
+  
+  def commitTransaction() {
+    try {
+      jpm.currentTransaction.commit()
+    } finally {
+      if (jpm.currentTransaction.isActive) {
+        jpm.currentTransaction.rollback()
+      }
+    }
   }
 
   def commitTransactionAndClose() {
@@ -49,9 +65,8 @@ class ScalaPersistenceManager(val jpm: JDOPersistenceManager) {
     jpm.makePersistent[T](dataObj)
   }
   
-  def makePersistentAll[T](dataObjs: Collection[T]): Collection[T] = {
-    import scala.collection.JavaConverters._
-    jpm.makePersistentAll[T](dataObjs.asInstanceOf[java.util.Collection[T]]).asScala
+  def makePersistentAll[T](dataObjs: Iterable[T]): Iterable[T] = {
+    jpm.makePersistentAll[T](dataObjs)
   }
   
   def query[T: ClassManifest](): ScalaQuery[T] = ScalaQuery[T](jpm)
@@ -80,6 +95,10 @@ class ScalaQuery[T](val query: TypesafeQuery[T]) {
   
   def filter(expr: BooleanExpression): ScalaQuery[T] = {
     ScalaQuery[T](query.filter(expr))
+  }
+  
+  def orderBy(orderExpr: OrderExpression[_]*): ScalaQuery[T] = {
+    ScalaQuery[T](query.orderBy(orderExpr: _*))
   }
 }
 

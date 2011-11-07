@@ -31,8 +31,8 @@ public class User {
 		this.last = last;
 		this.preferred = preferred;
 		this.gender = gender;
-		this.email.set(email);
-		this.password.set(password);
+		this.email = new Email(email);
+		this.password = new Password(password);
 	}
 
 	public String getUsername() {
