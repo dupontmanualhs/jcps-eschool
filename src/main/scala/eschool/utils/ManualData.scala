@@ -24,7 +24,6 @@ object ManualData {
 
   def load(debug: Boolean = false) {
     new Boot().boot()
-    //new Mongo().dropDatabase("eschool")
     createYearsAndTerms(debug)
     loadStudents(debug)
     loadTeachers(debug)
@@ -215,7 +214,8 @@ object ManualData {
   }
 
   def asIdNumber(s: String): String = {
-    s.replaceAll("^0+", "")
+    val num = s.replaceAll("^0+", "")
+    if (num.equals("")) null else num
   }
 
   def buildNetIdMap(): Map[String, String] = {

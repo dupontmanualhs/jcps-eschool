@@ -17,8 +17,10 @@ public class User {
 	private String last;
 	private String preferred;
 	private Gender gender;
+	@Persistent
 	@Unique
 	private Email email;
+	@Persistent
 	private Password password;
 	
 	public User() {}

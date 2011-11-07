@@ -12,7 +12,11 @@ public class Section {
 	private Course course;
 	@Unique
 	private String sectionId;
+	@Element(types=Term.class)
+	@Join
 	private Set<Term> terms;
+	@Element(types=Period.class)
+	@Join
 	private Set<Period> periods;
 	private Room room;
 	
