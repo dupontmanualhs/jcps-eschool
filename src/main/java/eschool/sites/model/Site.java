@@ -1,5 +1,6 @@
 package eschool.sites.model;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.jdo.annotations.*;
@@ -15,7 +16,10 @@ public class Site {
 	private User owner;
 	private String name;
 	private String ident;
-	private Map<String, Page> children;
+	@Join
+	@Key(types=java.lang.String.class)
+	@Value(types=eschool.sites.model.Page.class)
+	private Map<String, Page> children = new LinkedHashMap<String, Page>();
 	
 	public Site() {}
 	
@@ -35,7 +39,11 @@ public class Site {
 	}
 	
 	public Map<String, Page> getChildren() {
-		return this.children;
+		if (this.children == null) {
+			return new LinkedHashMap<String, Page>();
+		} else {
+			return this.children;
+		}
 	}
 
 	public User getOwner() {

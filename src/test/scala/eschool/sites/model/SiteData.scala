@@ -9,6 +9,7 @@ import scala.collection.JavaConversions._
 
 object SiteData {
   def create() {
+    DataStore.pm.beginTransaction()
     val bob: User = UserUtil.getByUsername("rsmith1").get
     val bobPersonal: Site = new Site(bob, "All About Bob", "personal")
     DataStore.pm.makePersistent(bobPersonal)
@@ -103,5 +104,6 @@ object SiteData {
     val marysSite = new Site(mary, "Mary's Site", "site")
     marysSite.setChildren(mapAsJavaMap(ListMap("home" -> maryHomepage)))
     DataStore.pm.makePersistent(marysSite)
+    DataStore.pm.commitTransaction()
   }
 }

@@ -1,14 +1,9 @@
 package eschool.sites.model;
 
 import java.util.Map;
+import java.util.LinkedHashMap;
 
 import javax.jdo.annotations.*;
-
-import scala.xml.Node;
-import scala.xml.NodeSeq;
-import scala.xml.XML;
-
-import jdohelpers.HtmlString;
 
 @PersistenceCapable
 public class Page {
@@ -20,7 +15,10 @@ public class Page {
 	private String ident;
 	private String name;
 	private String content;
-	private Map<String, Page> children;
+	@Join
+	@Key(types=java.lang.String.class)
+	@Value(types=eschool.sites.model.Page.class)
+	private Map<String, Page> children = new LinkedHashMap<String, Page>();
 	
 	public Page() {}
 	
@@ -46,7 +44,11 @@ public class Page {
 	}
 	
 	public Map<String, Page> getChildren() {
-		return this.children;
+		if (this.children == null) {
+			return new LinkedHashMap<String, Page>();
+		} else {
+			return this.children;
+		}
 	}
 
 	public Site getParentSite() {

@@ -1,11 +1,10 @@
 package eschool
 
 import scala.collection.JavaConversions.asScalaSet
-
 import bootstrap.liftweb.Boot
-
 import users.model.UserData
 import sites.model.SiteData
+import bootstrap.liftweb.DataStore
 
 object TestData {
   def create() {
@@ -13,9 +12,10 @@ object TestData {
     dropAllData()
     UserData.create()
     SiteData.create()
+    DataStore.pm.close()
   }
 
   def dropAllData() {
-    // TODO: delete the H2 file
+    //TODO: delete H2 file
   }
 }

@@ -3,6 +3,8 @@ package eschool.utils
 import xml.NodeSeq
 import net.liftweb.http.{S, Templates, NotFoundResponse, ResponseShortcutException}
 import java.util.Locale
+import scala.xml.Node
+import scala.xml.Text
 
 object Helpers {
   def pluralizeInformal(num: Int, word: String): String = {
@@ -129,4 +131,8 @@ object Helpers {
   }
 
   def getRawTemplate(path: List[String]): NodeSeq = getRawTemplate(path, S.locale)
+  
+  def mkNodeSeq(strs: List[String], sep: Node): NodeSeq = {
+    strs.foldRight(NodeSeq.Empty)((s: String, ns: NodeSeq) => Text(s) ++ sep ++ ns)
+  }
 }

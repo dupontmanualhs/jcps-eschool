@@ -27,6 +27,11 @@ object PageUtil {
     NodeSeq.fromSeq(node.child);
   }
   
+  def setContent(page: Page, content: String) {
+    val node = XML.loadString("<dummy>" + content + "</dummy>")
+    page.setContent(content)
+  }
+  
   def setContent(page: Page, content: NodeSeq) {
     page.setContent(content.toString)
   }
@@ -82,14 +87,15 @@ object PageUtil {
    * returns Nil if okay, and an appropriate error, if not
    */
   def uniqueIdent(parent: Either[Site, Page], possIdent: String): Box[String] = {
+    println(parent.toString + " " + possIdent)
     val cand = QPage.candidate
     parent match {
-      case Left(parentSite) => {
-        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentSite.eq(parentSite).and(cand.ident.eq(possIdent))).executeOption()
+      case Left(parentSite: Site) => {
+        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentSite.eq(parentSite)).filter(cand.ident.eq(possIdent)).executeOption()
         errorIfSome(possPage, "identifier")
       }
-      case Right(parentPage) => {
-        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentPage.eq(parentPage).and(cand.ident.eq(possIdent))).executeOption()
+      case Right(parentPage: Page) => {
+        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentPage.eq(parentPage)).filter(cand.ident.eq(possIdent)).executeOption()
         errorIfSome(possPage, "identifier")
       }
     }
@@ -104,12 +110,12 @@ object PageUtil {
   def uniqueName(parent: Either[Site, Page], possName: String): Box[String] = {
     val cand = QPage.candidate
     parent match {
-      case Left(parentSite) => {
-        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentSite.eq(parentSite).and(cand.name.eq(possName))).executeOption()
+      case Left(parentSite: Site) => {
+        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentSite.eq(parentSite)).filter(cand.name.eq(possName)).executeOption()
         errorIfSome(possPage, "name")
       }
-      case Right(parentPage) => {
-        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentPage.eq(parentPage).and(cand.name.eq(possName))).executeOption()
+      case Right(parentPage: Page) => {
+        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentPage.eq(parentPage)).filter(cand.name.eq(possName)).executeOption()
         errorIfSome(possPage, "name")
       }
     }

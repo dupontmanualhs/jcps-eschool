@@ -29,7 +29,6 @@ class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorSc
     case Some(page) => Right(page)
     case None => Left(site)
   }
-  object newPage extends ScreenVar[Page](new Page())
 
   val ident = text("Page Path: " + pathToParent.mkString("/", "/", "/"), "",
       validateIdent _,
@@ -40,13 +39,21 @@ class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorSc
   val content = mceTextarea("Content", "", 30, 80)
 
   def finish() {
-    newPage.setIdent(ident.get)
-    newPage.setName(name.get)
-    newPage.setContent(content.get)
-    DataStore.pm.makePersistent(newPage)
+	val newPage: Page = new Page(name.get)
+    PageUtil.setContent(newPage, content.get)
     parent match {
-      case Left(site) => site.getChildren.put(ident, newPage)
-      case Right(page) => page.getChildren.put(ident, newPage)
+      case Left(site: Site) => {
+        val children = site.getChildren
+        println(children)
+        children.put(ident, newPage)
+        site.setChildren(children)
+      }
+      case Right(page: Page) => {
+        val children = page.getChildren
+        println(children)
+        children.put(ident, newPage)
+        page.setChildren(children)
+      }
     }
 
   }

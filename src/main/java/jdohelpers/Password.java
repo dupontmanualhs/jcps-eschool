@@ -1,5 +1,8 @@
 package jdohelpers;
 
+import javax.jdo.annotations.*;
+
+@PersistenceCapable
 public class Password {
 	private String value;
 	
@@ -14,5 +17,4 @@ public class Password {
 	public boolean matches(String possPasswd) {
 		return this.value != null && this.value.equals(possPasswd);
 	}
-
 }

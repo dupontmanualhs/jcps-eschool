@@ -13,5 +13,6 @@ object UserData {
     DataStore.pm.makePersistent(bob)
     DataStore.pm.makePersistent(mary)
     DataStore.pm.makePersistent(steve)
+    DataStore.pm.commitTransaction()
   }
 }

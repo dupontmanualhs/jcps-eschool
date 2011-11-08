@@ -6,11 +6,12 @@ import net.liftweb.common.{Box, Empty}
 import xml.NodeSeq
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
+import eschool.sites.model.PageUtil
 
 class SitePage(userSiteAndPage: (User, Site, Page)) {
   def render = {
     val page = userSiteAndPage._3
     ".title *" #> page.getName &
-    ".content" #> page.getContent
+    ".content" #> PageUtil.getContent(page)
   }
 }

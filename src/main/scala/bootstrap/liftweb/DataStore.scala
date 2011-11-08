@@ -1,9 +1,7 @@
 package bootstrap.liftweb
 
 import scala.collection.JavaConversions._
-
 import javax.jdo.JDOHelper
-import net.liftweb.http.RequestVar
 import org.datanucleus.api.jdo.JDOPersistenceManager
 import org.datanucleus.query.typesafe.{BooleanExpression, OrderExpression, TypesafeQuery}
 import net.liftweb.common._
@@ -14,19 +12,25 @@ import javax.jdo.PersistenceManagerFactory
 import org.datanucleus.api.jdo.query.JDOTypesafeQuery
 import javax.jdo.PersistenceManager
 import javax.jdo.spi.PersistenceCapable
+import net.liftweb.http.TransientRequestVar
 
 object DataStore {
   val pmf: JDOPersistenceManagerFactory = 
 		  JDOHelper.getPersistenceManagerFactory("props/datastore.props").asInstanceOf[JDOPersistenceManagerFactory]
   val pmOutsideRequest = ScalaPersistenceManager.create(pmf)
-  object pmVar extends RequestVar[ScalaPersistenceManager](ScalaPersistenceManager.create(pmf)) {
-    registerCleanupFunc(ignore => this.get.commitTransactionAndClose())
+  object pmVar extends TransientRequestVar[ScalaPersistenceManager]({
+    	println("****creating pm at beginning of request")
+    	ScalaPersistenceManager.create(pmf)}) {
+    registerGlobalCleanupFunc(ignore => this.get.commitTransactionAndClose())
   }
   
   def pm: ScalaPersistenceManager = {
     S.request match {
       case Full(req) => pmVar.get
-      case _ => pmOutsideRequest
+      case _ => {
+        println("****getting singleton pm")
+        pmOutsideRequest
+      }
     }
   }
 }
@@ -48,11 +52,13 @@ class ScalaPersistenceManager(val jpm: JDOPersistenceManager) {
 
   def commitTransactionAndClose() {
     try {
+      println("****committing transaction")
       jpm.currentTransaction.commit()
     } finally {
       if (jpm.currentTransaction.isActive) {
         jpm.currentTransaction.rollback()
       }
+      println("****closing transaction")
       jpm.close()
     }
   }
