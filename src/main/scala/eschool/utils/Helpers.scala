@@ -133,6 +133,10 @@ object Helpers {
   def getRawTemplate(path: List[String]): NodeSeq = getRawTemplate(path, S.locale)
   
   def mkNodeSeq(strs: List[String], sep: Node): NodeSeq = {
-    strs.foldRight(NodeSeq.Empty)((s: String, ns: NodeSeq) => Text(s) ++ sep ++ ns)
+    strs.foldRight(NodeSeq.Empty)((s: String, ns: NodeSeq) => sep ++ Text(s) ++ ns).tail
+  }
+  
+  def intersperse[T](list: List[T], co: T): List[T] = {
+    list.foldRight[List[T]](Nil)((elem: T, ls: List[T]) => co :: elem :: ls).tail
   }
 }

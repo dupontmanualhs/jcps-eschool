@@ -55,6 +55,6 @@ class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorSc
         page.setChildren(children)
       }
     }
-
+    DataStore.pm.makePersistent(newPage)
   }
 }
