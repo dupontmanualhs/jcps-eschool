@@ -54,7 +54,11 @@ public class User {
 	}
 
 	public String getMiddle() {
-		return middle;
+		if (this.middle == null) {
+			return "";
+		} else {
+			return middle;
+		}
 	}
 
 	public void setMiddle(String middle) {
