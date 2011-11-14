@@ -1,6 +1,6 @@
 package eschool.sites.snippet
 
-import eschool.users.model.{QUser, User, UserUtil}
+import eschool.users.model.{QUser, User}
 import eschool.utils.Helpers.{pluralizeInformal, getTemplate}
 import net.liftweb.common._
 import eschool.sites.model.{QSite, Site}
@@ -19,7 +19,7 @@ import xml.NodeSeq
 class SiteMaster(path: List[String]) {
   def render(in: NodeSeq): NodeSeq = {
     path match {
-      case Nil => listSites(UserUtil.getCurrentOrRedirect())
+      case Nil => listSites(User.getCurrentOrRedirect())
       case "createSite" :: Nil => {
         <head_merge><title>Create a Site</title></head_merge>
         <div class="lift:CreateSite"></div>
@@ -38,8 +38,8 @@ class SiteMaster(path: List[String]) {
   }
 
   def listSites(user: User): NodeSeq = {
-    val currentUser_? : Boolean = UserUtil.getCurrent.isDefined &&
-        UserUtil.getCurrent.get.getId == user.getId
+    val currentUser_? : Boolean = User.getCurrent.isDefined &&
+        User.getCurrent.get.id == user.id
     val header: String = (if (currentUser_?) {
       "Your"
     } else {
@@ -55,7 +55,7 @@ class SiteMaster(path: List[String]) {
       <ul>
       { sites.flatMap(
         (s: Site) =>
-        <li><a href={ "/sites/%s/%s".format(user.getUsername, s.getIdent)}>{ s.getName }</a></li>
+        <li><a href={ "/sites/%s/%s".format(user.username, s.ident)}>{ s.name }</a></li>
       )}
       </ul>
     }

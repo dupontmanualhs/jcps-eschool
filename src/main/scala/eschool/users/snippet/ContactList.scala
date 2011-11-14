@@ -10,9 +10,9 @@ object ContactList {
   def render = ".userRow *" #> allUsers().map(renderUser(_))
 
   def renderUser(user: User) = {
-    val email = user.getEmail match {
-      case null => NodeSeq.Empty
-      case address: String => <a href={ "mailto:" + address }>{ address }</a>
+    val email = user.email match {
+      case None => NodeSeq.Empty
+      case Some(address)  => <a href={ "mailto:" + address }>{ address }</a>
     }
     ".name *" #> user.formalName &
     ".email *" #> email

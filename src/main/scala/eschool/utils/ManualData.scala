@@ -6,7 +6,7 @@ import xml.{Node, Elem, XML}
 import eschool.users.model.{Student, Teacher, User}
 import bootstrap.liftweb.{Boot, DataStore}
 import org.joda.time.LocalDate
-import eschool.courses.model.{QCourse, Course, Department, DepartmentUtil, QTerm, Term, AcademicYear, Period, Room, RoomUtil}
+import eschool.courses.model._
 import net.liftweb.common._
 import java.util.Date
 import org.joda.time.format.DateTimeFormat
@@ -71,7 +71,7 @@ object ManualData {
         println("name: %s, magnet: %s, gender: %s".format(username, teamName, gender))
       }
        // create User
-      val user = new User(username, first, middle, last, null, gender, null, "temp123")
+      val user = new User(username, first, Some(middle), last, None, gender, null, "temp123")
       DataStore.pm.makePersistent(user)
       if (debug) println("user saved")
       // create Student
@@ -100,7 +100,7 @@ object ManualData {
         println("#: %s, id: %s".format(personId, stateId))
         println("name: %s, gender: %s".format(username, gender))
       }
-      val user = new User(username, first, middle, last, null, gender, null, "temp123")
+      val user = new User(username, first, Some(middle), last, None, gender, null, "temp123")
       DataStore.pm.makePersistent(user)
       if (debug) println("user saved")
       val dbTeacher = new Teacher(user, personId, stateId)
@@ -117,7 +117,7 @@ object ManualData {
     courses foreach ((course: Node) => {
       val name = (course \ "@courseInfo.courseName").text
       val masterNumber = asIdNumber((course \ "@courseInfo.courseMasterNumber").text)
-      val dept = DepartmentUtil.getOrCreate((course \ "@courseInfo.departmentName").text)
+      val dept = Department.getOrCreate((course \ "@courseInfo.departmentName").text)
       if (debug) println("%s, %s (%s)".format(name, masterNumber, dept))
       val dbCourse = new Course(name, masterNumber, dept)
       DataStore.pm.makePersistent(dbCourse)
@@ -154,7 +154,7 @@ object ManualData {
       })
       val teacherPersonId = (section \ "@sectionInfo.teacherPersonID").text
       val teacher = DataStore.pm.query[Teacher].filter(QTeacher.candidate.personId.eq(teacherPersonId)).executeOption().get
-      val dbSection = new Section(course, sectionId, setAsJavaSet[Term](terms.toSet[Term]), setAsJavaSet[Period](periods.toSet[Period]), room)
+      val dbSection = new Section(course, sectionId, terms.toSet[Term], periods.toSet[Period], room)
       DataStore.pm.makePersistent(dbSection)
       terms foreach ((term: Term) => {
         val teacherAssignment = new TeacherAssignment(teacher, dbSection, term, null, null)

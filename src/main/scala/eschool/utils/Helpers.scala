@@ -5,8 +5,15 @@ import net.liftweb.http.{S, Templates, NotFoundResponse, ResponseShortcutExcepti
 import java.util.Locale
 import scala.xml.Node
 import scala.xml.Text
+import scala.xml.XML
 
 object Helpers {
+  def string2nodeSeq(legalNodeSeq: String): NodeSeq = {
+    // TODO: this just crashes if someone passes in malformed XML
+    val node = XML.loadString("<dummy>" + legalNodeSeq + "</dummy>")
+    NodeSeq.fromSeq(node.child);
+  }
+  
   def pluralizeInformal(num: Int, word: String): String = {
     val listNoChange = List("moose", "fish", "deer", "sheep", "means", "offspring", "series", "species")
     if (listNoChange.contains(word)){

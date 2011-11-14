@@ -19,7 +19,7 @@ object DataStore {
 		  JDOHelper.getPersistenceManagerFactory("props/datastore.props").asInstanceOf[JDOPersistenceManagerFactory]
   val pmOutsideRequest = ScalaPersistenceManager.create(pmf)
   object pmVar extends TransientRequestVar[ScalaPersistenceManager]({
-    	println("****creating pm at beginning of request")
+    	//println("****creating pm at beginning of request")
     	ScalaPersistenceManager.create(pmf)}) {
     registerGlobalCleanupFunc(ignore => this.get.commitTransactionAndClose())
   }
@@ -28,7 +28,7 @@ object DataStore {
     S.request match {
       case Full(req) => pmVar.get
       case _ => {
-        println("****getting singleton pm")
+        //println("****getting singleton pm")
         pmOutsideRequest
       }
     }
@@ -52,13 +52,13 @@ class ScalaPersistenceManager(val jpm: JDOPersistenceManager) {
 
   def commitTransactionAndClose() {
     try {
-      println("****committing transaction")
+      //println("****committing transaction")
       jpm.currentTransaction.commit()
     } finally {
       if (jpm.currentTransaction.isActive) {
         jpm.currentTransaction.rollback()
       }
-      println("****closing transaction")
+      //println("****closing transaction")
       jpm.close()
     }
   }

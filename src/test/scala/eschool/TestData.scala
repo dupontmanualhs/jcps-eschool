@@ -5,6 +5,7 @@ import bootstrap.liftweb.Boot
 import users.model.UserData
 import sites.model.SiteData
 import bootstrap.liftweb.DataStore
+import java.io.File
 
 object TestData {
   def create() {
@@ -16,6 +17,7 @@ object TestData {
   }
 
   def dropAllData() {
-    //TODO: delete H2 file
+    val db = new File("data.h2.db");
+    if (db.exists()) db.delete();
   }
 }

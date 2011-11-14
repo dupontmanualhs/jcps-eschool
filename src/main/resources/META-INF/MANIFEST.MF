@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: dnexts
+Bundle-SymbolicName: eschool.dnexts
+Bundle-Version: 1.0.0
+Bundle-Vendor: JCPS eSchool

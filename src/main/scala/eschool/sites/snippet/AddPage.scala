@@ -3,8 +3,8 @@ package eschool.sites.snippet
 import scala.collection.JavaConversions._
 import scala.collection.immutable.ListMap
 
-import eschool.sites.model.{Page, PageUtil, Site, SiteUtil}
-import eschool.users.model.{User, UserUtil}
+import eschool.sites.model.{Page, Site}
+import eschool.users.model.User
 import net.liftweb.util.FieldError
 import net.liftweb.common._
 import net.liftweb.http.S
@@ -13,17 +13,21 @@ import eschool.utils.snippet.EditorScreen
 import bootstrap.liftweb.DataStore
 
 class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorScreen {
-  object currentUser extends ScreenVar[User](UserUtil.getCurrentOrRedirect)
+  object currentUser extends ScreenVar[User](User.getCurrentOrRedirect)
   
   val (user: User, site: Site, maybePage: Option[Page]) = userSiteAndMaybePage
-  if (currentUser.get.getId != user.getId) {
+  println("user: " + user.toString)
+  println("site: " + site.toString)
+  println("page: " + maybePage.toString)
+  
+  if (currentUser.get.id != user.id) {
     S.error("You do not have permission to add a page to this site.")
     S.redirectTo(S.referer openOr "/index")
   }
   
   val pathToParent: List[String] = maybePage match {
-    case Some(page) => "sites" :: PageUtil.getPath(page)
-    case None => "sites" :: user.getUsername :: site.getIdent :: Nil
+    case Some(page) => "sites" :: page.path()
+    case None => "sites" :: user.username :: site.ident :: Nil
   }
   val parent: Either[Site, Page] = maybePage match {
     case Some(page) => Right(page)
@@ -32,27 +36,22 @@ class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorSc
 
   val ident = text("Page Path: " + pathToParent.mkString("/", "/", "/"), "",
       validateIdent _,
-      (s: String) => boxStrToListFieldError(PageUtil.uniqueIdent(parent, s)))
+      (s: String) => boxStrToListFieldError(Page.uniqueIdent(parent, s)))
   val name = text("Page Name", "",
       validatePage _,
-      (s: String) => boxStrToListFieldError(PageUtil.uniqueName(parent, s)))
+      (s: String) => boxStrToListFieldError(Page.uniqueName(parent, s)))
   val content = mceTextarea("Content", "", 30, 80)
 
   def finish() {
-	val newPage: Page = new Page(name.get)
-    PageUtil.setContent(newPage, content.get)
+	val newPage: Page = new Page()
+	newPage.name = name.get
+    newPage.content = content.get
     parent match {
       case Left(site: Site) => {
-        val children = site.getChildren
-        println(children)
-        children.put(ident, newPage)
-        site.setChildren(children)
+        site.children = site.children :+ newPage
       }
       case Right(page: Page) => {
-        val children = page.getChildren
-        println(children)
-        children.put(ident, newPage)
-        page.setChildren(children)
+    	page.children = page.children :+ newPage
       }
     }
     DataStore.pm.makePersistent(newPage)

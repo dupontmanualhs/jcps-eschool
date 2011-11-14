@@ -9,11 +9,11 @@ object UserTable {
   def render = ".userRow *" #> allUsers().map(renderUser(_))
 
   def renderUser(user: User) = {
-    ".last *" #> user.getLast &
-    ".first *" #> user.getFirst &
-    ".middle *" #> user.getMiddle &
-    ".preferred *" #> user.getPreferred &
-    ".username *" #> user.getUsername
+    ".last *" #> user.last &
+    ".first *" #> user.first &
+    ".middle *" #> user.middle &
+    ".preferred *" #> user.preferred &
+    ".username *" #> user.username
   }
 
   def allUsers(): List[User] = {

@@ -3,7 +3,7 @@ package eschool.courses.snippet
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import eschool.users.model.Teacher
-import eschool.courses.model.{Period, QPeriod, Term, Section, SectionUtil, TeacherAssignment, QTeacherAssignment, TermUtil}
+import eschool.courses.model.{Period, QPeriod, Term, Section, TeacherAssignment, QTeacherAssignment}
 import xml.NodeSeq
 import bootstrap.liftweb.DataStore
 import scala.xml.Text
@@ -15,18 +15,18 @@ class TeacherSchedule(teacher: Teacher) {
     val cand = QTeacherAssignment.candidate
     DataStore.pm.query[TeacherAssignment].filter(cand.teacher.eq(teacher).and(cand.term.eq(TermUtil.current))).executeList()
   }
-  val sections: List[Section] = assignments.map(_.getSection)
+  val sections: List[Section] = assignments.map(_.section)
   val periods: List[Period] = DataStore.pm.query[Period].orderBy(QPeriod.candidate.order.asc).executeList()
 
   def sectionsForPeriod(period: Period): (NodeSeq => NodeSeq) = {
-    val sectionsThisPeriod = sections.filter(_.getPeriods().contains(period))
-    ".period *" #> period.getName &
-    ".courses *" #> mkNodeSeq(sectionsThisPeriod.map(_.getCourse.getName), <br/>) &
-    ".rooms *" #> mkNodeSeq(sectionsThisPeriod.map(_.getRoom.getName), <br/>)
+    val sectionsThisPeriod = sections.filter(_.periods.contains(period))
+    ".period *" #> period.name &
+    ".courses *" #> mkNodeSeq(sectionsThisPeriod.map(_.course.name), <br/>) &
+    ".rooms *" #> mkNodeSeq(sectionsThisPeriod.map(_.room.name), <br/>)
   }
 
   def render = //".scheduleTitlePlaceholder" #> scheduleTitle() &
-      ".name" #> teacher.getUser.displayName &
+      ".name" #> teacher.user.displayName &
       ".list *" #> periods.map(sectionsForPeriod(_))
 
 }
