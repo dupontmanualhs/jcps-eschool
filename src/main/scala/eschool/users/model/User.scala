@@ -7,6 +7,9 @@ import jdohelpers.{Email, Gender, Password}
 import jdo.Id
 import bootstrap.liftweb.DataStore
 import net.liftweb.http.S
+import jdo.QId
+import org.datanucleus.api.jdo.query._
+import org.datanucleus.query.typesafe._
 
 class User extends Id[Long] {
   @Unique
@@ -132,4 +135,52 @@ object User {
     S.notice("You must login to access that page.")
     S.redirectTo("/users/login")
   }
+}
+
+trait QUser extends QId[Long] {
+  lazy val _username: StringExpression = new StringExpressionImpl(this, "_username")
+  def username: StringExpression = _username
+  
+  lazy val _first: StringExpression = new StringExpressionImpl(this, "_first")
+  def first: StringExpression = _first
+  
+  lazy val _middle: StringExpression = new StringExpressionImpl(this, "_middle")
+  def middle: StringExpression = _middle
+  
+  lazy val _last: StringExpression = new StringExpressionImpl(this, "_last")
+  def last: StringExpression = _last
+  
+  lazy val _preferred: StringExpression = new StringExpressionImpl(this, "_preferred")
+  def preferred: StringExpression = _last
+  
+  lazy val _gender: ObjectExpression[Gender] = new ObjectExpressionImpl[Gender](this, "_gender")
+  def gender: ObjectExpression[Gender] = _gender
+  
+  lazy val _email: ObjectExpression[Email] = new ObjectExpressionImpl[Email](this, "_email")
+  def email: ObjectExpression[Email] = _email
+  
+  lazy val _password: ObjectExpression[Password] = new ObjectExpressionImpl[Password](this, "_password")
+  def password: ObjectExpression[Password] = _password
+  
+}
+
+object QUser {
+  def apply(parent: PersistableExpression[User], name: String, depth: Int): QUser = {
+    QId[Long](parent, name, depth) with QUser
+  }
+  
+  def apply(cls: Class[QUser], name: String, exprType: ExpressionType): QUser = {
+    QId[Long](cls, name, exprType) with QUser
+  }
+  
+  lazy val jdoCandidate: QUser = candidate("this")
+  
+  def candidate(name: String): QUser = QUser(null, name, 5)
+  
+  def candidate(): QUser = jdoCandidate
+
+  def parameter(name: String): QUser = QUser(classOf[QUser], name, ExpressionType.PARAMETER)
+  
+  def variable[T](name: String): QId[T] = QUser(classOf[QUser], name, ExpressionType.VARIABLE)
+
 }
