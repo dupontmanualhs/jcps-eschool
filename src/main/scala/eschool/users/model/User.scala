@@ -138,28 +138,28 @@ object User {
 }
 
 trait QUser extends QId[Long] {
-  lazy val _username: StringExpression = new StringExpressionImpl(this, "_username")
+  private[this] lazy val _username: StringExpression = new StringExpressionImpl(this, "_username")
   def username: StringExpression = _username
   
-  lazy val _first: StringExpression = new StringExpressionImpl(this, "_first")
+  private[this] lazy val _first: StringExpression = new StringExpressionImpl(this, "_first")
   def first: StringExpression = _first
   
-  lazy val _middle: StringExpression = new StringExpressionImpl(this, "_middle")
+  private[this] lazy val _middle: StringExpression = new StringExpressionImpl(this, "_middle")
   def middle: StringExpression = _middle
   
-  lazy val _last: StringExpression = new StringExpressionImpl(this, "_last")
+  private[this] lazy val _last: StringExpression = new StringExpressionImpl(this, "_last")
   def last: StringExpression = _last
   
-  lazy val _preferred: StringExpression = new StringExpressionImpl(this, "_preferred")
+  private[this] lazy val _preferred: StringExpression = new StringExpressionImpl(this, "_preferred")
   def preferred: StringExpression = _last
   
-  lazy val _gender: ObjectExpression[Gender] = new ObjectExpressionImpl[Gender](this, "_gender")
+  private[this] lazy val _gender: ObjectExpression[Gender] = new ObjectExpressionImpl[Gender](this, "_gender")
   def gender: ObjectExpression[Gender] = _gender
   
-  lazy val _email: ObjectExpression[Email] = new ObjectExpressionImpl[Email](this, "_email")
+  private[this] lazy val _email: ObjectExpression[Email] = new ObjectExpressionImpl[Email](this, "_email")
   def email: ObjectExpression[Email] = _email
   
-  lazy val _password: ObjectExpression[Password] = new ObjectExpressionImpl[Password](this, "_password")
+  private[this] lazy val _password: ObjectExpression[Password] = new ObjectExpressionImpl[Password](this, "_password")
   def password: ObjectExpression[Password] = _password
   
 }
@@ -173,7 +173,7 @@ object QUser {
     new PersistableExpressionImpl[User](cls, name, exprType) with QId[Long] with QUser
   }
   
-  lazy val jdoCandidate: QUser = candidate("this")
+  private[this] lazy val jdoCandidate: QUser = candidate("this")
   
   def candidate(name: String): QUser = QUser(null, name, 5)
   

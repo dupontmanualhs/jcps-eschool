@@ -15,31 +15,9 @@ trait Id[T] {
   def id: T = _id
 }
 
-/*
-trait QClass[PC] extends PersistableExpressionImpl[PC] with PersistableExpression[PC] {
-  
-}
-
-trait QClassCompanion[PC, T <: QClass[PC]] {
-  def persistentSupertype[T2](typ: Class[T2]): Class[_] = {
-    typ.getSuperclass match {
-      case null => null
-      case superType: PersistenceCapable => superType
-      case superType => persistentSupertype(superType)
-    }
-  }
-  
-  def apply(parent: PersistableExpression[PC], name: String, depth: Int): T = {
-    new PersistableExpressionImpl[PC](parent, name) with T
-  }
-}
-*/
-
 trait QId[ID] extends PersistableExpressionImpl[Id[ID]] with PersistableExpression[Id[ID]] {
-  lazy val _id: NumericExpression[Long] = new NumericExpressionImpl[Long](this, "_id")
-  
+  private[this] lazy val _id: NumericExpression[Long] = new NumericExpressionImpl[Long](this, "_id")
   def id: NumericExpression[Long] = _id
-  
 }
 
 object QId {
