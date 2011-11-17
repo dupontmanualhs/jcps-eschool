@@ -165,12 +165,12 @@ trait QUser extends QId[Long] {
 }
 
 object QUser {
-  def apply(parent: PersistableExpression[User], name: String, depth: Int): QUser = {
-    QId[Long](parent, name, depth) with QUser
+  def apply(parent: PersistableExpression[User], name: String, depth: Int) = {
+    new PersistableExpressionImpl[User](parent, name) with QId[Long] with QUser
   }
   
-  def apply(cls: Class[QUser], name: String, exprType: ExpressionType): QUser = {
-    QId[Long](cls, name, exprType) with QUser
+  def apply(cls: Class[User], name: String, exprType: ExpressionType): QUser = {
+    new PersistableExpressionImpl[User](cls, name, exprType) with QId[Long] with QUser
   }
   
   lazy val jdoCandidate: QUser = candidate("this")
@@ -179,8 +179,8 @@ object QUser {
   
   def candidate(): QUser = jdoCandidate
 
-  def parameter(name: String): QUser = QUser(classOf[QUser], name, ExpressionType.PARAMETER)
+  def parameter(name: String): QUser = QUser(classOf[User], name, ExpressionType.PARAMETER)
   
-  def variable[T](name: String): QId[T] = QUser(classOf[QUser], name, ExpressionType.VARIABLE)
+  def variable(name: String): QUser = QUser(classOf[User], name, ExpressionType.VARIABLE)
 
 }

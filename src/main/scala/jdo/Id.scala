@@ -35,7 +35,7 @@ trait QClassCompanion[PC, T <: QClass[PC]] {
 }
 */
 
-trait QId[T] extends PersistableExpressionImpl[Id[T]] with PersistableExpression[Id[T]] {
+trait QId[ID] extends PersistableExpressionImpl[Id[ID]] with PersistableExpression[Id[ID]] {
   lazy val _id: NumericExpression[Long] = new NumericExpressionImpl[Long](this, "_id")
   
   def id: NumericExpression[Long] = _id
@@ -43,22 +43,22 @@ trait QId[T] extends PersistableExpressionImpl[Id[T]] with PersistableExpression
 }
 
 object QId {
-  def apply[ID](parent: PersistableExpression[_ <: Id[ID]], name: String, depth: Int): QId[ID] = {
-    new PersistableExpressionImpl[Id[ID]](parent, name) with QId[ID]
+  def apply[ID, PC <: Id[ID]](parent: PersistableExpression[PC], name: String, depth: Int): QId[ID] = {
+    new PersistableExpressionImpl[PC](parent, name) with QId[ID]
   }
   
-  def apply[PC, ID](cls: (PC <: Class[QId[ID]]), name: String, exprType: ExpressionType): Q = {
-    new PersistableExpressionImpl[Q](cls, name, exprType) with QId[I]
+  def apply[ID, PC <: Id[ID]](cls: Class[PC], name: String, exprType: ExpressionType): QId[ID] = {
+    new PersistableExpressionImpl[PC](cls, name, exprType) with QId[ID]
   }
   
-  def jdoCandidate[T]: QId[T] = candidate("this")
+  def jdoCandidate[ID]: QId[ID] = candidate("this")
   
-  def candidate[T](name: String): QId[T] = QId[T](null, name, 5)
+  def candidate[ID, PC <: Id[ID]](name: String): QId[ID] = QId[ID, PC](null, name, 5)
   
-  def candidate[T](): QId[T] = jdoCandidate[T]
+  def candidate[ID](): QId[ID] = jdoCandidate[ID]
   
-  def parameter[T](name: String): QId[T] = QId[T](classOf[QId[T]], name, ExpressionType.PARAMETER)
+  def parameter[ID](name: String): QId[ID] = QId[ID, Id[ID]](classOf[Id[ID]], name, ExpressionType.PARAMETER)
   
-  def variable[T](name: String): QId[T] = QId[T](classOf[QId[T]], name, ExpressionType.VARIABLE)
+  def variable[ID](name: String): QId[ID] = QId[ID, Id[ID]](classOf[Id[ID]], name, ExpressionType.VARIABLE)
   
 }
