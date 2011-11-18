@@ -11,6 +11,7 @@ import jdo.QId
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
 
+@PersistenceCapable
 class User extends Id[Long] {
   @Unique
   @Column(allowsNull="false")

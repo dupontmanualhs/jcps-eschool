@@ -7,6 +7,7 @@ import jdo.QId
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
+@PersistenceCapable
 class Room extends Id[Long] {
   @Unique
   private[this] var _name: String = _

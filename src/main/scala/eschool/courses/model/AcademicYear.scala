@@ -9,6 +9,7 @@ import org.datanucleus.query.typesafe.PersistableExpression
 import org.datanucleus.api.jdo.query.PersistableExpressionImpl
 import org.datanucleus.api.jdo.query.ExpressionType
 
+@PersistenceCapable
 class AcademicYear extends Id[Long] {
   @Unique
   @Column(allowsNull="false")

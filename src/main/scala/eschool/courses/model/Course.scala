@@ -6,6 +6,7 @@ import jdo.QId
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
 
+@PersistenceCapable
 class Course extends Id[Long] {
   private[this] var _name: String = _
   @Unique

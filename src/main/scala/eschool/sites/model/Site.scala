@@ -8,6 +8,7 @@ import jdo.QId
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
+@PersistenceCapable
 @Uniques(Array(
   new Unique(members=Array("owner", "name")), 
   new Unique(members=Array("owner", "ident"))))

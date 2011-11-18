@@ -11,6 +11,7 @@ import jdo.QId
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
+@PersistenceCapable
 class Page extends Id[Long] {
   private[this] var _parentSite: Site = _
   private[this] var _parentPage: Page = _

@@ -7,6 +7,7 @@ import jdo.QId
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
 
+@PersistenceCapable
 class Student extends Perspective {
   @Unique
   private[this] var _stateId: String = _
