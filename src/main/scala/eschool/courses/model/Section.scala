@@ -1,10 +1,11 @@
 package eschool.courses.model
 
 import scala.collection.JavaConverters._
-
 import jdo.Id
-
 import javax.jdo.annotations._
+import jdo.QId
+import org.datanucleus.query.typesafe._
+import org.datanucleus.api.jdo.query._
 
 class Section extends Id[Long] {
   private[this] var _course: Course = _
@@ -45,4 +46,43 @@ class Section extends Id[Long] {
   def periodNames: String = {
     periods.map(_.name).mkString(", ")
   }
+}
+
+trait QSection extends QId[Long, Section] {
+  private[this] lazy val _course: ObjectExpression[Course] = new ObjectExpressionImpl[Course](this, "_course")
+  def course: ObjectExpression[Course] = _course
+  
+  private[this] lazy val _sectionId: StringExpression = new StringExpressionImpl(this, "_sectionId")
+  def sectionId: StringExpression = _sectionId
+  
+  private[this] lazy val _terms: CollectionExpression[java.util.Set[Term], Term] = 
+      new CollectionExpressionImpl[java.util.Set[Term], Term](this, "_terms")
+  def terms: CollectionExpression[java.util.Set[Term], Term] = _terms
+
+  private[this] lazy val _periods: CollectionExpression[java.util.Set[Period], Period] = 
+      new CollectionExpressionImpl[java.util.Set[Period], Period](this, "_terms")
+  def periods: CollectionExpression[java.util.Set[Period], Period] = _periods
+
+  private[this] lazy val _room: ObjectExpression[Room] = new ObjectExpressionImpl[Room](this, "_room")
+  def room: ObjectExpression[Room] = _room
+}
+
+object QSection {
+  def apply(parent: PersistableExpression[_], name: String, depth: Int): QSection = {
+    new PersistableExpressionImpl[Section](parent, name) with QId[Long, Section] with QSection
+  }
+  
+  def apply(cls: Class[Section], name: String, exprType: ExpressionType): QSection = {
+    new PersistableExpressionImpl[Section](cls, name, exprType) with QId[Long, Section] with QSection
+  }
+  
+  private[this] lazy val jdoCandidate: QSection = candidate("this")
+  
+  def candidate(name: String): QSection = QSection(null, name, 5)
+  
+  def candidate(): QSection = jdoCandidate
+  
+  def parameter(name: String): QSection = QSection(classOf[Section], name, ExpressionType.PARAMETER)
+  
+  def variable(name: String): QSection = QSection(classOf[Section], name, ExpressionType.VARIABLE)
 }

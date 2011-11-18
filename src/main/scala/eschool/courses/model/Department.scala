@@ -32,18 +32,18 @@ object Department {
   }
 }
 
-trait QDepartment extends QId[Long] {
+trait QDepartment extends QId[Long, Department] {
   private[this] lazy val _name: StringExpression = new StringExpressionImpl(this, "_name")
   def name: StringExpression = _name
 }
 
 object QDepartment {
   def apply(parent: PersistableExpression[_], name: String, depth: Int): QDepartment = {
-    new PersistableExpressionImpl[Department](parent, name) with QId[Long] with QDepartment
+    new PersistableExpressionImpl[Department](parent, name) with QId[Long, Department] with QDepartment
   }
   
   def apply(cls: Class[Department], name: String, exprType: ExpressionType): QDepartment = {
-    new PersistableExpressionImpl[Department](cls, name, exprType) with QId[Long] with QDepartment
+    new PersistableExpressionImpl[Department](cls, name, exprType) with QId[Long, Department] with QDepartment
   }
   
   private[this] lazy val jdoCandidate: QDepartment = candidate("this")

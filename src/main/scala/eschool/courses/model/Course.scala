@@ -29,7 +29,7 @@ class Course extends Id[Long] {
   def department_=(theDepartment: Department) { _department = theDepartment }
 }
 
-trait QCourse extends QId[Long] {
+trait QCourse extends QId[Long, Course] {
   private[this] lazy val _name: StringExpression = new StringExpressionImpl(this, "_name")
   def name: StringExpression = _name
   
@@ -42,11 +42,11 @@ trait QCourse extends QId[Long] {
 
 object QCourse {
   def apply(parent: PersistableExpression[_], name: String, depth: Int): QCourse = {
-    new PersistableExpressionImpl[Course](parent, name) with QId[Long] with QCourse
+    new PersistableExpressionImpl[Course](parent, name) with QId[Long, Course] with QCourse
   }
   
   def apply(cls: Class[Course], name: String, exprType: ExpressionType): QCourse = {
-    new PersistableExpressionImpl[Course](cls, name, exprType) with QId[Long] with QCourse
+    new PersistableExpressionImpl[Course](cls, name, exprType) with QId[Long, Course] with QCourse
   }
   
   private[this] lazy val jdoCandidate: QCourse = candidate("this")

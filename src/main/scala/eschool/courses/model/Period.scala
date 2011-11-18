@@ -23,7 +23,7 @@ class Period extends Id[Long] {
   def order_=(theOrder: Int) { _order = theOrder }
 }
 
-trait QPeriod extends QId[Long] {
+trait QPeriod extends QId[Long, Period] {
   private[this] lazy val _name: StringExpression = new StringExpressionImpl(this, "_name")
   def name: StringExpression = _name
   
@@ -33,11 +33,11 @@ trait QPeriod extends QId[Long] {
 
 object QPeriod {
   def apply(parent: PersistableExpression[_], name: String, depth: Int): QPeriod = {
-    new PersistableExpressionImpl[Period](parent, name) with QId[Long] with QPeriod
+    new PersistableExpressionImpl[Period](parent, name) with QId[Long, Period] with QPeriod
   }
   
   def apply(cls: Class[Period], name: String, exprType: ExpressionType): QPeriod = {
-    new PersistableExpressionImpl[Period](cls, name, exprType) with QId[Long] with QPeriod
+    new PersistableExpressionImpl[Period](cls, name, exprType) with QId[Long, Period] with QPeriod
   }
   
   private[this] lazy val jdoCandidate: QPeriod = candidate("this")
@@ -49,6 +49,4 @@ object QPeriod {
   def parameter(name: String): QPeriod = QPeriod(classOf[Period], name, ExpressionType.PARAMETER)
   
   def variable(name: String): QPeriod = QPeriod(classOf[Period], name, ExpressionType.VARIABLE)
- 
-  }
 }

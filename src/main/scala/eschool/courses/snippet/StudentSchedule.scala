@@ -4,17 +4,15 @@ import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import eschool.users.model.Student
 import xml.NodeSeq
-import eschool.courses.model.{QStudentEnrollment, StudentEnrollment, Section}
+import eschool.courses.model._
 import bootstrap.liftweb.DataStore
-import eschool.courses.model.Period
-import eschool.courses.model.QPeriod
 import eschool.utils.Helpers.mkNodeSeq
 
 class StudentSchedule(student: Student) {
   // TODO: handle current term correctly
   val assignments: List[StudentEnrollment] = {
     val cand = QStudentEnrollment.candidate
-    DataStore.pm.query[StudentEnrollment].filter(cand.student.eq(student).and(cand.term.eq(TermUtil.current))).executeList()
+    DataStore.pm.query[StudentEnrollment].filter(cand.student.eq(student).and(cand.term.eq(Term.current))).executeList()
   }
   val sections: List[Section] = assignments.map(_.section)
   val periods: List[Period] = DataStore.pm.query[Period].orderBy(QPeriod.candidate.order.asc).executeList()

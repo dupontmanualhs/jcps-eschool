@@ -3,7 +3,7 @@ package eschool.courses.snippet
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
 import eschool.users.model.Teacher
-import eschool.courses.model.{Period, QPeriod, Term, Section, TeacherAssignment, QTeacherAssignment}
+import eschool.courses.model._
 import xml.NodeSeq
 import bootstrap.liftweb.DataStore
 import scala.xml.Text
@@ -13,7 +13,7 @@ class TeacherSchedule(teacher: Teacher) {
   // TODO: handle current term correctly
   val assignments: List[TeacherAssignment] = {
     val cand = QTeacherAssignment.candidate
-    DataStore.pm.query[TeacherAssignment].filter(cand.teacher.eq(teacher).and(cand.term.eq(TermUtil.current))).executeList()
+    DataStore.pm.query[TeacherAssignment].filter(cand.teacher.eq(teacher).and(cand.term.eq(Term.current))).executeList()
   }
   val sections: List[Section] = assignments.map(_.section)
   val periods: List[Period] = DataStore.pm.query[Period].orderBy(QPeriod.candidate.order.asc).executeList()

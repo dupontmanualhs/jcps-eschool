@@ -137,7 +137,7 @@ object User {
   }
 }
 
-trait QUser extends QId[Long] {
+trait QUser extends QId[Long, User] {
   private[this] lazy val _username: StringExpression = new StringExpressionImpl(this, "_username")
   def username: StringExpression = _username
   
@@ -166,11 +166,11 @@ trait QUser extends QId[Long] {
 
 object QUser {
   def apply(parent: PersistableExpression[User], name: String, depth: Int) = {
-    new PersistableExpressionImpl[User](parent, name) with QId[Long] with QUser
+    new PersistableExpressionImpl[User](parent, name) with QId[Long, User] with QUser
   }
   
   def apply(cls: Class[User], name: String, exprType: ExpressionType): QUser = {
-    new PersistableExpressionImpl[User](cls, name, exprType) with QId[Long] with QUser
+    new PersistableExpressionImpl[User](cls, name, exprType) with QId[Long, User] with QUser
   }
   
   private[this] lazy val jdoCandidate: QUser = candidate("this")

@@ -4,6 +4,9 @@ import scala.collection.JavaConverters._
 import javax.jdo.annotations._
 import eschool.users.model.User
 import jdo.Id
+import jdo.QId
+import org.datanucleus.query.typesafe._
+import org.datanucleus.api.jdo.query._
 
 @Uniques(Array(
   new Unique(members=Array("owner", "name")), 
@@ -43,6 +46,38 @@ class Site extends Id[Long] {
   } 
 }
 
-object Site {
+trait QSite extends QId[Long, Site] {
+  private[this] lazy val _owner: ObjectExpression[User] = new ObjectExpressionImpl[User](this, "_owner")
+  def owner: ObjectExpression[User] = _owner
   
+  private[this] lazy val _name: StringExpression = new StringExpressionImpl(this, "_name")
+  def name: StringExpression = _name
+  
+  private[this] lazy val _ident: StringExpression = new StringExpressionImpl(this, "_ident")
+  def ident: StringExpression = _ident
+  
+  private[this] lazy val _children: ListExpression[java.util.List[Page], Page] =
+      new ListExpressionImpl[java.util.List[Page], Page](this, "_children")
+  def children: ListExpression[java.util.List[Page], Page] = _children
+  
+}
+
+object QSite {
+  def apply(parent: PersistableExpression[_], name: String, depth: Int): QSite = {
+    new PersistableExpressionImpl[Site](parent, name) with QId[Long, Site] with QSite
+  }
+  
+  def apply(cls: Class[Site], name: String, exprType: ExpressionType): QSite = {
+    new PersistableExpressionImpl[Site](cls, name, exprType) with QId[Long, Site] with QSite
+  }
+  
+  private[this] lazy val jdoCandidate: QSite = candidate("this")
+  
+  def candidate(name: String): QSite = QSite(null, name, 5)
+  
+  def candidate(): QSite = jdoCandidate
+  
+  def parameter(name: String): QSite = QSite(classOf[Site], name, ExpressionType.PARAMETER)
+  
+  def variable(name: String): QSite = QSite(classOf[Site], name, ExpressionType.VARIABLE)
 }

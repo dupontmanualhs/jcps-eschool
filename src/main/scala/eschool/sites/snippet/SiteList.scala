@@ -27,7 +27,7 @@ class SiteList(user: User) {
       <ul>
       { sites.flatMap(
         (s: Site) =>
-        <li><a href={ "/sites/%s/%s".format(user.getUsername, s.getIdent)}>{ s.getName }</a></li>
+        <li><a href={ "/sites/%s/%s".format(user.username, s.ident)}>{ s.name }</a></li>
       )}
       </ul>
     }

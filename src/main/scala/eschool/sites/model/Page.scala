@@ -7,6 +7,9 @@ import net.liftweb.common._
 import bootstrap.liftweb.DataStore
 import eschool.utils.Helpers.string2nodeSeq
 import jdo.Id
+import jdo.QId
+import org.datanucleus.query.typesafe._
+import org.datanucleus.api.jdo.query._
 
 class Page extends Id[Long] {
   private[this] var _parentSite: Site = _
@@ -138,4 +141,45 @@ object Page {
       }
     }
   }
+}
+
+trait QPage extends QId[Long, Page] {
+  private[this] lazy val _parentSite: ObjectExpression[Site] = new ObjectExpressionImpl[Site](this, "_parentSite")
+  def parentSite: ObjectExpression[Site] = _parentSite
+  
+  private[this] lazy val _parentPage: ObjectExpression[Page] = new ObjectExpressionImpl[Page](this, "_parentPage")
+  def parentPage: ObjectExpression[Page] = _parentPage
+  
+  private[this] lazy val _ident: StringExpression = new StringExpressionImpl(this, "_ident")
+  def ident: StringExpression = _ident
+  
+  private[this] lazy val _name: StringExpression = new StringExpressionImpl(this, "_name")
+  def name: StringExpression = _name
+  
+  private[this] lazy val _content: StringExpression = new StringExpressionImpl(this, "_content")
+  def content: StringExpression = _content
+
+  private[this] lazy val _children: ListExpression[java.util.List[Page], Page] =
+      new ListExpressionImpl[java.util.List[Page], Page](this, "_children")
+  def children: ListExpression[java.util.List[Page], Page] = _children
+}
+
+object QPage {
+  def apply(parent: PersistableExpression[_], name: String, depth: Int): QPage = {
+    new PersistableExpressionImpl[Page](parent, name) with QId[Long, Page] with QPage
+  }
+  
+  def apply(cls: Class[Page], name: String, exprType: ExpressionType): QPage = {
+    new PersistableExpressionImpl[Page](cls, name, exprType) with QId[Long, Page] with QPage
+  }
+  
+  private[this] lazy val jdoCandidate: QPage = candidate("this")
+  
+  def candidate(name: String): QPage = QPage(null, name, 5)
+  
+  def candidate(): QPage = jdoCandidate
+  
+  def parameter(name: String): QPage = QPage(classOf[Page], name, ExpressionType.PARAMETER)
+  
+  def variable(name: String): QPage = QPage(classOf[Page], name, ExpressionType.VARIABLE)
 }

@@ -8,7 +8,6 @@ import bootstrap.liftweb.{Boot, DataStore}
 import org.joda.time.LocalDate
 import eschool.courses.model._
 import net.liftweb.common._
-import java.util.Date
 import org.joda.time.format.DateTimeFormat
 import jdohelpers.Gender
 import eschool.courses.model.QPeriod
@@ -137,7 +136,7 @@ object ManualData {
       val courseMasterNumber = asIdNumber((section \ "@courseInfo.courseMasterNumber").text)
       val course = DataStore.pm.query[Course].filter(QCourse.candidate.masterNumber.eq(courseMasterNumber)).executeOption().get
       val roomNum = (section \ "@sectionInfo.roomName").text
-      val room = RoomUtil.getOrCreate(roomNum)
+      val room = Room.getOrCreate(roomNum)
       val termStart = (section \ "@sectionSchedule.termStart").text
       val termEnd = (section \ "@sectionSchedule.termEnd").text
       val terms: List[Term] = (termStart, termEnd) match {
@@ -177,7 +176,7 @@ object ManualData {
       if (debug) println("Adding student #%s to section #%s".format(studentNumber, sectionId))
       val startDate = asLocalDate((enrollment \ "@roster.startDate").text)
       val endDate = asLocalDate((enrollment \ "@roster.endDate").text)
-      asScalaSet[Term](section.getTerms) foreach ((term: Term) => {
+      asScalaSet[Term](section.terms) foreach ((term: Term) => {
         val dbEnrollment = new StudentEnrollment(student, section, term, startDate, endDate)
         DataStore.pm.makePersistent(dbEnrollment)
       })
