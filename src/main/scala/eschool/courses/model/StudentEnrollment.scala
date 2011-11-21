@@ -1,22 +1,23 @@
 package eschool.courses.model
 
 import javax.jdo.annotations._
-import jdo.Id
-import org.joda.time.LocalDate
+import org.joda.time.{LocalDate, DateTime}
 import eschool.users.model.Student
-import jdo.QId
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
 @PersistenceCapable
-class StudentEnrollment extends Id[Long] {
+class StudentEnrollment {
+  @PrimaryKey
+  @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
+  private[this] var _id: Long = _
   private[this] var _student: Student = _
   private[this] var _section: Section = _
   private[this] var _term: Term = _
   @Persistent
-  private[this] var _start: LocalDate = _
+  private[this] var _start: java.sql.Date = _
   @Persistent
-  private[this] var _end: LocalDate = _
+  private[this] var _end: java.sql.Date = _
   
   def this(student: Student, section: Section, term: Term,
       start: LocalDate, end: LocalDate) = {
@@ -24,15 +25,33 @@ class StudentEnrollment extends Id[Long] {
     _student = student
     _section = section
     _term = term
-    _start = start
-    _end = end
+    start_=(start)
+    end_=(end)
   }
+  
+  def id: Long = _id
+  
+  def student: Student = _student
+  def student_=(theStudent: Student) { _student = theStudent }
   
   def section: Section = _section
   def section_=(theSection: Section) { _section = theSection }
+
+  def term: Term = _term
+  def term_=(theTerm: Term) { _term = theTerm }
+
+  def start: LocalDate = new DateTime(_start).toLocalDate
+  def start_=(theStart: LocalDate) { _start = if (theStart != null) new java.sql.Date(theStart.toDateTimeAtStartOfDay.toDate.getTime) else null }
+  
+  def end: LocalDate = new DateTime(_end).toLocalDate
+  def end_=(theEnd: LocalDate) { _end = if (theEnd != null) new java.sql.Date(theEnd.toDateTimeAtStartOfDay.toDate.getTime) else null }
+
 }
 
-trait QStudentEnrollment extends QId[Long, StudentEnrollment] {
+trait QStudentEnrollment extends PersistableExpression[StudentEnrollment] {
+  private[this] lazy val _id: NumericExpression[Long] = new NumericExpressionImpl[Long](this, "_id")
+  def id: NumericExpression[Long] = _id
+
   private[this] lazy val _student: ObjectExpression[Student] = new ObjectExpressionImpl[Student](this, "_student")
   def student: ObjectExpression[Student] = _student
   
@@ -42,20 +61,20 @@ trait QStudentEnrollment extends QId[Long, StudentEnrollment] {
   private[this] lazy val _term: ObjectExpression[Term] = new ObjectExpressionImpl[Term](this, "_term")
   def term: ObjectExpression[Term] = _term
   
-  private[this] lazy val _start: ObjectExpression[LocalDate] = new ObjectExpressionImpl[LocalDate](this, "_start")
-  def start: ObjectExpression[LocalDate] = _start
+  private[this] lazy val _start: DateExpression[java.util.Date] = new DateExpressionImpl[java.sql.Date](this, "_start")
+  def start: DateExpression[java.util.Date] = _start
 
-  private[this] lazy val _end: ObjectExpression[LocalDate] = new ObjectExpressionImpl[LocalDate](this, "_end")
-  def end: ObjectExpression[LocalDate] = _end
+  private[this] lazy val _end: DateExpression[java.util.Date] = new DateExpressionImpl[java.sql.Date](this, "_end")
+  def end: DateExpression[java.util.Date] = _end
 }
 
 object QStudentEnrollment {
   def apply(parent: PersistableExpression[_], name: String, depth: Int): QStudentEnrollment = {
-    new PersistableExpressionImpl[StudentEnrollment](parent, name) with QId[Long, StudentEnrollment] with QStudentEnrollment
+    new PersistableExpressionImpl[StudentEnrollment](parent, name) with QStudentEnrollment
   }
   
   def apply(cls: Class[StudentEnrollment], name: String, exprType: ExpressionType): QStudentEnrollment = {
-    new PersistableExpressionImpl[StudentEnrollment](cls, name, exprType) with QId[Long, StudentEnrollment] with QStudentEnrollment
+    new PersistableExpressionImpl[StudentEnrollment](cls, name, exprType) with QStudentEnrollment
   }
   
   private[this] lazy val jdoCandidate: QStudentEnrollment = candidate("this")

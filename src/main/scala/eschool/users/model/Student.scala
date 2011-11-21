@@ -3,7 +3,6 @@ package eschool.users.model
 import javax.jdo.annotations._
 import bootstrap.liftweb.DataStore
 import net.liftweb.common._
-import jdo.QId
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
 

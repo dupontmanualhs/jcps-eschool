@@ -3,8 +3,6 @@ package eschool.sites.model
 import scala.collection.JavaConverters._
 import javax.jdo.annotations._
 import eschool.users.model.User
-import jdo.Id
-import jdo.QId
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
@@ -12,7 +10,10 @@ import org.datanucleus.api.jdo.query._
 @Uniques(Array(
   new Unique(members=Array("owner", "name")), 
   new Unique(members=Array("owner", "ident"))))
-class Site extends Id[Long] {
+class Site {
+  @PrimaryKey
+  @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
+  private[this] var _id: Long = _
   private[this] var _owner: User = _
   private[this] var _name: String = _
   private[this] var _ident: String = _
@@ -25,6 +26,8 @@ class Site extends Id[Long] {
     name_=(name)
     ident_=(ident)
   }
+
+  def id: Long = _id
 
   def owner: User = _owner
   def owner_=(theOwner: User) { _owner = theOwner }
@@ -47,7 +50,10 @@ class Site extends Id[Long] {
   } 
 }
 
-trait QSite extends QId[Long, Site] {
+trait QSite extends PersistableExpression[Site] {
+  private[this] lazy val _id: NumericExpression[Long] = new NumericExpressionImpl[Long](this, "_id")
+  def id: NumericExpression[Long] = _id
+
   private[this] lazy val _owner: ObjectExpression[User] = new ObjectExpressionImpl[User](this, "_owner")
   def owner: ObjectExpression[User] = _owner
   
@@ -65,11 +71,11 @@ trait QSite extends QId[Long, Site] {
 
 object QSite {
   def apply(parent: PersistableExpression[_], name: String, depth: Int): QSite = {
-    new PersistableExpressionImpl[Site](parent, name) with QId[Long, Site] with QSite
+    new PersistableExpressionImpl[Site](parent, name) with QSite
   }
   
   def apply(cls: Class[Site], name: String, exprType: ExpressionType): QSite = {
-    new PersistableExpressionImpl[Site](cls, name, exprType) with QId[Long, Site] with QSite
+    new PersistableExpressionImpl[Site](cls, name, exprType) with QSite
   }
   
   private[this] lazy val jdoCandidate: QSite = candidate("this")

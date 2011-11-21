@@ -4,7 +4,6 @@ import scala.collection.JavaConverters._
 import javax.jdo.annotations._
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
-import jdo.QId
 
 @PersistenceCapable
 class Guardian extends Perspective {
@@ -21,11 +20,11 @@ trait QGuardian extends QPerspective[Guardian] {
 
 object QGuardian {
   def apply(parent: PersistableExpression[_], name: String, depth: Int): QGuardian = {
-    new PersistableExpressionImpl[Guardian](parent, name) with QId[Long, Guardian] with QPerspective[Guardian] with QGuardian
+    new PersistableExpressionImpl[Guardian](parent, name) with QPerspective[Guardian] with QGuardian
   }
   
   def apply(cls: Class[Guardian], name: String, exprType: ExpressionType): QGuardian = {
-    new PersistableExpressionImpl[Guardian](cls, name, exprType) with QId[Long, Guardian] with QGuardian
+    new PersistableExpressionImpl[Guardian](cls, name, exprType) with QPerspective[Guardian] with QGuardian
   }
   
   private[this] lazy val jdoCandidate: QGuardian = candidate("this")

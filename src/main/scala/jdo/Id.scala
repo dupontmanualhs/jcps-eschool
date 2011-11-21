@@ -5,20 +5,22 @@ import javax.jdo.annotations._
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
 
+/*
 @PersistenceCapable
 @Inheritance(strategy=InheritanceStrategy.SUBCLASS_TABLE)
-trait Id[T] {
+class Id[T] {
   @PrimaryKey
   @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
-  private[this] var _id: T = _
+  private[this] var _id: Long = _
 
-  def id: T = _id
+  def id: Long = _id
 }
 
 trait QId[ID, PC <: Id[ID]] extends PersistableExpression[PC] {
   private[this] lazy val _id: NumericExpression[Long] = new NumericExpressionImpl[Long](this, "_id")
   def id: NumericExpression[Long] = _id
 }
+*/
 
 /*
 object QId {

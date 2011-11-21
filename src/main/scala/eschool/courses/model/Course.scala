@@ -1,13 +1,14 @@
 package eschool.courses.model
 
 import javax.jdo.annotations._
-import jdo.Id
-import jdo.QId
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
 
 @PersistenceCapable
-class Course extends Id[Long] {
+class Course {
+  @PrimaryKey
+  @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
+  private[this] var _id: Long = _
   private[this] var _name: String = _
   @Unique
   private[this] var _masterNumber: String = _
@@ -20,6 +21,8 @@ class Course extends Id[Long] {
     _department = department
   }
   
+  def id: Long = _id
+
   def name: String = _name
   def name_=(theName: String) { _name = theName }
   
@@ -30,7 +33,10 @@ class Course extends Id[Long] {
   def department_=(theDepartment: Department) { _department = theDepartment }
 }
 
-trait QCourse extends QId[Long, Course] {
+trait QCourse extends PersistableExpression[Course] {
+  private[this] lazy val _id: NumericExpression[Long] = new NumericExpressionImpl[Long](this, "_id")
+  def id: NumericExpression[Long] = _id
+
   private[this] lazy val _name: StringExpression = new StringExpressionImpl(this, "_name")
   def name: StringExpression = _name
   
@@ -43,11 +49,11 @@ trait QCourse extends QId[Long, Course] {
 
 object QCourse {
   def apply(parent: PersistableExpression[_], name: String, depth: Int): QCourse = {
-    new PersistableExpressionImpl[Course](parent, name) with QId[Long, Course] with QCourse
+    new PersistableExpressionImpl[Course](parent, name) with QCourse
   }
   
   def apply(cls: Class[Course], name: String, exprType: ExpressionType): QCourse = {
-    new PersistableExpressionImpl[Course](cls, name, exprType) with QId[Long, Course] with QCourse
+    new PersistableExpressionImpl[Course](cls, name, exprType) with QCourse
   }
   
   private[this] lazy val jdoCandidate: QCourse = candidate("this")

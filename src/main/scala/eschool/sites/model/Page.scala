@@ -6,13 +6,14 @@ import scala.collection.JavaConverters._
 import net.liftweb.common._
 import bootstrap.liftweb.DataStore
 import eschool.utils.Helpers.string2nodeSeq
-import jdo.Id
-import jdo.QId
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
 @PersistenceCapable
-class Page extends Id[Long] {
+class Page {
+  @PrimaryKey
+  @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
+  private[this] var _id: Long = _
   private[this] var _parentSite: Site = _
   private[this] var _parentPage: Page = _
   private[this] var _ident: String = _
@@ -25,6 +26,8 @@ class Page extends Id[Long] {
     this()
     _name = name
   }
+
+  def id: Long = _id
 
   protected[model] def parentSite: Option[Site] = if (_parentSite == null) Empty else Full(_parentSite)
   protected[model] def parentSite_=(maybeSite: Option[Site]) { 
@@ -144,7 +147,10 @@ object Page {
   }
 }
 
-trait QPage extends QId[Long, Page] {
+trait QPage extends PersistableExpression[Page] {
+  private[this] lazy val _id: NumericExpression[Long] = new NumericExpressionImpl[Long](this, "_id")
+  def id: NumericExpression[Long] = _id
+
   private[this] lazy val _parentSite: ObjectExpression[Site] = new ObjectExpressionImpl[Site](this, "_parentSite")
   def parentSite: ObjectExpression[Site] = _parentSite
   
@@ -167,11 +173,11 @@ trait QPage extends QId[Long, Page] {
 
 object QPage {
   def apply(parent: PersistableExpression[_], name: String, depth: Int): QPage = {
-    new PersistableExpressionImpl[Page](parent, name) with QId[Long, Page] with QPage
+    new PersistableExpressionImpl[Page](parent, name) with QPage
   }
   
   def apply(cls: Class[Page], name: String, exprType: ExpressionType): QPage = {
-    new PersistableExpressionImpl[Page](cls, name, exprType) with QId[Long, Page] with QPage
+    new PersistableExpressionImpl[Page](cls, name, exprType) with QPage
   }
   
   private[this] lazy val jdoCandidate: QPage = candidate("this")

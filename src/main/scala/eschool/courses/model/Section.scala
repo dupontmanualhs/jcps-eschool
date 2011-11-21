@@ -1,14 +1,17 @@
 package eschool.courses.model
 
-import scala.collection.JavaConverters._
-import jdo.Id
 import javax.jdo.annotations._
-import jdo.QId
+
+import scala.collection.JavaConverters._
+
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
 @PersistenceCapable
-class Section extends Id[Long] {
+class Section {
+  @PrimaryKey
+  @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
+  private[this] var _id: Long = _
   private[this] var _course: Course = _
   @Unique
   private[this] var _sectionId: String = _
@@ -29,6 +32,8 @@ class Section extends Id[Long] {
     _room = room
   }
   
+  def id: Long = _id
+
   def course: Course = _course
   def course_=(theCourse: Course) { _course = theCourse }
   
@@ -49,7 +54,10 @@ class Section extends Id[Long] {
   }
 }
 
-trait QSection extends QId[Long, Section] {
+trait QSection extends PersistableExpression[Section] {
+  private[this] lazy val _id: NumericExpression[Long] = new NumericExpressionImpl[Long](this, "_id")
+  def id: NumericExpression[Long] = _id
+
   private[this] lazy val _course: ObjectExpression[Course] = new ObjectExpressionImpl[Course](this, "_course")
   def course: ObjectExpression[Course] = _course
   
@@ -70,11 +78,11 @@ trait QSection extends QId[Long, Section] {
 
 object QSection {
   def apply(parent: PersistableExpression[_], name: String, depth: Int): QSection = {
-    new PersistableExpressionImpl[Section](parent, name) with QId[Long, Section] with QSection
+    new PersistableExpressionImpl[Section](parent, name) with QSection
   }
   
   def apply(cls: Class[Section], name: String, exprType: ExpressionType): QSection = {
-    new PersistableExpressionImpl[Section](cls, name, exprType) with QId[Long, Section] with QSection
+    new PersistableExpressionImpl[Section](cls, name, exprType) with QSection
   }
   
   private[this] lazy val jdoCandidate: QSection = candidate("this")

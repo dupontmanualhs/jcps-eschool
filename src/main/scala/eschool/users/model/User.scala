@@ -4,15 +4,16 @@ import javax.jdo.annotations._
 import net.liftweb.common._
 import net.liftweb.http.{RequestVar, SessionVar}
 import jdohelpers.{Email, Gender, Password}
-import jdo.Id
 import bootstrap.liftweb.DataStore
 import net.liftweb.http.S
-import jdo.QId
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
 
 @PersistenceCapable
-class User extends Id[Long] {
+class User {
+  @PrimaryKey
+  @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
+  private[this] var _id: Long = _
   @Unique
   @Column(allowsNull="false")
   private[this] var _username: String = _
@@ -41,7 +42,9 @@ class User extends Id[Long] {
     email_=(new Email(email))
     password_=(new Password(password))
   }
-  
+
+  def id: Long = _id
+
   def username: String = _username
   def username_=(theUsername: String) { _username = theUsername }
   
@@ -138,7 +141,10 @@ object User {
   }
 }
 
-trait QUser extends QId[Long, User] {
+trait QUser extends PersistableExpression[User] {
+  private[this] lazy val _id: NumericExpression[Long] = new NumericExpressionImpl[Long](this, "_id")
+  def id: NumericExpression[Long] = _id
+
   private[this] lazy val _username: StringExpression = new StringExpressionImpl(this, "_username")
   def username: StringExpression = _username
   
@@ -167,11 +173,11 @@ trait QUser extends QId[Long, User] {
 
 object QUser {
   def apply(parent: PersistableExpression[User], name: String, depth: Int) = {
-    new PersistableExpressionImpl[User](parent, name) with QId[Long, User] with QUser
+    new PersistableExpressionImpl[User](parent, name) with QUser
   }
   
   def apply(cls: Class[User], name: String, exprType: ExpressionType): QUser = {
-    new PersistableExpressionImpl[User](cls, name, exprType) with QId[Long, User] with QUser
+    new PersistableExpressionImpl[User](cls, name, exprType) with QUser
   }
   
   private[this] lazy val jdoCandidate: QUser = candidate("this")
