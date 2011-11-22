@@ -1,6 +1,7 @@
 package eschool
 
-import users.model.{Student, Teacher}
+import users.model.{IStudent, ITeacher}
+import users.model.jdo.{Student, Teacher}
 import utils.Helpers._
 import net.liftweb.sitemap.LocPath._
 import net.liftweb.sitemap.Loc._
@@ -10,10 +11,10 @@ import net.liftweb.sitemap.{*, Menu, ConvertableToMenu}
 package object courses {
   def menus: Array[ConvertableToMenu] = Array(
     Menu.param[Teacher]("Teacher Schedule", "Teacher Schedule",
-        Teacher.getByUsername _, _.user.username) / "courses" / "teacher" / * >>
+        ITeacher.getByUsername _, _.getUser.getUsername) / "courses" / "teacher" / * >>
         Template(() => getTemplate(List("courses", "teacherSchedule"))),
     Menu.param[Student]("Student Schedule", "Student Schedule",
-        Student.getByUsername _, _.user.username) / "courses" / "student" / * >>
+        IStudent.getByUsername _, _.getUser.getUsername) / "courses" / "student" / * >>
         Template(() => getTemplate(List("courses", "studentSchedule")))
   )
 }

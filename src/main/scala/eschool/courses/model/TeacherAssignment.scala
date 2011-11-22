@@ -1,7 +1,7 @@
 package eschool.courses.model
 
 import javax.jdo.annotations._
-import eschool.users.model.Teacher
+import eschool.users.model.jdo.Teacher
 import org.joda.time._
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._

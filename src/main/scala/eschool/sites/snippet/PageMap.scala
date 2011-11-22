@@ -2,7 +2,8 @@ package eschool.sites.snippet
 
 import xml.NodeSeq
 import net.liftweb.http.{S, RequestVar}
-import eschool.users.model.User
+import eschool.users.model.IUser
+import eschool.users.model.jdo.User
 import eschool.sites.model.{Page, Site}
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.util.Helpers._
@@ -10,10 +11,10 @@ import net.liftweb.util.Helpers._
 class PageMap(userAndSite: (User, Site)) {
   def render(in: NodeSeq): NodeSeq = {
     val (owner: User, site: Site) = userAndSite
-    val currentUser_? = User.getCurrent.isDefined && User.getCurrent.get.id == owner.id
+    val currentUser_? = IUser.getCurrent.isDefined && IUser.getCurrent.get.getId == owner.getId
     val siteName = site.name
     val ownerDisplayName = owner.displayName
-    val linkOtherSites = <a href={ "/sites/%s".format(owner.username) }>other sites</a>
+    val linkOtherSites = <a href={ "/sites/%s".format(owner.getUsername) }>other sites</a>
     def insertCommand(pathToPage: String, command: String): String = {
       val prefix = "/sites"
       pathToPage.substring(0, prefix.length) + "/" + command + pathToPage.substring(prefix.length)
@@ -49,11 +50,11 @@ class PageMap(userAndSite: (User, Site)) {
     val pageList =
       <ul>{ site.children.flatMap {
         (page: Page) => {
-          pageHierarchy("/sites/%s/%s/%s".format(owner.username, site.ident, page.ident), Full(page))
+          pageHierarchy("/sites/%s/%s/%s".format(owner.getUsername, site.ident, page.ident), Full(page))
         }}
       }
       { if (currentUser_?) {
-        <li><a href={ "/sites/add/%s/%s".format(owner.username, site.ident) }>Add Page</a></li>
+        <li><a href={ "/sites/add/%s/%s".format(owner.getUsername, site.ident) }>Add Page</a></li>
       } else {
         NodeSeq.Empty
       }}</ul>

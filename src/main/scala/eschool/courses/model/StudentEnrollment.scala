@@ -2,7 +2,7 @@ package eschool.courses.model
 
 import javax.jdo.annotations._
 import org.joda.time.{LocalDate, DateTime}
-import eschool.users.model.Student
+import eschool.users.model.jdo.Student
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 

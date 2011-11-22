@@ -2,7 +2,7 @@ package eschool.courses.snippet
 
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
-import eschool.users.model.Student
+import eschool.users.model.jdo.Student
 import xml.NodeSeq
 import eschool.courses.model._
 import bootstrap.liftweb.DataStore
@@ -26,7 +26,7 @@ class StudentSchedule(student: Student) {
   }
 
   def render = //".scheduleTitlePlaceholder" #> scheduleTitle() &
-      ".name" #> student.user.displayName &
+      ".name" #> student.getUser.displayName &
       ".list *" #> periods.map(sectionsForPeriod(_))
 
 }

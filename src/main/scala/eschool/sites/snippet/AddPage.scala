@@ -4,7 +4,8 @@ import scala.collection.JavaConversions._
 import scala.collection.immutable.ListMap
 
 import eschool.sites.model.{Page, Site}
-import eschool.users.model.User
+import eschool.users.model.IUser
+import eschool.users.model.jdo.User
 import net.liftweb.util.FieldError
 import net.liftweb.common._
 import net.liftweb.http.S
@@ -13,21 +14,21 @@ import eschool.utils.snippet.EditorScreen
 import bootstrap.liftweb.DataStore
 
 class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorScreen {
-  object currentUser extends ScreenVar[User](User.getCurrentOrRedirect)
+  object currentUser extends ScreenVar[User](IUser.getCurrentOrRedirect)
   
   val (user: User, site: Site, maybePage: Option[Page]) = userSiteAndMaybePage
   println("user: " + user.toString)
   println("site: " + site.toString)
   println("page: " + maybePage.toString)
   
-  if (currentUser.get.id != user.id) {
+  if (currentUser.get.getId != user.getId) {
     S.error("You do not have permission to add a page to this site.")
     S.redirectTo(S.referer openOr "/index")
   }
   
   val pathToParent: List[String] = maybePage match {
     case Some(page) => "sites" :: page.path()
-    case None => "sites" :: user.username :: site.ident :: Nil
+    case None => "sites" :: user.getUsername :: site.ident :: Nil
   }
   val parent: Either[Site, Page] = maybePage match {
     case Some(page) => Right(page)

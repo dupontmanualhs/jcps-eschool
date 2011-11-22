@@ -1,6 +1,7 @@
 package eschool.sites.model
 
-import eschool.users.model.User
+import eschool.users.model.IUser
+import eschool.users.model.jdo.User
 import collection.immutable.ListMap
 import scala.xml.NodeSeq
 import bootstrap.liftweb.DataStore
@@ -10,7 +11,7 @@ import scala.collection.JavaConversions._
 object SiteData {
   def create() {
     DataStore.pm.beginTransaction()
-    val bob: User = User.getByUsername("rsmith1").get
+    val bob: User = IUser.getByUsername("rsmith1").get
     val bobPersonal: Site = new Site(bob, "All About Bob", "personal")
     DataStore.pm.makePersistent(bobPersonal)
     val hpContent: NodeSeq = (
@@ -94,7 +95,7 @@ object SiteData {
     val bobSoccer: Site = new Site(bob, "Bob's Soccer Site", "soccer")
     bobSoccer.children = List(soccerHome)
     DataStore.pm.makePersistent(bobSoccer)
-    val mary = User.getByUsername("mjones02").open_!
+    val mary = IUser.getByUsername("mjones02").open_!
     val maryHomepage = new Page("Mary's Homepage")
     maryHomepage.content = (
       <h1>Mary</h1>

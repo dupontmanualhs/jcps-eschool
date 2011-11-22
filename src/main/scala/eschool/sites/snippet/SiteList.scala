@@ -1,7 +1,8 @@
 package eschool.sites.snippet
 
 import net.liftweb.util.Helpers._
-import eschool.users.model.User
+import eschool.users.model.IUser
+import eschool.users.model.jdo.User
 import xml.NodeSeq
 import eschool.sites.model.{QSite, Site}
 import eschool.utils.Helpers._
@@ -11,8 +12,8 @@ import bootstrap.liftweb.DataStore
 
 class SiteList(user: User) {
   def render: (NodeSeq => NodeSeq) = {
-    val currentUser_? : Boolean = User.getCurrent.isDefined &&
-        User.getCurrent.get.id == user.id
+    val currentUser_? : Boolean = IUser.getCurrent.isDefined &&
+        IUser.getCurrent.get.getId == user.getId
     val header: String = (if (currentUser_?) {
       "Your"
     } else {
@@ -27,7 +28,7 @@ class SiteList(user: User) {
       <ul>
       { sites.flatMap(
         (s: Site) =>
-        <li><a href={ "/sites/%s/%s".format(user.username, s.ident)}>{ s.name }</a></li>
+        <li><a href={ "/sites/%s/%s".format(user.getUsername, s.ident)}>{ s.name }</a></li>
       )}
       </ul>
     }

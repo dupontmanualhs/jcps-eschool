@@ -1,16 +1,14 @@
 package eschool.sites.model
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 import javax.jdo.annotations._
-import eschool.users.model.User
+import eschool.users.model.jdo.User
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
 @PersistenceCapable
-@Uniques(Array(
-  new Unique(members=Array("owner", "name")), 
-  new Unique(members=Array("owner", "ident"))))
-class Site {
+@Uniques({"owner", "name"}, {"owner", "ident"})
+public class Site {
   @PrimaryKey
   @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
   private[this] var _id: Long = _

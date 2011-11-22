@@ -1,6 +1,7 @@
 package eschool.sites.snippet
 
-import eschool.users.model.User
+import eschool.users.model.IUser
+import eschool.users.model.jdo.User
 import eschool.sites.model.{Page, Site}
 import net.liftweb.util.FieldError
 import net.liftweb.common.{Box, Full}
@@ -10,9 +11,9 @@ import eschool.utils.snippet.EditorScreen
 import bootstrap.liftweb.DataStore
 
 class EditPage(userSiteAndPage: (User, Site, Page)) extends EditorScreen {
-  object currentUser extends ScreenVar[User](User.getCurrentOrRedirect())
+  object currentUser extends ScreenVar[User](IUser.getCurrentOrRedirect())
   val (user: User, site: Site, page: Page) = userSiteAndPage
-  if (currentUser.id != user.id) {
+  if (currentUser.getId != user.getId) {
     S.error("You do not have permission to edit that page.")
     S.redirectTo(S.referer openOr "/index")
   }
