@@ -3,7 +3,6 @@ package eschool.users.model.jdo;
 import javax.jdo.annotations.*;
 
 import scala.Option;
-import scala.None;
 import scala.Some;
 
 import jdohelpers.Email;
@@ -31,6 +30,7 @@ public class User {
 	@Embedded
 	private Password password;
 
+	@SuppressWarnings("unused")
 	private User() {
 	}
 

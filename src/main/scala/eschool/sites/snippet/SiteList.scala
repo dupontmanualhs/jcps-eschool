@@ -4,7 +4,7 @@ import net.liftweb.util.Helpers._
 import eschool.users.model.IUser
 import eschool.users.model.jdo.User
 import xml.NodeSeq
-import eschool.sites.model.{QSite, Site}
+import eschool.sites.model.jdo.{QSite, Site}
 import eschool.utils.Helpers._
 import net.liftweb.http.S
 import net.liftweb.common.{Full, Box}
@@ -28,7 +28,7 @@ class SiteList(user: User) {
       <ul>
       { sites.flatMap(
         (s: Site) =>
-        <li><a href={ "/sites/%s/%s".format(user.getUsername, s.ident)}>{ s.name }</a></li>
+        <li><a href={ "/sites/%s/%s".format(user.getUsername, s.getIdent)}>{ s.getName }</a></li>
       )}
       </ul>
     }

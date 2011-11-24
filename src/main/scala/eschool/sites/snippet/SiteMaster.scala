@@ -4,7 +4,7 @@ import eschool.users.model.IUser
 import eschool.users.model.jdo.{QUser, User}
 import eschool.utils.Helpers.{pluralizeInformal, getTemplate}
 import net.liftweb.common._
-import eschool.sites.model.{QSite, Site}
+import eschool.sites.model.jdo.{QSite, Site}
 import net.liftweb.util.Helpers._
 import net.liftweb.sitemap.Loc.LinkText._
 import net.liftweb.sitemap.LocPath._
@@ -56,7 +56,7 @@ class SiteMaster(path: List[String]) {
       <ul>
       { sites.flatMap(
         (s: Site) =>
-        <li><a href={ "/sites/%s/%s".format(user.getUsername, s.ident)}>{ s.name }</a></li>
+        <li><a href={ "/sites/%s/%s".format(user.getUsername, s.getIdent)}>{ s.getName }</a></li>
       )}
       </ul>
     }
