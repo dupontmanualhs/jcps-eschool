@@ -6,7 +6,7 @@ import bootstrap.liftweb.DataStore
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
 
-@PersistenceCapable
+@PersistenceCapable(detachable="true",identityType=IdentityType.APPLICATION)
 class Term {
   @PrimaryKey
   @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
@@ -42,9 +42,9 @@ class Term {
 }
 
 object Term {
-  lazy val current: Term = {
+  def current: Term = {
     val cand = QTerm.candidate
-    DataStore.pm.query[Term].filter(cand.name.eq("Fall 2011")).executeOption().get
+    DataStore.pm.query[Term].filter(cand.name.eq("Fall 2011")).executeOption().get    
   }
 }
 
