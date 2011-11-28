@@ -2,7 +2,7 @@ package eschool.users.snippet
 
 import net.liftweb.util._
 import Helpers._
-import eschool.users.model.jdo.{QUser, User}
+import eschool.users.model.{QUser, User}
 import xml.NodeSeq
 import bootstrap.liftweb.DataStore
 
@@ -10,7 +10,7 @@ object ContactList {
   def render = ".userRow *" #> allUsers().map(renderUser(_))
 
   def renderUser(user: User) = {
-    val email = user.getEmail match {
+    val email = user.email match {
       case None => NodeSeq.Empty
       case Some(address)  => <a href={ "mailto:" + address }>{ address }</a>
     }

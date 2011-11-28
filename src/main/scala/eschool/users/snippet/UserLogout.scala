@@ -5,14 +5,13 @@ import xml.NodeSeq
 import net.liftweb.common._
 import net.liftweb.http.S
 
-import eschool.users.model.IUser
-import eschool.users.model.jdo.User
+import eschool.users.model.User
 import net.liftweb.sitemap.Loc.Snippet
 
 object UserLogout {
   def render(in: NodeSeq) = {
-    IUser.getCurrent match {
-      case Full(u) => IUser.logout()
+    User.getCurrent match {
+      case Full(u) => User.logout()
       case _ => ()
     }
     S.redirectTo("/index")

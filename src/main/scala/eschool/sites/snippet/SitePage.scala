@@ -1,7 +1,7 @@
 package eschool.sites.snippet
 
 import eschool.sites.model.{Page, Site}
-import eschool.users.model.jdo.User
+import eschool.users.model.User
 import net.liftweb.common.{Box, Empty}
 import xml.NodeSeq
 import net.liftweb.util._

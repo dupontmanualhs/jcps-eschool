@@ -6,8 +6,7 @@ import http._
 import sitemap._
 import net.liftweb.sitemap.Loc.Hidden
 import eschool.{courses, sites, users}
-import users.model.IUser
-import users.model.jdo.User
+import users.model.User
 import net.liftweb.db.DB
 import net.liftweb.db.StandardDBVendor
 import net.liftweb.util.Props
@@ -60,7 +59,7 @@ class Boot {
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
 
     // What is the function to test if a user is logged in?
-    LiftRules.loggedInTest = Full(() => IUser.loggedIn_?)
+    LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
     // Use HTML5 for rendering
     LiftRules.htmlProperties.default.set((r: Req) =>

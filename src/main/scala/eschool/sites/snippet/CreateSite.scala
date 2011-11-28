@@ -2,8 +2,7 @@ package eschool.sites.snippet
 
 import net.liftweb.json.JsonDSL._
 import bootstrap.liftweb.DataStore
-import eschool.users.model.IUser
-import eschool.users.model.jdo.User
+import eschool.users.model.User
 import net.liftweb.util.FieldError
 import eschool.sites.model.{QSite, Site}
 import collection.immutable.ListMap
@@ -11,12 +10,12 @@ import net.liftweb.http.{S, LiftScreen}
 import xml.Text
 
 object CreateSite extends LiftScreen {
-  object user extends ScreenVar[User](IUser.getCurrentOrRedirect())
+  object user extends ScreenVar[User](User.getCurrentOrRedirect())
   val name = text("Site Name", "",
       valMinLen(1, "Name must be at least one character."),
       valMaxLen(80, "Name must be no more than 80 characters."),
       uniqueName _)
-  val path = text("Path: sites/%s/".format(user.getUsername), "",
+  val path = text("Path: sites/%s/".format(user.username), "",
       valMinLen(1, "Path segment must be at least one character."),
       valMaxLen(10, "Path segment must be no more than ten characters."),
       uniqueIdent _)

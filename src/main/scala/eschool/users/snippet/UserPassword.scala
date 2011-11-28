@@ -3,21 +3,20 @@ package eschool.users.snippet
 import net.liftweb.common._
 import net.liftweb.http.{S, LiftScreen}
 
-import eschool.users.model.IUser
-import eschool.users.model.jdo.User
+import eschool.users.model.User
 import net.liftweb.util.FieldError
 import xml.Text
 
 import bootstrap.liftweb.DataStore
 
 object UserPassword extends LiftScreen {
-  object user extends ScreenVar[User](IUser.getCurrentOrRedirect())
+  object user extends ScreenVar[User](User.getCurrentOrRedirect())
   val currentPswd = password("Current Password", "", checkCurrentPassword _)
   val newPswd = password("New Password", "", valMinLen(5, "The new password must be at least 5 characters."))
   val reEnterPswd = password("Re-enter New Password", "")
 
   def checkCurrentPassword(s: String): List[FieldError] = {
-    IUser.authenticate(user, s) match {
+    User.authenticate(user, s) match {
       case Full(user) => Nil
       case _ => Text("The current password is incorrect.")
     }
@@ -30,7 +29,7 @@ object UserPassword extends LiftScreen {
   override def validations = checkNewPasswordsMatch _ +: super.validations
 
   def finish() {
-    user.setPassword(newPswd.get)
+    user.password.set(newPswd.get)
     DataStore.pm.makePersistent(user)
     Text("New password set.")
   }

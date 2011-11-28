@@ -3,14 +3,20 @@ package eschool.utils
 import scala.collection.JavaConversions._
 import org.apache.poi.ss.usermodel.{Sheet, Row, WorkbookFactory}
 import xml.{Node, Elem, XML}
-import eschool.users.model.jdo._
-import eschool.courses.model._
+import eschool.users.model.{Student, Teacher, User}
 import bootstrap.liftweb.{Boot, DataStore}
 import org.joda.time.LocalDate
 import eschool.courses.model._
 import net.liftweb.common._
 import org.joda.time.format.DateTimeFormat
 import jdohelpers.Gender
+import eschool.courses.model.QPeriod
+import eschool.users.model.QTeacher
+import eschool.courses.model.Section
+import eschool.courses.model.TeacherAssignment
+import eschool.courses.model.QSection
+import eschool.users.model.QStudent
+import eschool.courses.model.StudentEnrollment
 
 object ManualData {
   val netIdMap: Map[String, String] = buildNetIdMap()

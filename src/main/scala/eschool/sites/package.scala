@@ -2,8 +2,7 @@ package eschool
 
 import eschool.utils.Helpers.getTemplate
 import bootstrap.liftweb.DataStore
-import users.model.IUser
-import users.model.jdo.User
+import users.model.User
 import sites.model.{QSite, Site, Page}
 import net.liftweb.common.Box.option2Box
 
@@ -15,25 +14,25 @@ import net.liftweb.sitemap.Loc._
 
 package object sites {
   val siteLoc = new DataLoc[User]("Sites", new Link[User](List("sites")),
-      "Sites", Empty, If(() => IUser.loggedIn_?, "You must log in to access your sites.")) {
-    override def overrideValue: Box[User] = IUser.getCurrent
+      "Sites", Empty, If(() => User.loggedIn_?, "You must log in to access your sites.")) {
+    override def overrideValue: Box[User] = User.getCurrent
     override def calcTemplate: Box[NodeSeq] = Templates(List("sites", "list"))
   }
 
   def menus: Array[ConvertableToMenu] = Array(
     Menu(siteLoc,
       Menu.i("Create Site") / "sites" / "createSite" >>
-        Hidden >> If(() => IUser.loggedIn_?, "You must log in to create a new site."),
+        Hidden >> If(() => User.loggedIn_?, "You must log in to create a new site."),
       Menu.params[(User, Site, Page)]("Edit Page", "Edit Page",
         parseUserSiteAndPage _, encodeUserSiteAndPage _) / "sites" / "edit" / * / * / * / ** >>
         Template(() => getTemplate(List("sites", "editPage"))) >>
-        Hidden >> If(() => IUser.loggedIn_?, "You must be logged in to edit pages."),
+        Hidden >> If(() => User.loggedIn_?, "You must be logged in to edit pages."),
       Menu.params[(User, Site, Option[Page])]("Add Page", "Add Page",
         parseUserSiteAndMaybePage _, encodeUserSiteAndMaybePage _) / "sites" / "add" / * / * / ** >>
         Template(() => getTemplate(List("sites", "addPage"))) >>
-        Hidden >> If(() => IUser.loggedIn_?, "You must be logged in to add pages.")),
+        Hidden >> If(() => User.loggedIn_?, "You must be logged in to add pages.")),
     Menu.param[User]("User's Sites", "User's Sites",
-        parseUser _, _.getUsername) / "sites" / * >>
+        parseUser _, _.username) / "sites" / * >>
         Template(() => getTemplate(List("sites", "list"))) >>
         Hidden,
     Menu.params[(User, Site)]("Page Map", "Page Map",
@@ -46,7 +45,7 @@ package object sites {
         Hidden
   )
 
-  def parseUser(name: String): Box[User] = IUser.getByUsername(name) match {
+  def parseUser(name: String): Box[User] = User.getByUsername(name) match {
     case Empty => Failure("There is no user with the username " + name)
     case other => other 
   }
@@ -67,7 +66,7 @@ package object sites {
 
   def encodeUserAndSite(userAndSite: (User, Site)): List[String] = {
     val (user: User, site: Site) = userAndSite
-    List(user.getUsername, site.ident)
+    List(user.username, site.ident)
   }
 
   def parseUserSiteAndPage(userSiteAndPage: List[String]): Box[(User, Site, Page)] = {

@@ -1,6 +1,5 @@
 package eschool.users.model
 
-import jdo.User
 import jdohelpers.Gender
 import bootstrap.liftweb.DataStore
 
