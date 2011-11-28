@@ -8,14 +8,13 @@ import eschool.sites.model.IPage
 import eschool.sites.model.jdo.{Page, Site}
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.util.Helpers._
-import eschool.sites.model.ISite
 
 class PageMap(userAndSite: (User, Site)) {
   def render(in: NodeSeq): NodeSeq = {
     val (owner: User, site: Site) = userAndSite
     val currentUser_? = IUser.getCurrent.isDefined && IUser.getCurrent.get.getId == owner.getId
     val siteName = site.getName
-    val ownerDisplayName = IUser.displayName(owner)
+    val ownerDisplayName = owner.displayName
     val linkOtherSites = <a href={ "/sites/%s".format(owner.getUsername) }>other sites</a>
     def insertCommand(pathToPage: String, command: String): String = {
       val prefix = "/sites"
@@ -50,7 +49,7 @@ class PageMap(userAndSite: (User, Site)) {
       case _ => NodeSeq.Empty
     }
     val pageList =
-      <ul>{ ISite.getChildren(site).flatMap {
+      <ul>{ site.getChildren.flatMap {
         (page: Page) => {
           pageHierarchy("/sites/%s/%s/%s".format(owner.getUsername, site.getIdent, page.getIdent), Full(page))
         }}

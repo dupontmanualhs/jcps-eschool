@@ -17,10 +17,10 @@ class SiteList(user: User) {
     val header: String = (if (currentUser_?) {
       "Your"
     } else {
-      IUser.displayName(user) + "'s"
+      user.displayName + "'s"
     }) + " Sites"
     val sites = DataStore.pm.query[Site].filter(QSite.candidate.owner.eq(user)).executeList()
-    val userHasSites: String = (if (currentUser_?) "You have" else IUser.displayName(user) + " has") +
+    val userHasSites: String = (if (currentUser_?) "You have" else user.displayName + " has") +
       (if (sites.isEmpty) " no sites." else " the following " + pluralizeInformal(sites.length, "site") + ":")
     val listOfSites = if (sites.isEmpty) {
       <br/>

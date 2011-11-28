@@ -1,7 +1,7 @@
-package eschool.courses.model
+/*package eschool.courses.model
 
 import bootstrap.liftweb.DataStore
-import eschool.courses.model.jdo.{QDepartment, Department}
+import eschool.courses.model.jdo._
 
 
 object IDepartment {
@@ -15,4 +15,4 @@ object IDepartment {
       }
     }
   }
-}
+}*/

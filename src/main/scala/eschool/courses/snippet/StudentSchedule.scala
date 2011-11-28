@@ -8,14 +8,12 @@ import eschool.courses.model._
 import eschool.courses.model.jdo._
 import bootstrap.liftweb.DataStore
 import eschool.utils.Helpers.mkNodeSeq
-import eschool.users.model.IUser
 
 class StudentSchedule(student: Student) {
   // TODO: handle current term correctly
-  val pm = 
   val assignments: List[StudentEnrollment] = {
     val cand = QStudentEnrollment.candidate
-    DataStore.pmVar.get.query[StudentEnrollment].filter(cand.student.eq(student).and(cand.term.eq(ITerm.current))).executeList()
+    DataStore.pm.query[StudentEnrollment].filter(cand.student.eq(student).and(cand.term.eq(ITerm.current))).executeList()
   }
   val sections: List[Section] = assignments.map(_.getSection)
   val periods: List[Period] = DataStore.pm.query[Period].orderBy(QPeriod.candidate.order.asc).executeList()
@@ -29,7 +27,7 @@ class StudentSchedule(student: Student) {
   }
 
   def render = //".scheduleTitlePlaceholder" #> scheduleTitle() &
-      ".name" #> IUser.displayName(student.getUser) &
+      ".name" #> student.getUser.displayName &
       ".list *" #> periods.map(sectionsForPeriod(_))
 
 }

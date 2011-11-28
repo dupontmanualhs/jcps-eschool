@@ -66,7 +66,7 @@ object ManualData {
         println("name: %s, magnet: %s, gender: %s".format(username, teamName, gender))
       }
        // create User
-      val user = new User(username, first, middle, last, null, gender, null, "temp123")
+      val user = new User(username, first, Some(middle), last, None, gender, null, "temp123")
       DataStore.pm.makePersistent(user)
       if (debug) println("user saved")
       // create Student
@@ -95,7 +95,7 @@ object ManualData {
         println("#: %s, id: %s".format(personId, stateId))
         println("name: %s, gender: %s".format(username, gender))
       }
-      val user = new User(username, first, middle, last, null, gender, null, "temp123")
+      val user = new User(username, first, Some(middle), last, None, gender, null, "temp123")
       DataStore.pm.makePersistent(user)
       if (debug) println("user saved")
       val dbTeacher = new Teacher(user, personId, stateId)

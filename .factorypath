@@ -1,2 +1,7 @@
 <factorypath>
+    <factorypathentry kind="VARJAR" id="Ivy2 Cache/cache/org.datanucleus/datanucleus-api-jdo/jars/datanucleus-api-jdo-3.0.3.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="Ivy2 Cache/cache/org.datanucleus/datanucleus-core/jars/datanucleus-core-3.0.3.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="Ivy2 Cache/cache/org.datanucleus/datanucleus-jdo-query/jars/datanucleus-jdo-query-3.0.1.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="Ivy2 Cache/cache/javax.jdo/jdo-api/jars/jdo-api-3.0.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="EXTJAR" id="/opt/eclipse/configuration/org.eclipse.osgi/bundles/423/1/.cp/lib/scala-library.jar" enabled="true" runInBatchMode="false"/>
 </factorypath>
