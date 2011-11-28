@@ -4,8 +4,7 @@ import xml.NodeSeq
 import net.liftweb.http.{S, RequestVar}
 import eschool.users.model.IUser
 import eschool.users.model.jdo.User
-import eschool.sites.model.IPage
-import eschool.sites.model.jdo.{Page, Site}
+import eschool.sites.model.{Page, Site}
 import net.liftweb.common.{Full, Empty, Box}
 import net.liftweb.util.Helpers._
 
@@ -13,7 +12,7 @@ class PageMap(userAndSite: (User, Site)) {
   def render(in: NodeSeq): NodeSeq = {
     val (owner: User, site: Site) = userAndSite
     val currentUser_? = IUser.getCurrent.isDefined && IUser.getCurrent.get.getId == owner.getId
-    val siteName = site.getName
+    val siteName = site.name
     val ownerDisplayName = owner.displayName
     val linkOtherSites = <a href={ "/sites/%s".format(owner.getUsername) }>other sites</a>
     def insertCommand(pathToPage: String, command: String): String = {
@@ -22,8 +21,8 @@ class PageMap(userAndSite: (User, Site)) {
     }
     def pageHierarchy(pathToPage: String, maybePage: Box[Page]): NodeSeq = maybePage match {
       case Full(page) => {
-        val subPages = IPage.getChildren(page)
-        <li><a href={ pathToPage }>{ page.getName }</a>
+        val subPages = page.children
+        <li><a href={ pathToPage }>{ page.name }</a>
           { if (currentUser_?) {
             <a href={ insertCommand(pathToPage, "edit") }>(edit)</a>
           } else {
@@ -34,7 +33,7 @@ class PageMap(userAndSite: (User, Site)) {
           } else {
             <ul>{ subPages.flatMap {
               (page: Page) => {
-                pageHierarchy("%s/%s".format(pathToPage, page.getIdent), Full(page))
+                pageHierarchy("%s/%s".format(pathToPage, page.ident), Full(page))
               }
             } }
             { if (currentUser_?) {
@@ -49,13 +48,13 @@ class PageMap(userAndSite: (User, Site)) {
       case _ => NodeSeq.Empty
     }
     val pageList =
-      <ul>{ site.getChildren.flatMap {
+      <ul>{ site.children.flatMap {
         (page: Page) => {
-          pageHierarchy("/sites/%s/%s/%s".format(owner.getUsername, site.getIdent, page.getIdent), Full(page))
+          pageHierarchy("/sites/%s/%s/%s".format(owner.getUsername, site.ident, page.ident), Full(page))
         }}
       }
       { if (currentUser_?) {
-        <li><a href={ "/sites/add/%s/%s".format(owner.getUsername, site.getIdent) }>Add Page</a></li>
+        <li><a href={ "/sites/add/%s/%s".format(owner.getUsername, site.ident) }>Add Page</a></li>
       } else {
         NodeSeq.Empty
       }}</ul>

@@ -2,7 +2,6 @@ package eschool.sites.model
 
 import eschool.users.model.IUser
 import eschool.users.model.jdo.User
-import eschool.sites.model.jdo.{Page, Site}
 import collection.immutable.ListMap
 import scala.xml.NodeSeq
 import bootstrap.liftweb.DataStore
@@ -26,7 +25,7 @@ object SiteData {
       </p>
     )
     val homepage = new Page("Home")
-    IPage.setContent(homepage, hpContent)
+    homepage.content = hpContent
     DataStore.pm.makePersistent(homepage)
     val ahContent: NodeSeq = (
       <h2>Bob Smith - The Professional</h2>
@@ -38,22 +37,22 @@ object SiteData {
       </p>
     )
     val altHome = new Page("Alternative Home")
-    IPage.setContent(altHome, ahContent)
+    altHome.content = ahContent
     DataStore.pm.makePersistent(altHome)
-    bobPersonal.setChildren(List(homepage, altHome))
+    bobPersonal.children = List(homepage, altHome)
     val aliceContent = (
       <h2>Alice</h2>
       <p>Alice plays goalie.</p>
     )
     val alice = new Page("Alice")
-    IPage.setContent(alice, aliceContent)
+    alice.content = aliceContent
     DataStore.pm.makePersistent(alice)
     val clarissaContent = (
       <h2>Clarissa</h2>
       <p>Clarissa explains it all.</p>
     )
     val clarissa = new Page("Clarissa")
-    IPage.setContent(clarissa, clarissaContent)
+    clarissa.content = clarissaContent
     DataStore.pm.makePersistent(clarissa)
     val rosterContent = (
       <h2>Roster</h2>
@@ -66,8 +65,8 @@ object SiteData {
       </p>
     )
     val roster = new Page("Roster")
-    IPage.setContent(roster, rosterContent)
-    IPage.setChildren(roster, List(alice, clarissa))
+    roster.content = rosterContent
+    roster.children = List(alice, clarissa)
     DataStore.pm.makePersistent(roster)
     val schedContent = (
       <h2>Schedule</h2>
@@ -78,7 +77,7 @@ object SiteData {
       </table>
     )
     val sched = new Page("Schedule")
-    IPage.setContent(sched, schedContent)
+    sched.content = schedContent
     DataStore.pm.makePersistent(sched)
     val soccerHomeContent = (
       <h2>Girls Soccer</h2>
@@ -90,21 +89,21 @@ object SiteData {
       </p>
     )
     val soccerHome = new Page("Soccer Home")
-    IPage.setContent(soccerHome, soccerHomeContent)
+    soccerHome.content = soccerHomeContent
     DataStore.pm.makePersistent(soccerHome)
-    soccerHome.setChildren(List(roster, sched))
+    soccerHome.children = List(roster, sched)
     val bobSoccer: Site = new Site(bob, "Bob's Soccer Site", "soccer")
-    bobSoccer.setChildren(List(soccerHome))
+    bobSoccer.children = List(soccerHome)
     DataStore.pm.makePersistent(bobSoccer)
     val mary = IUser.getByUsername("mjones02").open_!
     val maryHomepage = new Page("Mary's Homepage")
-    IPage.setContent(maryHomepage,
+    maryHomepage.content = (
       <h1>Mary</h1>
       <p>Mary only has one page and it doesn't have much on it.</p>
     )
     DataStore.pm.makePersistent(maryHomepage)
     val marysSite = new Site(mary, "Mary's Site", "site")
-    marysSite.setChildren(List(maryHomepage))
+    marysSite.children = List(maryHomepage)
     DataStore.pm.makePersistent(marysSite)
     DataStore.pm.commitTransaction()
   }

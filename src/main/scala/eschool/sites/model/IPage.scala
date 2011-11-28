@@ -1,12 +1,6 @@
 package eschool.sites.model
 
-import scala.collection.JavaConverters._
-
-import net.liftweb.common._
-import bootstrap.liftweb.DataStore
-import eschool.sites.model.jdo.{QPage, Page, Site}
-import scala.xml.NodeSeq
-import eschool.utils.Helpers
+import eschool.sites.model.jdo.Page
 
 object IPage {
   /**
@@ -18,11 +12,11 @@ object IPage {
       def followPath(current: Option[Page], path: List[String]): Box[Page] = current match {
         case Some(page) => path match {
           case Nil => Full(page)
-          case next :: rest => followPath(getChildren(page).find(_.getIdent == next), rest)
+          case next :: rest => followPath(page.children.find(_.ident == next), rest)
         }
         case _ => Failure("There is no page with the given path.")
       }
-      val topPage: Option[Page] = site.getChildren.find(_.getIdent == topPageIdent)
+      val topPage: Option[Page] = site.children.find(_.ident == topPageIdent)
       followPath(topPage, restOfPath)
     }
   }
@@ -73,38 +67,5 @@ object IPage {
         errorIfSome(possPage, "name")
       }
     }
-  }
-  
-  def setContent(page: Page, html: NodeSeq) {
-    page.setContent(html.toString)
-  }
-  
-  def getContent(page: Page): NodeSeq = {
-    Helpers.string2nodeSeq(page.getContent())
-  }
-  
-  def getChildren(page: Page): List[Page] = {
-    page.getChildren.asScala.toList
-  }
-  
-  def setChildren(page: Page, children: List[Page]) {
-    page.setChildren(children.asJava)
-  }
-  
-  def getParent(page: Page): Either[Site, Page] = {
-	if (page.getParentSite() != null) {
-	  Left(page.getParentSite());
-	} else if (page.getParentPage() != null) {
-	  Right(page.getParentPage());
-	} else {
-	  throw new Exception("Page with id %s does not have a parent!".format(page.getId));
-	}
-  }
-  
-  def getPath(page: Page, suffix: List[String] = Nil): List[String] = {
-    getParent(page) match {
-      case Left(site) => site.getOwner.getUsername :: site.getIdent :: page.getIdent :: suffix
-      case Right(parentPage) => getPath(parentPage, page.getIdent :: suffix)
-	}
   }
 }

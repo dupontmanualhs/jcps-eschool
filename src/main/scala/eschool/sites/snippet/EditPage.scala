@@ -2,8 +2,7 @@ package eschool.sites.snippet
 
 import eschool.users.model.IUser
 import eschool.users.model.jdo.User
-import eschool.sites.model.IPage
-import eschool.sites.model.jdo.{Page, Site}
+import eschool.sites.model.{Page, Site}
 import net.liftweb.util.FieldError
 import net.liftweb.common.{Box, Full}
 import net.liftweb.http.S
@@ -19,14 +18,14 @@ class EditPage(userSiteAndPage: (User, Site, Page)) extends EditorScreen {
     S.redirectTo(S.referer openOr "/index")
   }
 
-  val name = text("Page Name", page.getName,
+  val name = text("Page Name", page.name,
       validatePage _,
-      (s: String) => boxStrToListFieldError(IPage.uniqueName(IPage.getParent(page), s)))
-  val content = mceTextarea("Content", page.getContent, 30, 80)
+      (s: String) => boxStrToListFieldError(Page.uniqueName(page.parent, s)))
+  val content = mceTextarea("Content", page.content.toString, 30, 80)
 
   def finish() {
-    page.setName(name.get)
-    page.setContent(content.get)
+    page.name = name.get
+    page.content = content.get
     DataStore.pm.makePersistent(page)
   }
 }

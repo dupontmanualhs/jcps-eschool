@@ -5,7 +5,7 @@ import bootstrap.liftweb.DataStore
 import eschool.users.model.IUser
 import eschool.users.model.jdo.User
 import net.liftweb.util.FieldError
-import eschool.sites.model.jdo.{QSite, Site}
+import eschool.sites.model.{QSite, Site}
 import collection.immutable.ListMap
 import net.liftweb.http.{S, LiftScreen}
 import xml.Text

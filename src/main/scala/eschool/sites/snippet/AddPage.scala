@@ -3,8 +3,7 @@ package eschool.sites.snippet
 import scala.collection.JavaConversions._
 import scala.collection.immutable.ListMap
 
-import eschool.sites.model.IPage
-import eschool.sites.model.jdo.{Page, Site}
+import eschool.sites.model.{Page, Site}
 import eschool.users.model.IUser
 import eschool.users.model.jdo.User
 import net.liftweb.util.FieldError
@@ -28,8 +27,8 @@ class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorSc
   }
   
   val pathToParent: List[String] = maybePage match {
-    case Some(page) => "sites" :: IPage.getPath(page)
-    case None => "sites" :: user.getUsername :: site.getIdent :: Nil
+    case Some(page) => "sites" :: page.path()
+    case None => "sites" :: user.getUsername :: site.ident :: Nil
   }
   val parent: Either[Site, Page] = maybePage match {
     case Some(page) => Right(page)
@@ -38,22 +37,22 @@ class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorSc
 
   val ident = text("Page Path: " + pathToParent.mkString("/", "/", "/"), "",
       validateIdent _,
-      (s: String) => boxStrToListFieldError(IPage.uniqueIdent(parent, s)))
+      (s: String) => boxStrToListFieldError(Page.uniqueIdent(parent, s)))
   val name = text("Page Name", "",
       validatePage _,
-      (s: String) => boxStrToListFieldError(IPage.uniqueName(parent, s)))
+      (s: String) => boxStrToListFieldError(Page.uniqueName(parent, s)))
   val content = mceTextarea("Content", "", 30, 80)
 
   def finish() {
 	val newPage: Page = new Page()
-	newPage.setName(name.get)
-    newPage.setContent(content.get)
+	newPage.name = name.get
+    newPage.content = content.get
     parent match {
       case Left(site: Site) => {
-        site.setChildren(site.getChildren :+ newPage)
+        site.children = site.children :+ newPage
       }
       case Right(page: Page) => {
-    	page.setChildren(page.getChildren :+ newPage)
+    	page.children = page.children :+ newPage
       }
     }
     DataStore.pm.makePersistent(newPage)

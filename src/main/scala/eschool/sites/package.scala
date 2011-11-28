@@ -4,8 +4,7 @@ import eschool.utils.Helpers.getTemplate
 import bootstrap.liftweb.DataStore
 import users.model.IUser
 import users.model.jdo.User
-import sites.model.IPage
-import sites.model.jdo.{QSite, Site, Page}
+import sites.model.{QSite, Site, Page}
 import net.liftweb.common.Box.option2Box
 
 import net.liftweb.sitemap.{*, **, Menu, ConvertableToMenu}
@@ -68,13 +67,13 @@ package object sites {
 
   def encodeUserAndSite(userAndSite: (User, Site)): List[String] = {
     val (user: User, site: Site) = userAndSite
-    List(user.getUsername, site.getIdent)
+    List(user.getUsername, site.ident)
   }
 
   def parseUserSiteAndPage(userSiteAndPage: List[String]): Box[(User, Site, Page)] = {
     userSiteAndPage match {
       case username :: siteIdent :: pagePath => parseUserAndSite(List(username, siteIdent)) match {
-        case Full((user, site)) => IPage.fromSiteAndPath(site, pagePath) match {
+        case Full((user, site)) => Page.fromSiteAndPath(site, pagePath) match {
           case Full(page) => Full((user, site, page))
           case _ => Failure("There is no page with the given path.")
         }
@@ -86,7 +85,7 @@ package object sites {
 
   def encodeUserSiteAndPage(userSiteAndPage: (User, Site, Page)): List[String] = {
     val (user: User, site: Site, page: Page) = userSiteAndPage
-    IPage.getPath(page)
+    page.path()
   }
 
   def parseUserSiteAndMaybePage(userSiteAndMaybePage: List[String]): Box[(User, Site, Option[Page])] = {
@@ -94,7 +93,7 @@ package object sites {
       case username :: siteIdent :: pagePath => parseUserAndSite(List(username, siteIdent)) match {
         case Full((user, site)) => pagePath match {
           case Nil => Full((user, site, None))
-          case _ => IPage.fromSiteAndPath(site, pagePath) match {
+          case _ => Page.fromSiteAndPath(site, pagePath) match {
             case Full(page) => Full((user, site, Some(page)))
             case _ => Failure("There is no page with the given path.")
           }
