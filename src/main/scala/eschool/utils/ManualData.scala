@@ -1,15 +1,13 @@
 package eschool.utils
 
-import java.sql.Date
-
 import scala.collection.JavaConversions._
 import org.apache.poi.ss.usermodel.{Sheet, Row, WorkbookFactory}
 import xml.{Node, Elem, XML}
 import eschool.users.model.jdo._
 import eschool.courses.model._
 import bootstrap.liftweb.{Boot, DataStore}
+import org.joda.time.LocalDate
 import eschool.courses.model._
-import eschool.courses.model.jdo._
 import net.liftweb.common._
 import org.joda.time.format.DateTimeFormat
 import jdohelpers.Gender
@@ -30,9 +28,9 @@ object ManualData {
   def createYearsAndTerms(debug: Boolean) {
     val acadYear = new AcademicYear("2011-12")
     DataStore.pm.makePersistent(acadYear)
-    val fall2011 = new Term("Fall 2011", acadYear, Date.valueOf("2011-08-17"), Date.valueOf("2012-12-16"))
+    val fall2011 = new Term("Fall 2011", acadYear, new LocalDate(2011, 8, 17), new LocalDate(2012, 12, 16))
     DataStore.pm.makePersistent(fall2011)
-    val spring2012 = new Term("Spring2012", acadYear, Date.valueOf("2012-01-03"), Date.valueOf("2012-05-25"))
+    val spring2012 = new Term("Spring2012", acadYear, new LocalDate(2012, 1, 3), new LocalDate(2012, 5, 25))
     DataStore.pm.makePersistent(spring2012)
     val periods: List[Period] = List(
         new Period("Red 1", 1), new Period("Red 2", 2), new Period("Red 3", 3), new Period("Red 4", 4),
@@ -112,7 +110,7 @@ object ManualData {
     courses foreach ((course: Node) => {
       val name = (course \ "@courseInfo.courseName").text
       val masterNumber = asIdNumber((course \ "@courseInfo.courseMasterNumber").text)
-      val dept = IDepartment.getOrCreate((course \ "@courseInfo.departmentName").text)
+      val dept = Department.getOrCreate((course \ "@courseInfo.departmentName").text)
       if (debug) println("%s, %s (%s)".format(name, masterNumber, dept))
       val dbCourse = new Course(name, masterNumber, dept)
       DataStore.pm.makePersistent(dbCourse)
@@ -132,7 +130,7 @@ object ManualData {
       val courseMasterNumber = asIdNumber((section \ "@courseInfo.courseMasterNumber").text)
       val course = DataStore.pm.query[Course].filter(QCourse.candidate.masterNumber.eq(courseMasterNumber)).executeOption().get
       val roomNum = (section \ "@sectionInfo.roomName").text
-      val room = IRoom.getOrCreate(roomNum)
+      val room = Room.getOrCreate(roomNum)
       val termStart = (section \ "@sectionSchedule.termStart").text
       val termEnd = (section \ "@sectionSchedule.termEnd").text
       val terms: List[Term] = (termStart, termEnd) match {
@@ -170,9 +168,9 @@ object ManualData {
       val studentNumber = asIdNumber((enrollment \ "@student.studentNumber").text)
       val student = DataStore.pm.query[Student].filter(QStudent.candidate.studentNumber.eq(studentNumber)).executeOption().get
       if (debug) println("Adding student #%s to section #%s".format(studentNumber, sectionId))
-      val startDate = asDate((enrollment \ "@roster.startDate").text)
-      val endDate = asDate((enrollment \ "@roster.endDate").text)
-      ISection.getTerms(section) foreach ((term: Term) => {
+      val startDate = asLocalDate((enrollment \ "@roster.startDate").text)
+      val endDate = asLocalDate((enrollment \ "@roster.endDate").text)
+      asScalaSet[Term](section.terms) foreach ((term: Term) => {
         val dbEnrollment = new StudentEnrollment(student, section, term, startDate, endDate)
         DataStore.pm.makePersistent(dbEnrollment)
       })
@@ -180,11 +178,11 @@ object ManualData {
     DataStore.pm.commitTransaction()
   }
 
-  def asDate(date: String): Date = {
+  def asLocalDate(date: String): LocalDate = {
     val format = DateTimeFormat.forPattern("MM/dd/yyyy")
     date match {
       case "" => null
-      case _ =>  new Date(format.parseDateTime(date).toDate().getTime())
+      case _ =>  format.parseDateTime(date).toLocalDate
     }
   }
 
