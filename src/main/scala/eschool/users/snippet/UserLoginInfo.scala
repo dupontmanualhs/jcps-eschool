@@ -10,7 +10,7 @@ import eschool.users.model.jdo.User
 object UserLoginInfo {
   def render(in: NodeSeq) = {
     IUser.getCurrent match {
-      case Full(u) => <span>Logged in as: { u.displayName }
+      case Full(u) => <span>Logged in as: { IUser.displayName(u) }
                             (<a href="/users/logout">Logout</a>)</span>
       case _ => <span><a href="/users/login">Login</a></span>
     }

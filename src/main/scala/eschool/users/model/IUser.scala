@@ -5,11 +5,43 @@ import net.liftweb.http.{RequestVar, SessionVar}
 import bootstrap.liftweb.DataStore
 import net.liftweb.http.S
 
+import jdohelpers.Email
 import jdo.{QUser, User}
 
 object IUser {
   private object currentId extends SessionVar[Box[Long]](Empty)
   private object currentUser extends RequestVar[Box[User]](fetchUser)
+  
+  def getMiddle(user: User): Option[String] = {
+    user.getMiddle match {
+      case null => None
+      case s: String => Some(s)
+    }
+  }
+  
+  def getPreferred(user: User): Option[String] = {
+    user.getPreferred match {
+      case null => None
+      case s: String => Some(s)
+    }
+  }
+  
+  def getEmail(user: User): Option[String] = {
+    user.getEmail match {
+      case null => None
+      case email: Email => Some(email.get)
+    }
+  }
+  
+  def displayName(user: User): String = {
+    val pref = getPreferred(user)
+    (if (pref.isDefined) pref.get else user.getFirst) + " " + user.getLast
+  }
+
+  def formalName(user: User): String = {
+    val mid = getMiddle(user)
+    user.getLast + ", " + user.getFirst + (if (mid.isDefined) (" " + mid.get) else "")
+  }
   
   def fetchUser(): Box[User] = {
     currentId.get match {

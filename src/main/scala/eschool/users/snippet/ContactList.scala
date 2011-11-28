@@ -5,16 +5,17 @@ import Helpers._
 import eschool.users.model.jdo.{QUser, User}
 import xml.NodeSeq
 import bootstrap.liftweb.DataStore
+import eschool.users.model.IUser
 
 object ContactList {
   def render = ".userRow *" #> allUsers().map(renderUser(_))
 
   def renderUser(user: User) = {
-    val email = user.getEmail match {
+    val email = IUser.getEmail(user) match {
       case None => NodeSeq.Empty
       case Some(address)  => <a href={ "mailto:" + address }>{ address }</a>
     }
-    ".name *" #> user.formalName &
+    ".name *" #> IUser.formalName(user) &
     ".email *" #> email
   }
 

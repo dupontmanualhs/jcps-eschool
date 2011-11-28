@@ -1,8 +1,8 @@
-/*package eschool.courses.model
+package eschool.courses.model
 
 import bootstrap.liftweb.DataStore
 
-import jdo.{QRoom, Room}
+import eschool.courses.model.jdo.{QRoom, Room}
 
 object IRoom {
   def getOrCreate(name: String): Room = {
@@ -15,4 +15,4 @@ object IRoom {
       }
     }
   }
-}*/
+}

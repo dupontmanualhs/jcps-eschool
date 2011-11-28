@@ -10,6 +10,7 @@ import scala.xml.Text
 import eschool.utils.Helpers.mkNodeSeq
 import eschool.courses.model.ISection
 import eschool.courses.model.ITerm
+import eschool.users.model.IUser
 
 class TeacherSchedule(teacher: Teacher) {
   // TODO: handle current term correctly
@@ -28,7 +29,7 @@ class TeacherSchedule(teacher: Teacher) {
   }
 
   def render = //".scheduleTitlePlaceholder" #> scheduleTitle() &
-      ".name" #> teacher.getUser.displayName &
+      ".name" #> IUser.displayName(teacher.getUser) &
       ".list *" #> periods.map(sectionsForPeriod(_))
 
 }

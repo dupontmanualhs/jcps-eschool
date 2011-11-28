@@ -22,7 +22,7 @@ object IPage {
         }
         case _ => Failure("There is no page with the given path.")
       }
-      val topPage: Option[Page] = site.getChildren.find(_.getIdent == topPageIdent)
+      val topPage: Option[Page] = ISite.getChildren(site).find(_.getIdent == topPageIdent)
       followPath(topPage, restOfPath)
     }
   }
