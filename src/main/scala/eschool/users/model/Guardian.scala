@@ -5,8 +5,6 @@ import javax.jdo.annotations._
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
-import eschool.users.model.jdo.Perspective;
-
 @PersistenceCapable
 class Guardian extends Perspective {
   private[this] var _children: java.util.Set[Student] = _

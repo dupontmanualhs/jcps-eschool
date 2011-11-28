@@ -6,8 +6,6 @@ import bootstrap.liftweb.DataStore
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
 
-import eschool.users.model.jdo.Perspective;
-
 @PersistenceCapable
 class Teacher extends Perspective {
   @Unique
