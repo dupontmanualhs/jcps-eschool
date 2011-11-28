@@ -6,7 +6,7 @@ import bootstrap.liftweb.DataStore
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
 
-@PersistenceCapable(detachable="true",identityType=IdentityType.APPLICATION)
+@PersistenceCapable
 class Term {
   @PrimaryKey
   @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
