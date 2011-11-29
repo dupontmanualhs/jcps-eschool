@@ -76,6 +76,8 @@ class ScalaPersistenceManager(val jpm: JDOPersistenceManager) {
   }
   
   def query[T: ClassManifest](): ScalaQuery[T] = ScalaQuery[T](jpm)
+  
+  def detachCopy[T: ClassManifest](obj: T): T = jpm.detachCopy(obj)
 }
 
 object ScalaPersistenceManager {

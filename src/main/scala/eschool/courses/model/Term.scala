@@ -5,8 +5,9 @@ import org.joda.time.{DateTime, LocalDate}
 import bootstrap.liftweb.DataStore
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
+import javax.jdo.JDOHelper
 
-@PersistenceCapable
+@PersistenceCapable(detachable="true")
 class Term {
   @PrimaryKey
   @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
@@ -42,10 +43,17 @@ class Term {
 }
 
 object Term {
-  def current: Term = {
+  lazy val current: Term = {
     val cand = QTerm.candidate
-    DataStore.pm.query[Term].filter(cand.name.eq("Fall 2011")).executeOption().get    
+    val term = DataStore.pm.query[Term].filter(cand.name.eq("Fall 2011")).executeOption().get
+    DataStore.pm.detachCopy(term)
   }
+  
+  /*def current: Term = {
+    println(JDOHelper.getObjectState(_current))
+    val cand = QTerm.candidate
+    DataStore.pm.query[Term].filter(cand.name.eq("Fall 2011")).executeOption().get           
+  }*/
 }
 
 trait QTerm extends PersistableExpression[Term] {
