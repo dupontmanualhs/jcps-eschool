@@ -1,11 +1,11 @@
 package eschool
 
 import eschool.utils.Helpers.getTemplate
+import bootstrap.liftweb.DataStore
 import users.model.User
-import sites.model.{Site, Page}
+import sites.model.{QSite, Site, Page}
 import net.liftweb.common.Box.option2Box
 
-import com.foursquare.rogue.Rogue._
 import net.liftweb.sitemap.{*, **, Menu, ConvertableToMenu}
 import xml.NodeSeq
 import net.liftweb.http.{RedirectResponse, Templates, S}
@@ -32,7 +32,7 @@ package object sites {
         Template(() => getTemplate(List("sites", "addPage"))) >>
         Hidden >> If(() => User.loggedIn_?, "You must be logged in to add pages.")),
     Menu.param[User]("User's Sites", "User's Sites",
-        parseUser _, _.username.get) / "sites" / * >>
+        parseUser _, _.username) / "sites" / * >>
         Template(() => getTemplate(List("sites", "list"))) >>
         Hidden,
     Menu.params[(User, Site)]("Page Map", "Page Map",
@@ -45,16 +45,19 @@ package object sites {
         Hidden
   )
 
-  def parseUser(name: String): Box[User] = User where (_.username eqs name) get() match {
-    case Some(user) => Full(user)
-    case _ => Failure("There is no user with the username " + name)
+  def parseUser(name: String): Box[User] = User.getByUsername(name) match {
+    case Empty => Failure("There is no user with the username " + name)
+    case other => other 
   }
 
   def parseUserAndSite(userAndSite: List[String]): Box[(User, Site)] = userAndSite match {
     case username :: siteIdent :: Nil => parseUser(username) match {
-      case Full(user) => Site where (_.owner eqs user.id.get) and (_.ident eqs siteIdent) get() match {
-        case Some(site) => Full((user, site))
-        case _ => Failure("There is no site with the name " + siteIdent)
+      case Full(user) => {
+        val cand = QSite.candidate
+        DataStore.pm.query[Site].filter(cand.owner.eq(user).and(cand.ident.eq(siteIdent))).executeOption() match {
+          case Some(site) => Full((user, site))
+          case _ => Failure("There is no site with the name " + siteIdent)
+        }
       }
       case other => other.asInstanceOf[Box[(User, Site)]]
     }
@@ -63,7 +66,7 @@ package object sites {
 
   def encodeUserAndSite(userAndSite: (User, Site)): List[String] = {
     val (user: User, site: Site) = userAndSite
-    List(user.username.get, site.ident.get)
+    List(user.username, site.ident)
   }
 
   def parseUserSiteAndPage(userSiteAndPage: List[String]): Box[(User, Site, Page)] = {
@@ -81,7 +84,7 @@ package object sites {
 
   def encodeUserSiteAndPage(userSiteAndPage: (User, Site, Page)): List[String] = {
     val (user: User, site: Site, page: Page) = userSiteAndPage
-    page.getPath
+    page.path()
   }
 
   def parseUserSiteAndMaybePage(userSiteAndMaybePage: List[String]): Box[(User, Site, Option[Page])] = {

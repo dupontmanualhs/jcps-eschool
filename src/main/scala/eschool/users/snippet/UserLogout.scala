@@ -11,7 +11,7 @@ import net.liftweb.sitemap.Loc.Snippet
 object UserLogout {
   def render(in: NodeSeq) = {
     User.getCurrent match {
-      case Full(u) => u.logout()
+      case Full(u) => User.logout()
       case _ => ()
     }
     S.redirectTo("/index")

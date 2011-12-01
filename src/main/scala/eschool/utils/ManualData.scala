@@ -1,28 +1,28 @@
 package eschool.utils
 
-import record.Gender
 import scala.collection.JavaConversions._
 import org.apache.poi.ss.usermodel.{Sheet, Row, WorkbookFactory}
 import xml.{Node, Elem, XML}
-import com.mongodb.Mongo
 import eschool.users.model.{Student, Teacher, User}
-import bootstrap.liftweb.Boot
+import bootstrap.liftweb.{Boot, DataStore}
 import org.joda.time.LocalDate
 import eschool.courses.model._
-
-import com.foursquare.rogue.Rogue._
-
 import net.liftweb.common._
-import java.util.Date
 import org.joda.time.format.DateTimeFormat
-import org.bson.types.ObjectId
+import jdohelpers.Gender
+import eschool.courses.model.QPeriod
+import eschool.users.model.QTeacher
+import eschool.courses.model.Section
+import eschool.courses.model.TeacherAssignment
+import eschool.courses.model.QSection
+import eschool.users.model.QStudent
+import eschool.courses.model.StudentEnrollment
 
 object ManualData {
   val netIdMap: Map[String, String] = buildNetIdMap()
 
   def load(debug: Boolean = false) {
     new Boot().boot()
-    new Mongo().dropDatabase("eschool")
     createYearsAndTerms(debug)
     loadStudents(debug)
     loadTeachers(debug)
@@ -32,44 +32,24 @@ object ManualData {
   }
 
   def createYearsAndTerms(debug: Boolean) {
-    val acadYear = AcademicYear.createRecord.name("2011-12")
-    acadYear.save(true)
-    val fallStart = new LocalDate(2011, 8, 17).toDateTimeAtStartOfDay.toDate
-    val fallEnd = new LocalDate(2012, 12, 16).toDateTimeAtStartOfDay.toDate
-    val fall2011 = Term.createRecord.name("Fall 2011").year(acadYear.id.get).startDate(fallStart).endDate(fallEnd)
-    fall2011.save(true)
-    val springStart = new LocalDate(2012, 1, 3).toDateTimeAtStartOfDay.toDate
-    val springEnd = new LocalDate(2012, 5, 25).toDateTimeAtStartOfDay.toDate
-    val spring2012 = Term.createRecord.name("Spring 2012").year(acadYear.id.get).startDate(springStart).endDate(springEnd)
-    spring2012.save(true)
-    val red1 = Period.createRecord.name("Red 1").order(1)
-    red1.save(true)
-    val red2 = Period.createRecord.name("Red 2").order(2)
-    red2.save(true)
-    val red3 = Period.createRecord.name("Red 3").order(3)
-    red3.save(true)
-    val red4 = Period.createRecord.name("Red 4").order(4)
-    red4.save(true)
-    val white1 = Period.createRecord.name("White 1").order(7)
-    white1.save(true)
-    val white2 = Period.createRecord.name("White 2").order(8)
-    white2.save(true)
-    val white3 = Period.createRecord.name("White 3").order(9)
-    white3.save(true)
-    val white4 = Period.createRecord.name("White 4").order(10)
-    white4.save(true)
-    val redAct = Period.createRecord.name("Red Activity").order(5)
-    redAct.save(true)
-    val whiteAct = Period.createRecord.name("White Activity").order(11)
-    whiteAct.save(true)
-    val redAdv = Period.createRecord.name("Red Advisory").order(6)
-    redAdv.save(true)
-    val whiteAdv = Period.createRecord.name("White Advisory").order(12)
-    whiteAdv.save(true)
+    val acadYear = new AcademicYear("2011-12")
+    DataStore.pm.makePersistent(acadYear)
+    val fall2011 = new Term("Fall 2011", acadYear, new LocalDate(2011, 8, 17), new LocalDate(2012, 12, 16))
+    DataStore.pm.makePersistent(fall2011)
+    val spring2012 = new Term("Spring2012", acadYear, new LocalDate(2012, 1, 3), new LocalDate(2012, 5, 25))
+    DataStore.pm.makePersistent(spring2012)
+    val periods: List[Period] = List(
+        new Period("Red 1", 1), new Period("Red 2", 2), new Period("Red 3", 3), new Period("Red 4", 4),
+        new Period("Red Activity", 5), new Period("Red Advisory", 6),
+        new Period("White 1", 7), new Period("White 2", 8), new Period("White 3", 9), new Period("White 4", 10),
+        new Period("White Activity", 11), new Period("White Advisory", 12))
+    DataStore.pm.makePersistentAll(periods)
     if (debug) println("Created AcademicYear, Terms, and Periods")
+    DataStore.pm.commitTransaction()
   }
 
   def loadStudents(debug: Boolean) {
+    DataStore.pm.beginTransaction()
     val doc = XML.load(getClass.getResourceAsStream("/manual-data/Students.xml"))
     val students = doc \\ "student"
     students foreach ((student: Node) => {
@@ -81,7 +61,7 @@ object ManualData {
       val last = (student \ "@student.lastName").text
       val teamName = (student \ "@student.teamName").text
       val grade = (student \ "@student.grade").text.toInt
-      val gender = Gender((student \ "@student.gender").text)
+      val gender = if ((student \ "@student.gender").text == "F") Gender.FEMALE else Gender.MALE
       val username = netIdMap.getOrElse(studentNumber, studentNumber)
       if (debug) {
         println()
@@ -90,17 +70,19 @@ object ManualData {
         println("name: %s, magnet: %s, gender: %s".format(username, teamName, gender))
       }
        // create User
-      val user = User.createRecord.username(username).first(first).middle(middle).last(last).gender(gender)
-      user.save(true)
+      val user = new User(username, first, Some(middle), last, None, gender, null, "temp123")
+      DataStore.pm.makePersistent(user)
       if (debug) println("user saved")
       // create Student
-      val dbStudent = Student.createRecord.user(user.id.get).stateId(stateId).studentNumber(studentNumber).grade(grade).teamName(teamName)
-      dbStudent.save(true)
+      val dbStudent = new Student(user, stateId, studentNumber, grade, teamName)
+      DataStore.pm.makePersistent(dbStudent)
       if (debug) println("student saved")
     })
+    DataStore.pm.commitTransaction()
   }
 
   def loadTeachers(debug: Boolean) {
+    DataStore.pm.beginTransaction()
     val doc = XML.load(getClass.getResourceAsStream("/manual-data/Teachers.xml"))
     val teachers = doc \\ "person"
     teachers foreach ((teacher: Node) => {
@@ -108,7 +90,7 @@ object ManualData {
       val first = (teacher \ "@individual.firstName").text
       val middle = (teacher \ "@individual.middleName").text
       val last = (teacher \ "@individual.lastName").text
-      val gender = Gender((teacher \ "@individual.gender").text)
+      val gender = if ((teacher \ "@individual.gender").text == "F") Gender.FEMALE else Gender.MALE
       val personId = asIdNumber((teacher \ "@individual.personID").text)
       val stateId = asIdNumber((teacher \ "@individual.stateID").text)
       if (debug) {
@@ -117,16 +99,18 @@ object ManualData {
         println("#: %s, id: %s".format(personId, stateId))
         println("name: %s, gender: %s".format(username, gender))
       }
-      val user = User.createRecord.username(username).first(first).middle(middle).last(last).gender(gender)
-      user.save(true)
+      val user = new User(username, first, Some(middle), last, None, gender, null, "temp123")
+      DataStore.pm.makePersistent(user)
       if (debug) println("user saved")
-      val dbTeacher = Teacher.createRecord.user(user.id.get).personId(personId).stateId(stateId)
-      dbTeacher.save(true)
+      val dbTeacher = new Teacher(user, personId, stateId)
+      DataStore.pm.makePersistent(dbTeacher)
       if (debug) println("teacher saved")
     })
+    DataStore.pm.commitTransaction()
   }
 
   def loadCourses(debug: Boolean) {
+    DataStore.pm.beginTransaction()
     val doc = XML.load(getClass.getResourceAsStream("/manual-data/Courses.xml"))
     val courses = doc \\ "curriculum"
     courses foreach ((course: Node) => {
@@ -134,21 +118,23 @@ object ManualData {
       val masterNumber = asIdNumber((course \ "@courseInfo.courseMasterNumber").text)
       val dept = Department.getOrCreate((course \ "@courseInfo.departmentName").text)
       if (debug) println("%s, %s (%s)".format(name, masterNumber, dept))
-      val dbCourse = Course.createRecord.name(name).masterNumber(masterNumber).department(dept.id.get)
-      dbCourse.save(true)
+      val dbCourse = new Course(name, masterNumber, dept)
+      DataStore.pm.makePersistent(dbCourse)
     })
+    DataStore.pm.commitTransaction()
   }
 
   def loadSections(debug: Boolean) {
+    DataStore.pm.beginTransaction()
     val doc = XML.load(getClass.getResourceAsStream("/manual-data/Sections.xml"))
     val sections = doc \\ "curriculum"
-    val fall11 = (Term where (_.name eqs "Fall 2011") get ()).get
-    val spring12 = (Term where (_.name eqs "Spring 2012") get()).get
+    val fall11 = DataStore.pm.query[Term].filter(QTerm.candidate.name.eq("Fall 2011")).executeOption().get
+    val spring12 = DataStore.pm.query[Term].filter(QTerm.candidate.name.eq("Fall 2011")).executeOption().get
     sections foreach ((section: Node) => {
       val sectionId = (section \ "@sectionInfo.sectionID").text
       if (debug) println("Working on section: %s".format(sectionId))
       val courseMasterNumber = asIdNumber((section \ "@courseInfo.courseMasterNumber").text)
-      val course = Course.where(_.masterNumber eqs courseMasterNumber).get().get
+      val course = DataStore.pm.query[Course].filter(QCourse.candidate.masterNumber.eq(courseMasterNumber)).executeOption().get
       val roomNum = (section \ "@sectionInfo.roomName").text
       val room = Room.getOrCreate(roomNum)
       val termStart = (section \ "@sectionSchedule.termStart").text
@@ -163,45 +149,46 @@ object ManualData {
       val dayStart = (section \ "@sectionSchedule.scheduleStart").text
       val dayEnd = (section \ "@sectionSchedule.scheduleEnd").text
       val periods = periodNames(dayStart, dayEnd, periodStart, periodEnd) map ((p: String) => {
-        (Period where (_.name eqs p) get()).get
+        DataStore.pm.query[Period].filter(QPeriod.candidate.name.eq(p)).executeOption().get
       })
       val teacherPersonId = (section \ "@sectionInfo.teacherPersonID").text
-      val teacher = (Teacher where (_.personId eqs teacherPersonId) get()).get
-      val dbSection: Section = Section.createRecord.course(course.id.get)
-      dbSection.sectionId(sectionId).terms(terms.map(_.id.get))
-      dbSection.periods(periods.map(_.id.get)).room(room.id.get)
-      dbSection.save(true)
+      val teacher = DataStore.pm.query[Teacher].filter(QTeacher.candidate.personId.eq(teacherPersonId)).executeOption().get
+      val dbSection = new Section(course, sectionId, terms.toSet[Term], periods.toSet[Period], room)
+      DataStore.pm.makePersistent(dbSection)
       terms foreach ((term: Term) => {
-        val teacherAssignment = TeacherAssignment.createRecord.teacher(teacher.id.get).section(dbSection.id.get).term(term.id.get).startDate(Empty).endDate(Empty)
-        teacherAssignment.save(true)
+        val teacherAssignment = new TeacherAssignment(teacher, dbSection, term, null, null)
+        DataStore.pm.makePersistent(teacherAssignment)
       })
     })
+    DataStore.pm.commitTransaction()
   }
 
   def loadEnrollments(debug: Boolean) {
+    DataStore.pm.beginTransaction()
+	import scala.collection.JavaConversions.asScalaSet
     val doc = XML.load(getClass.getResourceAsStream("/manual-data/Schedule.xml"))
     val enrollments = doc \\ "student"
     enrollments foreach  ((enrollment: Node) => {
       val sectionId = asIdNumber((enrollment \ "@courseSection.sectionID").text)
-      val section = (Section where (_.sectionId eqs sectionId) get()).get
+      val section = DataStore.pm.query[Section].filter(QSection.candidate.sectionId.eq(sectionId)).executeOption().get
       val studentNumber = asIdNumber((enrollment \ "@student.studentNumber").text)
-      val student = (Student where (_.studentNumber eqs studentNumber) get()).get
+      val student = DataStore.pm.query[Student].filter(QStudent.candidate.studentNumber.eq(studentNumber)).executeOption().get
       if (debug) println("Adding student #%s to section #%s".format(studentNumber, sectionId))
-      val startDate = asDateBox((enrollment \ "@roster.startDate").text)
-      val endDate = asDateBox((enrollment \ "@roster.endDate").text)
-      section.terms.get foreach ((oid: ObjectId) => {
-        val term = Term.find(oid).get
-        val dbEnrollment = StudentEnrollment.createRecord.student(student.id.get).section(section.id.get).term(term.id.get).startDate(startDate).endDate(endDate)
-        dbEnrollment.save(true)
+      val startDate = asLocalDate((enrollment \ "@roster.startDate").text)
+      val endDate = asLocalDate((enrollment \ "@roster.endDate").text)
+      asScalaSet[Term](section.terms) foreach ((term: Term) => {
+        val dbEnrollment = new StudentEnrollment(student, section, term, startDate, endDate)
+        DataStore.pm.makePersistent(dbEnrollment)
       })
     })
+    DataStore.pm.commitTransaction()
   }
 
-  def asDateBox(date: String): Box[Date] = {
+  def asLocalDate(date: String): LocalDate = {
     val format = DateTimeFormat.forPattern("MM/dd/yyyy")
     date match {
-      case "" => Empty
-      case _ =>  Full(format.parseDateTime(date).toDate)
+      case "" => null
+      case _ =>  format.parseDateTime(date).toLocalDate
     }
   }
 
@@ -226,7 +213,8 @@ object ManualData {
   }
 
   def asIdNumber(s: String): String = {
-    s.replaceAll("^0+", "")
+    val num = s.replaceAll("^0+", "")
+    if (num.equals("")) null else num
   }
 
   def buildNetIdMap(): Map[String, String] = {

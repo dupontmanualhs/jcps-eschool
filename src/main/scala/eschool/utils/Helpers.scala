@@ -3,8 +3,17 @@ package eschool.utils
 import xml.NodeSeq
 import net.liftweb.http.{S, Templates, NotFoundResponse, ResponseShortcutException}
 import java.util.Locale
+import scala.xml.Node
+import scala.xml.Text
+import scala.xml.XML
 
 object Helpers {
+  def string2nodeSeq(legalNodeSeq: String): NodeSeq = {
+    // TODO: this just crashes if someone passes in malformed XML
+    val node = XML.loadString("<dummy>" + legalNodeSeq + "</dummy>")
+    NodeSeq.fromSeq(node.child);
+  }
+  
   def pluralizeInformal(num: Int, word: String): String = {
     val listNoChange = List("moose", "fish", "deer", "sheep", "means", "offspring", "series", "species")
     if (listNoChange.contains(word)){
@@ -129,4 +138,16 @@ object Helpers {
   }
 
   def getRawTemplate(path: List[String]): NodeSeq = getRawTemplate(path, S.locale)
+  
+  def mkNodeSeq(strs: List[String], sep: Node): NodeSeq = {
+    strs match {
+      case Nil => NodeSeq.Empty
+      case one :: Nil => Text(one)
+      case fst :: rst => Text(fst) ++ sep ++ mkNodeSeq(rst, sep)
+    }
+  }
+  
+  def intersperse[T](list: List[T], co: T): List[T] = {
+    list.foldRight[List[T]](Nil)((elem: T, ls: List[T]) => co :: elem :: ls).tail
+  }
 }

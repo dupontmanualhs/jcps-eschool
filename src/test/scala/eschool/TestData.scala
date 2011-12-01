@@ -1,13 +1,11 @@
 package eschool
 
 import scala.collection.JavaConversions.asScalaSet
-
 import bootstrap.liftweb.Boot
-
 import users.model.UserData
 import sites.model.SiteData
-import net.liftweb.mongodb.{DefaultMongoIdentifier, MongoDB}
-import com.mongodb.Mongo
+import bootstrap.liftweb.DataStore
+import java.io.File
 
 object TestData {
   def create() {
@@ -15,9 +13,11 @@ object TestData {
     dropAllData()
     UserData.create()
     SiteData.create()
+    DataStore.pm.close()
   }
 
   def dropAllData() {
-    new Mongo().dropDatabase("eschool") // TODO: parameter for db name
+    val db = new File("data.h2.db");
+    if (db.exists()) db.delete();
   }
 }

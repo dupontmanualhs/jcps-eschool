@@ -2,21 +2,22 @@ package eschool.users.snippet
 
 import net.liftweb.util._
 import Helpers._
-
-import eschool.users.model.User
+import eschool.users.model.{QUser, User}
+import bootstrap.liftweb.DataStore
 
 object UserTable {
   def render = ".userRow *" #> allUsers().map(renderUser(_))
 
   def renderUser(user: User) = {
-    ".last *" #> user.last.get &
-    ".first *" #> user.first.get &
-    ".middle *" #> user.middle.get.getOrElse("") &
-    ".preferred *" #> user.preferred.get.getOrElse("") &
-    ".username *" #> user.username.get
+    ".last *" #> user.last &
+    ".first *" #> user.first &
+    ".middle *" #> user.middle &
+    ".preferred *" #> user.preferred &
+    ".username *" #> user.username
   }
 
   def allUsers(): List[User] = {
-    User.findAll.sortWith((u1: User, u2: User) => u1.formalName.toLowerCase < u2.formalName.toLowerCase)
+    val cand = QUser.candidate
+    DataStore.pm.query[User].orderBy(cand.last.asc, cand.first.asc).executeList()
   }
 }

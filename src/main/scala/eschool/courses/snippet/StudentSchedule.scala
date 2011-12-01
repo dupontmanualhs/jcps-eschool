@@ -1,32 +1,32 @@
 package eschool.courses.snippet
 
-import com.foursquare.rogue.Rogue._
-
 import net.liftweb.util._
 import net.liftweb.util.Helpers._
-
 import eschool.users.model.Student
 import xml.NodeSeq
-import eschool.courses.model.{StudentEnrollment, Term, Section}
+import eschool.courses.model._
+import bootstrap.liftweb.DataStore
+import eschool.utils.Helpers.mkNodeSeq
 
 class StudentSchedule(student: Student) {
   // TODO: handle current term correctly
-  val assignments: List[StudentEnrollment] = StudentEnrollment where (_.student eqs student.id.get) and (_.term eqs Term.current.id.get) fetch
-  val sections: List[Section] = assignments.map(_.section.obj.open_!)
+  val assignments: List[StudentEnrollment] = {
+    val cand = QStudentEnrollment.candidate
+    DataStore.pm.query[StudentEnrollment].filter(cand.student.eq(student).and(cand.term.eq(Term.current))).executeList()
+  }
+  val sections: List[Section] = assignments.map(_.section)
+  val periods: List[Period] = DataStore.pm.query[Period].orderBy(QPeriod.candidate.order.asc).executeList()
+  
 
-  def sectionParts(section: Section): (NodeSeq => NodeSeq) = {
-    ".periods *" #> section.periodNames &
-    ".course *" #> section.course.obj.open_!.name.get &
-    ".room *" #> section.room.obj.open_!.name.get
+  def sectionsForPeriod(period: Period): (NodeSeq => NodeSeq) = {
+    val sectionsThisPeriod = sections.filter(_.periods.contains(period))
+    ".period *" #> period.name &
+    ".courses *" #> mkNodeSeq(sectionsThisPeriod.map(_.course.name), <br/>) &
+    ".rooms *" #> mkNodeSeq(sectionsThisPeriod.map(_.room.name), <br/>)
   }
 
-  /*def scheduleTitle() = <head_merge><title>{
-    "Schedule For " + student.user.obj.open_!.displayName
-  }</title></head_merge>
-  */
-
   def render = //".scheduleTitlePlaceholder" #> scheduleTitle() &
-      ".name" #> student.user.obj.open_!.displayName &
-      ".list *" #> sections.map(sectionParts(_))
+      ".name" #> student.user.displayName &
+      ".list *" #> periods.map(sectionsForPeriod(_))
 
 }

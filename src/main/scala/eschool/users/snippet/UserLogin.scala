@@ -20,6 +20,7 @@ object UserLogin extends LiftScreen {
   override def validations = authenticateUser _ +: super.validations
 
   def finish() {
-    user.get.open_!.login()
+    // user must be Full if we get here
+    User.login(user.get.open_!)
   }
 }

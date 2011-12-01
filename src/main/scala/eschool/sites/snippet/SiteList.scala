@@ -1,26 +1,24 @@
 package eschool.sites.snippet
 
 import net.liftweb.util.Helpers._
-
 import eschool.users.model.User
 import xml.NodeSeq
-import eschool.sites.model.Site
+import eschool.sites.model.{QSite, Site}
 import eschool.utils.Helpers._
-
-import com.foursquare.rogue.Rogue._
 import net.liftweb.http.S
 import net.liftweb.common.{Full, Box}
+import bootstrap.liftweb.DataStore
 
 class SiteList(user: User) {
   def render: (NodeSeq => NodeSeq) = {
     val currentUser_? : Boolean = User.getCurrent.isDefined &&
-        User.getCurrent.get.id.get == user.id.get
+        User.getCurrent.get.id == user.id
     val header: String = (if (currentUser_?) {
       "Your"
     } else {
       user.displayName + "'s"
     }) + " Sites"
-    val sites = Site where (_.owner eqs user.id.get) fetch()
+    val sites = DataStore.pm.query[Site].filter(QSite.candidate.owner.eq(user)).executeList()
     val userHasSites: String = (if (currentUser_?) "You have" else user.displayName + " has") +
       (if (sites.isEmpty) " no sites." else " the following " + pluralizeInformal(sites.length, "site") + ":")
     val listOfSites = if (sites.isEmpty) {

@@ -1,30 +1,38 @@
 package eschool.sites.snippet
 
+import scala.collection.JavaConversions._
+import scala.collection.immutable.ListMap
+
 import eschool.sites.model.{Page, Site}
 import eschool.users.model.User
 import net.liftweb.util.FieldError
-import com.foursquare.rogue.Rogue._
 import net.liftweb.common._
 import net.liftweb.http.S
 import xml._
 import eschool.utils.snippet.EditorScreen
+import bootstrap.liftweb.DataStore
 
 class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorScreen {
-  object currentUser extends ScreenVar[User](User.getCurrentOrRedirect())
+  object currentUser extends ScreenVar[User](User.getCurrentOrRedirect)
+  
   val (user: User, site: Site, maybePage: Option[Page]) = userSiteAndMaybePage
-  if (currentUser.id.get != user.id.get) {
+  println("user: " + user.toString)
+  println("site: " + site.toString)
+  println("page: " + maybePage.toString)
+  
+  if (currentUser.get.id != user.id) {
     S.error("You do not have permission to add a page to this site.")
     S.redirectTo(S.referer openOr "/index")
   }
+  
   val pathToParent: List[String] = maybePage match {
-    case Some(page) => "sites" :: page.getPath
-    case None => "sites" :: user.username.get :: site.ident.get :: Nil
+    case Some(page) => "sites" :: page.path()
+    case None => "sites" :: user.username :: site.ident :: Nil
   }
   val parent: Either[Site, Page] = maybePage match {
     case Some(page) => Right(page)
     case None => Left(site)
   }
-  object newPage extends ScreenVar[Page](Page.createRecord)
 
   val ident = text("Page Path: " + pathToParent.mkString("/", "/", "/"), "",
       validateIdent _,
@@ -35,11 +43,17 @@ class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorSc
   val content = mceTextarea("Content", "", 30, 80)
 
   def finish() {
-    newPage.ident(ident.get).name(name.get).content(XML.loadString("<dummy>" + content.get + "</dummy>").child).save(true)
+	val newPage: Page = new Page()
+	newPage.name = name.get
+    newPage.content = content.get
     parent match {
-      case Left(site) => site.pages(site.pages.get + (ident.get -> newPage.id.get)).save(true)
-      case Right(page) => page.pages(page.pages.get + (ident.get -> newPage.id.get)).save(true)
+      case Left(site: Site) => {
+        site.children = site.children :+ newPage
+      }
+      case Right(page: Page) => {
+    	page.children = page.children :+ newPage
+      }
     }
-
+    DataStore.pm.makePersistent(newPage)
   }
 }

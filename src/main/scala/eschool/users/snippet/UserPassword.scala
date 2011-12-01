@@ -6,7 +6,8 @@ import net.liftweb.http.{S, LiftScreen}
 import eschool.users.model.User
 import net.liftweb.util.FieldError
 import xml.Text
-import net.liftweb.mongodb.record.field._
+
+import bootstrap.liftweb.DataStore
 
 object UserPassword extends LiftScreen {
   object user extends ScreenVar[User](User.getCurrentOrRedirect())
@@ -28,8 +29,8 @@ object UserPassword extends LiftScreen {
   override def validations = checkNewPasswordsMatch _ +: super.validations
 
   def finish() {
-    user.password.set(new Password(newPswd.get, ""))
-    user.save(true)
+    user.password.set(newPswd.get)
+    DataStore.pm.makePersistent(user)
     Text("New password set.")
   }
 }

@@ -2,23 +2,24 @@ package eschool.users.snippet
 
 import net.liftweb.util._
 import Helpers._
-
-import eschool.users.model.User
+import eschool.users.model.{QUser, User}
 import xml.NodeSeq
+import bootstrap.liftweb.DataStore
 
 object ContactList {
-  def render = ".userRow *" #> allTeachers().map(renderUser(_))
+  def render = ".userRow *" #> allUsers().map(renderUser(_))
 
   def renderUser(user: User) = {
-    val email = user.email.get match {
-      case Some(address) => <a href={ "mailto:" + address }>{ address }</a>
-      case _ => NodeSeq.Empty
+    val email = user.email match {
+      case None => NodeSeq.Empty
+      case Some(address)  => <a href={ "mailto:" + address }>{ address }</a>
     }
     ".name *" #> user.formalName &
     ".email *" #> email
   }
 
-  def allTeachers(): List[User] = {
-    User.findAll.sortWith((u1: User, u2: User) => u1.formalName.toLowerCase < u2.formalName.toLowerCase)
+  def allUsers(): List[User] = {
+    val cand = QUser.candidate
+    DataStore.pm.query[User].orderBy(cand.last.asc, cand.first.asc, cand.middle.asc).executeList()
   }
 }
