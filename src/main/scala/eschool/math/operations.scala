@@ -149,7 +149,7 @@ class MathSum(expressions: List[MathExpression]) extends MathOperation(expressio
     override def simplify = MathSum(this.operationSimplifyExpressions(getSimplifiedExpressions(getExpressions)))
     override def binarySimplify(left: MathExpression, right: MathExpression): Option[MathExpression] = {                          //TODO: decide how to simplify decimals with fractions
         (left, right) match{
-            case (left: MathConstant, right: MathConstant) => left + right
+            case (left: MathConstant, right: MathConstant) => Some(left + right)
             case _ => None
         }
     }
