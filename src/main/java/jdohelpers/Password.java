@@ -2,7 +2,7 @@ package jdohelpers;
 
 import javax.jdo.annotations.*;
 
-@PersistenceCapable
+@PersistenceCapable(detachable="true")
 public class Password {
 	private String value;
 	
