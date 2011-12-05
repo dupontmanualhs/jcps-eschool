@@ -10,7 +10,7 @@ import xml.Text
 import bootstrap.liftweb.DataStore
 
 object UserPassword extends LiftScreen {
-  object user extends ScreenVar[User](User.getCurrentOrRedirect())
+  object user extends ScreenVar[User](DataStore.pm.detachCopy(User.getCurrentOrRedirect()))
   val currentPswd = password("Current Password", "", checkCurrentPassword _)
   val newPswd = password("New Password", "", valMinLen(5, "The new password must be at least 5 characters."))
   val reEnterPswd = password("Re-enter New Password", "")

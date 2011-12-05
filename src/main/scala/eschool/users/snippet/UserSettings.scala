@@ -11,7 +11,11 @@ object UserSettings extends LiftScreen {
   val email = field[String]("Email", user.email.getOrElse(""))
 
   def finish() {
-    user.get.preferred = Some(preferred.get)
+    if (preferred.get.trim == "") {
+      user.get.preferred = None
+    } else {
+      user.get.preferred = Some(preferred.get)
+    }
     user.get.email = email.get
     DataStore.pm.makePersistent(user.get)
   }
