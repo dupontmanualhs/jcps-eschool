@@ -26,7 +26,7 @@ object UserPassword extends LiftScreen {
     if (newPswd.get == reEnterPswd.get) Nil else Text("New passwords do not match.")
   }
 
-  override def validations = checkNewPasswordsMatch _ +: super.validations
+  override def validations = checkNewPasswordsMatch _ :: super.validations
 
   def finish() {
     user.get.password.set(newPswd.get)
