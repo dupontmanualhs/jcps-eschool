@@ -1,16 +1,18 @@
-package eschool.users.snippet
+ package eschool.users.snippet
 
 import net.liftweb.http.{S, LiftScreen}
 import eschool.utils.record.Helpers.toBox
 import eschool.users.model.User
+import bootstrap.liftweb.DataStore
 
 object UserSettings extends LiftScreen {
-  object user extends ScreenVar[User](User.getCurrentOrRedirect())
-  val preferred = field("Preferred", user.preferred)
-  val email = field[String]("Email", user.email.get)
+  object user extends ScreenVar[User](DataStore.pm.detachCopy(User.getCurrentOrRedirect()))
+  val preferred = field[String]("Preferred", user.preferred.getOrElse(""))
+  val email = field[String]("Email", user.email.getOrElse(""))
 
   def finish() {
-    user.preferred = preferred.get
-    user.email = email.get
+    user.get.preferred = Some(preferred.get)
+    user.get.email = email.get
+    DataStore.pm.makePersistent(user.get)
   }
 }
