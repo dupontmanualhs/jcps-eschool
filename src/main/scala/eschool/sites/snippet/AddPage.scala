@@ -2,7 +2,6 @@ package eschool.sites.snippet
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.ListMap
-
 import eschool.sites.model.{Page, Site}
 import eschool.users.model.User
 import net.liftweb.util.FieldError
@@ -12,13 +11,14 @@ import xml._
 import eschool.utils.snippet.EditorScreen
 import bootstrap.liftweb.DataStore
 
-class AddPage(userSiteAndMaybePage: (User, Site, Option[Page])) extends EditorScreen {
+case class UserSiteMaybePage(user: User, site: Site, maybePage: Option[Page]) {}
+
+class AddPage(userSiteAndMaybePage: UserSiteMaybePage) extends EditorScreen {
   object currentUser extends ScreenVar[User](User.getCurrentOrRedirect)
   
-  val (user: User, site: Site, maybePage: Option[Page]) = userSiteAndMaybePage
-  println("user: " + user.toString)
-  println("site: " + site.toString)
-  println("page: " + maybePage.toString)
+  val user = userSiteAndMaybePage.user
+  val site = userSiteAndMaybePage.site
+  val maybePage = userSiteAndMaybePage.maybePage
   
   if (currentUser.get.id != user.id) {
     S.error("You do not have permission to add a page to this site.")

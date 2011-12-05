@@ -9,7 +9,7 @@ import net.liftweb.http.S
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
 
-@PersistenceCapable
+@PersistenceCapable(detachable="true")
 class User {
   @PrimaryKey
   @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
@@ -24,9 +24,11 @@ class User {
   private[this] var _last: String = _
   private[this] var _preferred: String = _
   private[this] var _gender: Gender = _
+  @Persistent(defaultFetchGroup="true")
   @Embedded
   @Unique
   private[this] var _email: Email = _
+  @Persistent(defaultFetchGroup="true")
   @Embedded
   private[this] var _password: Password = _
   
@@ -63,7 +65,7 @@ class User {
   def gender: Gender = _gender
   def gender_=(theGender: Gender) { _gender = gender }
   
-  def email: Option[String] = if (_email == null) None else Some(_email.get)
+  def email: Option[String] = if (_email == null) None else Some(_email.value)
   def email_=(theEmail: Email) { _email = theEmail }
   def email_=(theEmail: Option[String]) {
     if (theEmail.isDefined) email = new Email(theEmail.get)
@@ -172,7 +174,7 @@ trait QUser extends PersistableExpression[User] {
 }
 
 object QUser {
-  def apply(parent: PersistableExpression[User], name: String, depth: Int) = {
+  def apply(parent: PersistableExpression[User], name: String, depth: Int): QUser = {
     new PersistableExpressionImpl[User](parent, name) with QUser
   }
   

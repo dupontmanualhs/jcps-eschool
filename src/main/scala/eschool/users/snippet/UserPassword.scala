@@ -29,7 +29,7 @@ object UserPassword extends LiftScreen {
   override def validations = checkNewPasswordsMatch _ +: super.validations
 
   def finish() {
-    user.password.set(newPswd.get)
+    user.password.value = newPswd.get
     DataStore.pm.makePersistent(user)
     Text("New password set.")
   }

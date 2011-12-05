@@ -4,6 +4,7 @@ import eschool.utils.Helpers.getTemplate
 import bootstrap.liftweb.DataStore
 import users.model.User
 import sites.model.{QSite, Site, Page}
+import sites.snippet.UserSiteMaybePage
 import net.liftweb.common.Box.option2Box
 
 import net.liftweb.sitemap.{*, **, Menu, ConvertableToMenu}
@@ -27,7 +28,7 @@ package object sites {
         parseUserSiteAndPage _, encodeUserSiteAndPage _) / "sites" / "edit" / * / * / * / ** >>
         Template(() => getTemplate(List("sites", "editPage"))) >>
         Hidden >> If(() => User.loggedIn_?, "You must be logged in to edit pages."),
-      Menu.params[(User, Site, Option[Page])]("Add Page", "Add Page",
+      Menu.params[UserSiteMaybePage]("Add Page", "Add Page",
         parseUserSiteAndMaybePage _, encodeUserSiteAndMaybePage _) / "sites" / "add" / * / * / ** >>
         Template(() => getTemplate(List("sites", "addPage"))) >>
         Hidden >> If(() => User.loggedIn_?, "You must be logged in to add pages.")),
@@ -87,27 +88,26 @@ package object sites {
     page.path()
   }
 
-  def parseUserSiteAndMaybePage(userSiteAndMaybePage: List[String]): Box[(User, Site, Option[Page])] = {
+  def parseUserSiteAndMaybePage(userSiteAndMaybePage: List[String]): Box[UserSiteMaybePage] = {
     userSiteAndMaybePage match {
       case username :: siteIdent :: pagePath => parseUserAndSite(List(username, siteIdent)) match {
         case Full((user, site)) => pagePath match {
-          case Nil => Full((user, site, None))
+          case Nil => Full(UserSiteMaybePage(user, site, None))
           case _ => Page.fromSiteAndPath(site, pagePath) match {
-            case Full(page) => Full((user, site, Some(page)))
+            case Full(page) => Full(UserSiteMaybePage(user, site, Some(page)))
             case _ => Failure("There is no page with the given path.")
           }
         }
-        case other => other.asInstanceOf[Box[(User, Site, Option[Page])]]
+        case other => other.asInstanceOf[Box[UserSiteMaybePage]]
       }
       case _ => Failure("How did this even match the pattern?")
     }
   }
 
-  def encodeUserSiteAndMaybePage(userSiteAndMaybePage: (User, Site, Option[Page])): List[String] = {
-    val (user: User, site: Site, maybePage: Option[Page]) = userSiteAndMaybePage
-    maybePage match {
-      case Some(page) => encodeUserSiteAndPage((user, site, page))
-      case None => encodeUserAndSite((user, site))
+  def encodeUserSiteAndMaybePage(userSiteAndMaybePage: UserSiteMaybePage): List[String] = {
+    userSiteAndMaybePage match {
+      case UserSiteMaybePage(user, site, Some(page)) => encodeUserSiteAndPage((user, site, page))
+      case UserSiteMaybePage(user, site, None) => encodeUserAndSite((user, site))
     }
   }
 }

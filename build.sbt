@@ -34,6 +34,7 @@ libraryDependencies ++= Seq(
   "org.datanucleus" % "datanucleus-core" % "3.0.3",
   "org.datanucleus" % "datanucleus-api-jdo" % "3.0.3",
   "org.datanucleus" % "datanucleus-enhancer" % "3.0.1",
+  "org.apache.ant" % "ant" % "[1.7, )",
   "org.datanucleus" % "datanucleus-jdo-query" % "3.0.1",
   "asm" % "asm" % "3.3.1",
   "javax.jdo" % "jdo-api" % "3.0",
@@ -46,6 +47,7 @@ libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.3.160"
 )
 
+//enhance <<= Enhancer.run()
 
 scalacOptions ++= Seq("-deprecation", "-unchecked") 
 
