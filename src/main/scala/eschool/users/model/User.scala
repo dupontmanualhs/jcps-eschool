@@ -9,7 +9,7 @@ import net.liftweb.http.S
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
 
-@PersistenceCapable
+@PersistenceCapable(detachable="true")
 class User {
   @PrimaryKey
   @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
@@ -24,9 +24,11 @@ class User {
   private[this] var _last: String = _
   private[this] var _preferred: String = _
   private[this] var _gender: Gender = _
+  @Persistent(defaultFetchGroup="true")
   @Embedded
   @Unique
   private[this] var _email: Email = _
+  @Persistent(defaultFetchGroup="true")
   @Embedded
   private[this] var _password: Password = _
   
