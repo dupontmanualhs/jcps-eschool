@@ -47,8 +47,6 @@ libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.3.160"
 )
 
-//enhance <<= Enhancer.run()
-
 scalacOptions ++= Seq("-deprecation", "-unchecked") 
 
 compileOrder := CompileOrder.JavaThenScala
