@@ -10,7 +10,7 @@ import xml.Text
 import bootstrap.liftweb.DataStore
 
 object UserPassword extends LiftScreen {
-  object user extends ScreenVar[User](User.getCurrentOrRedirect())
+  object user extends ScreenVar[User](DataStore.pm.detachCopy(User.getCurrentOrRedirect()))
   val currentPswd = password("Current Password", "", checkCurrentPassword _)
   val newPswd = password("New Password", "", valMinLen(5, "The new password must be at least 5 characters."))
   val reEnterPswd = password("Re-enter New Password", "")
@@ -26,7 +26,7 @@ object UserPassword extends LiftScreen {
     if (newPswd.get == reEnterPswd.get) Nil else Text("New passwords do not match.")
   }
 
-  override def validations = checkNewPasswordsMatch _ +: super.validations
+  override def validations = checkNewPasswordsMatch _ :: super.validations
 
   def finish() {
     user.password.value = newPswd.get
