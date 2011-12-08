@@ -25,7 +25,10 @@ class MultChoiceAnswer(val text: NodeSeq, val isCorrect: Boolean) {
   }
   
   def asEditRow(guid: String, index: Int): NodeSeq = {
-    <tr><td></td></tr>
+    <tr>
+      <td><label for={ guid + "ans" + index }>Answer { index.toString }</label></td>
+      <td><textarea name={ guid + "ans" + index }>{ text }</textarea></td>
+    </tr>
   }
 }
 
@@ -54,10 +57,15 @@ class MultChoice(
   
   def toEdit(guid: String) {
     <table>
-    <tr><td><label for={ guid + "text" }>Text</label></td><td><textarea name={ guid + "text" }>{ text }</textarea></td></tr>
+    <tr>
+      <td><label for={ guid + "text" }>Text</label></td>
+      <td><textarea name={ guid + "text" }>{ text }</textarea></td>
+    </tr>
     { answers.zipWithIndex.flatMap { case (ans, index) => ans.asEditRow(guid, index) } }
-    <tr><td><label for={ guid + "expl" }>Explanation</label></td>
-        <td><textarea name={ guid + "expl" }>{ explanation }</textarea></td></tr>
+    <tr>
+      <td><label for={ guid + "expl" }>Explanation</label></td>
+      <td><textarea name={ guid + "expl" }>{ explanation }</textarea></td>
+    </tr>
     </table>
   }
 }
