@@ -10,7 +10,7 @@ import net.liftweb.http.{S, LiftScreen}
 import xml.Text
 
 object CreateSite extends LiftScreen {
-  object user extends ScreenVar[User](User.getCurrentOrRedirect())
+  object user extends ScreenVar[User](DataStore.pm.detachCopy(User.getCurrentOrRedirect()))
   val name = text("Site Name", "",
       valMinLen(1, "Name must be at least one character."),
       valMaxLen(80, "Name must be no more than 80 characters."),
@@ -39,7 +39,10 @@ object CreateSite extends LiftScreen {
   //override def validations =  uniqueName _ :: uniqueIdent _ :: super.validations
 
   def finish() {
-    val newSite = new Site(user.get, name.get, path.get)
+    val dbUser = DataStore.pm.makePersistent(user.get)
+    println(dbUser)
+    val newSite = new Site(dbUser, name.get, path.get)
+    println(newSite)
     DataStore.pm.makePersistent(newSite)
     S.redirectTo("/sites")
   }

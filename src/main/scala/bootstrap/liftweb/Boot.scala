@@ -12,12 +12,16 @@ import net.liftweb.db.StandardDBVendor
 import net.liftweb.util.Props
 import net.liftweb.db.DefaultConnectionIdentifier
 
+import org.apache.log4j.BasicConfigurator
+
 /**
  * A class that's instantiated early and run.  It allows the application
  * to modify lift's environment
  */
 class Boot {
-  def boot() {    
+  def boot() {
+    //BasicConfigurator.configure()
+    
     // where to search snippet
     LiftRules.addToPackages("eschool.sites")
     LiftRules.addToPackages("eschool.users")
