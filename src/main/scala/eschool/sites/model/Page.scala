@@ -10,6 +10,9 @@ import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
 @PersistenceCapable
+@Uniques(Array(
+  new Unique(members=Array("parentSite", "ident")), 
+  new Unique(members=Array("parentPage", "ident"))))
 class Page {
   @PrimaryKey
   @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)

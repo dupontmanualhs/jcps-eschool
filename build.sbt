@@ -31,6 +31,7 @@ libraryDependencies ++= {
 
 // JDO dependencies
 libraryDependencies ++= Seq(
+  "log4j" % "log4j" % "1.2.16",
   "org.datanucleus" % "datanucleus-core" % "3.0.3",
   "org.datanucleus" % "datanucleus-api-jdo" % "3.0.3",
   "org.datanucleus" % "datanucleus-enhancer" % "3.0.1",
