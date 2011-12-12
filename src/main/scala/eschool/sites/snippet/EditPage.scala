@@ -19,7 +19,7 @@ class EditPage(userSiteAndPage: (User, Site, Page)) extends EditorScreen {
 
   val name = text("Page Name", page.name,
       validatePage _,
-      (s: String) => boxStrToListFieldError(Page.uniqueName(page.parent, s)))
+      (s: String) => boxStrToListFieldError(Page.uniqueName(page.parent, s, Some(page))))
   val content = mceTextarea("Content", page.content.toString, 30, 80)
 
   def finish() {

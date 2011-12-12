@@ -8,7 +8,7 @@ import org.datanucleus.api.jdo.query._
 
 import java.sql.Date
 
-@PersistenceCapable
+@PersistenceCapable(detachable="true")
 class TeacherAssignment {
   @PrimaryKey
   @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)

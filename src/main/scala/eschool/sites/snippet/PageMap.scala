@@ -24,6 +24,7 @@ class PageMap(userAndSite: (User, Site)) {
         <li><a href={ pathToPage }>{ page.name }</a>
           { if (currentUser_?) {
             <a href={ insertCommand(pathToPage, "edit") }>(edit)</a>
+            <a href={ insertCommand(pathToPage, "delete") }>(delete)</a>
           } else {
             NodeSeq.Empty
           } }

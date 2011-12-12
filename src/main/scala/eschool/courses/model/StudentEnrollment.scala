@@ -6,7 +6,7 @@ import eschool.users.model.Student
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
-@PersistenceCapable
+@PersistenceCapable(detachable="true")
 class StudentEnrollment {
   @PrimaryKey
   @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)

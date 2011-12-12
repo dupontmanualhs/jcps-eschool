@@ -6,7 +6,7 @@ import net.liftweb.common._
 import org.datanucleus.api.jdo.query._
 import org.datanucleus.query.typesafe._
 
-@PersistenceCapable
+@PersistenceCapable(detachable="true")
 class Student extends Perspective {
   @Unique
   private[this] var _stateId: String = _

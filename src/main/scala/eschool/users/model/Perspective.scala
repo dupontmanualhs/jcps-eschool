@@ -4,7 +4,7 @@ import javax.jdo.annotations._
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
-@PersistenceCapable
+@PersistenceCapable(detachable="true")
 @Inheritance(strategy=InheritanceStrategy.SUBCLASS_TABLE)
 class Perspective {
   @PrimaryKey

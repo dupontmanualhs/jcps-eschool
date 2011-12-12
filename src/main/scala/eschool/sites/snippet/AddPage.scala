@@ -14,7 +14,7 @@ import bootstrap.liftweb.DataStore
 case class UserSiteMaybePage(user: User, site: Site, maybePage: Option[Page]) {}
 
 class AddPage(userSiteAndMaybePage: UserSiteMaybePage) extends EditorScreen {
-  object currentUser extends ScreenVar[User](User.getCurrentOrRedirect)
+  object currentUser extends ScreenVar[User](User.getCurrentOrRedirect())
   
   val user = userSiteAndMaybePage.user
   val site = userSiteAndMaybePage.site
@@ -36,24 +36,24 @@ class AddPage(userSiteAndMaybePage: UserSiteMaybePage) extends EditorScreen {
 
   val ident = text("Page Path: " + pathToParent.mkString("/", "/", "/"), "",
       validateIdent _,
-      (s: String) => boxStrToListFieldError(Page.uniqueIdent(parent, s)))
+      (s: String) => boxStrToListFieldError(Page.uniqueIdent(parent, s, None)))
   val name = text("Page Name", "",
       validatePage _,
-      (s: String) => boxStrToListFieldError(Page.uniqueName(parent, s)))
+      (s: String) => boxStrToListFieldError(Page.uniqueName(parent, s, None)))
   val content = mceTextarea("Content", "", 30, 80)
 
   def finish() {
-	val newPage: Page = new Page()
-	newPage.name = name.get
-    newPage.content = content.get
+	val newPage: Page = new Page(ident.get, name.get, content.get)
     parent match {
       case Left(site: Site) => {
         site.children = site.children :+ newPage
+        DataStore.pm.makePersistent(site)
       }
       case Right(page: Page) => {
     	page.children = page.children :+ newPage
+    	DataStore.pm.makePersistent(page)
       }
     }
-    DataStore.pm.makePersistent(newPage)
+	DataStore.pm.makePersistent(newPage)
   }
 }

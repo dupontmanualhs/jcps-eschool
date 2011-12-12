@@ -2,3 +2,4 @@ datanucleus.ConnectionDriverName=org.h2.Driver
 datanucleus.ConnectionURL=jdbc:h2:data
 
 datanucleus.autoCreateSchema=true
+datanucleus.DetachAllOnCommit=true

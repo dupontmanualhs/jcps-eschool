@@ -10,7 +10,7 @@ import net.liftweb.http.{S, LiftScreen}
 import xml.Text
 
 object CreateSite extends LiftScreen {
-  object user extends ScreenVar[User](DataStore.pm.detachCopy(User.getCurrentOrRedirect()))
+  object user extends ScreenVar[User](User.getCurrentOrRedirect())
   val name = text("Site Name", "",
       valMinLen(1, "Name must be at least one character."),
       valMaxLen(80, "Name must be no more than 80 characters."),

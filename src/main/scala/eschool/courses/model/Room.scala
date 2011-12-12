@@ -6,7 +6,7 @@ import org.datanucleus.api.jdo.query._
 
 import bootstrap.liftweb.DataStore
 
-@PersistenceCapable
+@PersistenceCapable(detachable="true")
 class Room {
   @PrimaryKey
   @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)

@@ -9,37 +9,48 @@ import eschool.utils.Helpers.string2nodeSeq
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
-@PersistenceCapable
+@PersistenceCapable(detachable="true")
 @Uniques(Array(
-  new Unique(members=Array("parentSite", "ident")), 
-  new Unique(members=Array("parentPage", "ident"))))
+  new Unique(members=Array("_parentSite", "_ident")), 
+  new Unique(members=Array("_parentPage", "_ident"))))
 class Page {
   @PrimaryKey
   @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
   private[this] var _id: Long = _
+  @Persistent(defaultFetchGroup="true")
+  @Column(allowsNull="true")
   private[this] var _parentSite: Site = _
+  @Persistent(defaultFetchGroup="true")
+  @Column(allowsNull="true")
   private[this] var _parentPage: Page = _
   private[this] var _ident: String = _
   private[this] var _name: String = _
   private[this] var _content: String = _
   @Join
+  @Persistent(defaultFetchGroup="true")
   private[this] var _children: java.util.List[Page] = _
   
-  def this(name: String) = {
+  def this(ident: String, name: String, content: NodeSeq) = {
     this()
-    _name = name
+    ident_=(ident)
+    name_=(name)
+    content_=(content)
+  }
+  
+  def this(ident: String, name: String, content: String) = {
+    this(ident, name, string2nodeSeq(content))
   }
 
   def id: Long = _id
 
-  protected[model] def parentSite: Option[Site] = if (_parentSite == null) Empty else Full(_parentSite)
+  protected[model] def parentSite: Option[Site] = if (_parentSite == null) None else Some(_parentSite)
   protected[model] def parentSite_=(maybeSite: Option[Site]) { 
     if (maybeSite.isEmpty) _parentSite = null
     else _parentSite = maybeSite.get 
   }
   protected[model] def parentSite_=(site: Site) { _parentSite = site }
   
-  protected[model] def parentPage: Option[Page] = if (_parentPage == null) Empty else Full(_parentPage)
+  protected[model] def parentPage: Option[Page] = if (_parentPage == null) None else Some(_parentPage)
   protected[model] def parentPage_=(maybePage: Option[Page]) { 
     if (maybePage.isEmpty) _parentPage = null
     else _parentPage = maybePage.get
@@ -101,10 +112,12 @@ object Page {
     }
   }
 
-  private def errorIfSome(badPage: Option[Page], problem: String): Box[String] = {
-    badPage match {
-      case Some(page) => Full("There is already a page with that %s.".format(problem))
-      case None => Empty
+  private def errorIfSome(badPage: Option[Page], problem: String, editPage: Option[Page]): Box[String] = {
+    val theError = Full("There is already a page with that %s.".format(problem))
+    (badPage, editPage) match {
+      case (Some(newPage), Some(oldPage)) => if (newPage.id != oldPage.id) theError else Empty
+      case (Some(page), None) => theError
+      case (None, _) => Empty
     }
   }
 
@@ -114,17 +127,16 @@ object Page {
    *   the given Site
    * returns Nil if okay, and an appropriate error, if not
    */
-  def uniqueIdent(parent: Either[Site, Page], possIdent: String): Box[String] = {
-    println(parent.toString + " " + possIdent)
+  def uniqueIdent(parent: Either[Site, Page], possIdent: String, editPage: Option[Page]): Box[String] = {
     val cand = QPage.candidate
     parent match {
       case Left(parentSite: Site) => {
-        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentSite.eq(parentSite)).filter(cand.ident.eq(possIdent)).executeOption()
-        errorIfSome(possPage, "identifier")
+        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentSite.eq(parentSite).and(cand.ident.eq(possIdent))).executeOption()
+        errorIfSome(possPage, "identifier", editPage)
       }
       case Right(parentPage: Page) => {
-        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentPage.eq(parentPage)).filter(cand.ident.eq(possIdent)).executeOption()
-        errorIfSome(possPage, "identifier")
+        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentPage.eq(parentPage).and(cand.ident.eq(possIdent))).executeOption()
+        errorIfSome(possPage, "identifier", editPage)
       }
     }
   }
@@ -135,16 +147,16 @@ object Page {
    *   the given Site
    * returns Nil if okay, and an appropriate error, if not
    */
-  def uniqueName(parent: Either[Site, Page], possName: String): Box[String] = {
+  def uniqueName(parent: Either[Site, Page], possName: String, editPage: Option[Page]): Box[String] = {
     val cand = QPage.candidate
     parent match {
       case Left(parentSite: Site) => {
-        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentSite.eq(parentSite)).filter(cand.name.eq(possName)).executeOption()
-        errorIfSome(possPage, "name")
+        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentSite.eq(parentSite).and(cand.name.eq(possName))).executeOption()
+        errorIfSome(possPage, "name", editPage)
       }
       case Right(parentPage: Page) => {
-        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentPage.eq(parentPage)).filter(cand.name.eq(possName)).executeOption()
-        errorIfSome(possPage, "name")
+        val possPage: Option[Page] = DataStore.pm.query[Page].filter(cand.parentPage.eq(parentPage).and(cand.name.eq(possName))).executeOption()
+        errorIfSome(possPage, "name", editPage)
       }
     }
   }

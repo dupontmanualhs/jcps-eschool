@@ -24,6 +24,10 @@ package object sites {
     Menu(siteLoc,
       Menu.i("Create Site") / "sites" / "createSite" >>
         Hidden >> If(() => User.loggedIn_?, "You must log in to create a new site."),
+      Menu.params[(User, Site, Page)]("Delete Page", "Delete Page",
+        parseUserSiteAndPage _, encodeUserSiteAndPage _) / "sites" / "del" / * / * / * / ** >>
+        Template(() => getTemplate(List("sites", "deletePage"))) >>
+        Hidden >> If(() => User.loggedIn_?, "You must be logged in to edit pages."),
       Menu.params[(User, Site, Page)]("Edit Page", "Edit Page",
         parseUserSiteAndPage _, encodeUserSiteAndPage _) / "sites" / "edit" / * / * / * / ** >>
         Template(() => getTemplate(List("sites", "editPage"))) >>

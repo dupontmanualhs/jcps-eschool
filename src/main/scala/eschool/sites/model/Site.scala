@@ -6,18 +6,20 @@ import eschool.users.model.User
 import org.datanucleus.query.typesafe._
 import org.datanucleus.api.jdo.query._
 
-@PersistenceCapable
+@PersistenceCapable(detachable="true")
 @Uniques(Array(
-  new Unique(members=Array("owner", "name")), 
-  new Unique(members=Array("owner", "ident"))))
+  new Unique(members=Array("_owner", "_name")), 
+  new Unique(members=Array("_owner", "_ident"))))
 class Site {
   @PrimaryKey
   @Persistent(valueStrategy=IdGeneratorStrategy.INCREMENT)
   private[this] var _id: Long = _
+  @Persistent(defaultFetchGroup="true")
   private[this] var _owner: User = _
   private[this] var _name: String = _
   private[this] var _ident: String = _
   @Join
+  @Persistent(defaultFetchGroup="true")
   private[this] var _children: java.util.List[Page] = _
   
   def this(owner: User, name: String, ident: String) = {
