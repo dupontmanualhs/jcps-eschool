@@ -1,4 +1,4 @@
-package eschool.sites.model
+/*package eschool.sites.model
 
 import eschool.users.model.User
 import collection.immutable.ListMap
@@ -106,4 +106,4 @@ object SiteData {
     DataStore.pm.makePersistent(marysSite)
     DataStore.pm.commitTransaction()
   }
-}
+}*/

@@ -1,4 +1,4 @@
-package eschool
+/*package eschool
 
 import scala.collection.JavaConversions.asScalaSet
 import bootstrap.liftweb.Boot
@@ -20,4 +20,4 @@ object TestData {
     val db = new File("data.h2.db");
     if (db.exists()) db.delete();
   }
-}
+}*/
