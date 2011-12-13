@@ -6,9 +6,11 @@ import scala.xml.UnprefixedAttribute
 
 abstract class Widget(
     val attrs: Map[String, String] = Map(),
-    val hidden_? : Boolean = false,
-    val needsMultipartForm_? : Boolean = false,
-    val required_? : Boolean = false) {
+    val isRequired: Boolean = false) {
+
+  def isHidden: Boolean = false
+
+  def needsMultipartForm: Boolean = false
 
   def render(name: String, value: Option[String], attrList: Map[String, String] = Map()): NodeSeq
 }

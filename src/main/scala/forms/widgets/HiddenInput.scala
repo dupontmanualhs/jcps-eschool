@@ -2,8 +2,10 @@ package forms.widgets
 
 class HiddenInput(
     attrs: Map[String, String] = Map(),
-    needsMultipartForm_? : Boolean = false,
-    required_? : Boolean = false) 
-    extends Input(attrs, hidden_? = true, needsMultipartForm_?, required_?) {
-  def inputType(): String = "hidden"
+    isRequired: Boolean = false) 
+    extends Input(attrs, isRequired) {
+  
+  override def isHidden: Boolean = true
+  
+  def inputType: String = "hidden"
 }
